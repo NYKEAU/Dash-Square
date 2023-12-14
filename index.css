@@ -1,0 +1,19 @@
+/* CSS pour masquer les barres de défilement */
+body {
+    overflow: hidden;
+    /* Empêche le défilement de la page */
+    margin: 0;
+    /* Supprime la marge par défaut du body */
+    padding: 0;
+    /* Supprime le padding par défaut du body */
+}
+
+/* CSS pour centrer le canevas */
+#gameCanvas {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid black;
+    /* Ajoute une bordure pour visualiser le canevas */
+}
