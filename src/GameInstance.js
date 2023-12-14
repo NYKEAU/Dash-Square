@@ -1,10 +1,8 @@
-// Importer les classes Player et Enemy depuis les fichiers player.js et enemy.js
 import { Player } from './player.js';
 import { Enemy } from './enemy.js';
-import { Projectile } from './projectile.js';
 
 // Définir la classe GameInstance
-export class GameInstance {
+export class gameInstance {
     // Définir le constructeur de la classe
     constructor(canvas) {
         // Initialiser les propriétés de l'instance de jeu
@@ -19,9 +17,9 @@ export class GameInstance {
         this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         this.addEnemy(); // Ajouter un premier ennemi
+        this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = setInterval(() => this.addEnemy(), 5000); // Ajouter un nouvel ennemi toutes les 5 secondes
         this.player = new Player(this.mapWidth / 2, this.mapHeight / 2);
-        this.projectiles = [];
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -48,19 +46,14 @@ export class GameInstance {
     // Méthode pour lancer le jeu
     start() {
         // Appeler les méthodes de mise à jour et de dessin du jeu
-        this.update();
         this.draw();
-        this.shootProjectile();
+        this.update();
     }
 
-    // Tirer un projectile toutes les 2 secondes
-    shootProjectile() {
+    // Ajoutez cette fonction à la classe GameInstance
+    logPlayerPosition() {
         setInterval(() => {
-            const projectile = this.player.shoot(this.enemies);
-            if (projectile) {
-                this.projectiles.push(projectile);
-            }
-            console.log(this.enemies);
+            console.log('Player position:', this.player.x, this.player.y);
         }, 2000);
     }
 
@@ -76,22 +69,6 @@ export class GameInstance {
 
         // Appeler la méthode de vérification des collisions entre les ennemis
         this.checkEnemyCollisions();
-
-        // Déplacer et dessiner chaque projectile
-        for (let i = 0; i < this.projectiles.length; i++) {
-            this.projectiles[i].move();
-            this.projectiles[i].draw(this.context);
-        }
-
-        for (let i = 0; i < this.projectiles.length; i++) {
-            for (let j = 0; j < this.enemies.length; j++) {
-                if (this.projectiles[i].collidesWith(this.enemies[j])) {
-                    // Supprimer l'ennemi
-                    this.enemies.splice(j, 1);
-                    break;
-                }
-            }
-        }
 
         // Autres mises à jour du jeu...
         // ...

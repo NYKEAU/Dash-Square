@@ -1,4 +1,3 @@
-// Définir la classe Enemy
 export class Enemy {
     // Définir le constructeur de la classe
     constructor(player, mapWidth, mapHeight) {

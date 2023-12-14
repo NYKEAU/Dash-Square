@@ -1,6 +1,3 @@
-import { Projectile } from './projectile.js';
-
-// Définir la classe Player
 export class Player {
     // Définir le constructeur de la classe
     constructor(x, y) {
@@ -47,29 +44,6 @@ export class Player {
         }
         if (this.y > mapHeight - this.height) {
             this.y = mapHeight - this.height;
-        }
-    }
-
-    shoot(enemies) {
-        if (enemies.length > 0) {
-            // Trouver l'ennemi le plus proche
-            let closestEnemy = enemies[0];
-            let closestDistance = Math.hypot(this.x - closestEnemy.x, this.y - closestEnemy.y);
-
-            for (let i = 1; i < enemies.length; i++) {
-                const distance = Math.hypot(this.x - enemies[i].x, this.y - enemies[i].y);
-                if (distance < closestDistance) {
-                    closestEnemy = enemies[i];
-                    closestDistance = distance;
-                }
-            }
-
-            // Créer un nouveau projectile dirigé vers l'ennemi le plus proche
-            const projectileX = this.x + this.width / 2 - 2.5; // 2.5 est la moitié de la largeur du projectile
-            const projectileY = this.y + this.height / 2 - 2.5; // 2.5 est la moitié de la hauteur du projectile
-            const projectile = new Projectile(projectileX, projectileY, 0.5, closestEnemy.x, closestEnemy.y);
-            console.log(closestEnemy);
-            return projectile;
         }
     }
 }
