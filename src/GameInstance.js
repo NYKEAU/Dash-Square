@@ -37,7 +37,7 @@ export class gameInstance {
     // Méthode pour ajouter un nouvel ennemi
     addEnemy() {
         // Créer une nouvelle instance d'ennemi à partir de la classe Enemy
-        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight);
+        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, 100, 10);
 
         // Ajouter l'ennemi au tableau des ennemis
         this.enemies.push(enemy);
@@ -60,11 +60,25 @@ export class gameInstance {
     // Méthode pour mettre à jour le jeu
     update() {
         // Appeler la méthode de déplacement du joueur
-        this.player.move(this.keys, this.mapWidth, this.mapHeight);
+        this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
 
-        // Appeler la méthode de déplacement de chaque ennemi
-        for (let enemy of this.enemies) {
-            enemy.move(this.player);
+        // Mettre à jour la position et la santé de chaque ennemi
+        for (let i = 0; i < this.enemies.length; i++) {
+            const enemy = this.enemies[i];
+
+            // Si l'ennemi n'est pas en collision avec le joueur, mettre à jour sa position
+            if (!enemy.isCollidingWithPlayer(this.player)) {
+                enemy.move(this.player);
+            }
+
+            // Gérer la collision entre l'ennemi et le joueur
+            enemy.handleCollisionWithPlayer(this.player);
+
+            // Si l'ennemi est mort, le retirer de la liste des ennemis
+            if (enemy.isDead) {
+                this.enemies.splice(i, 1);
+                i--;
+            }
         }
 
         // Appeler la méthode de vérification des collisions entre les ennemis
@@ -96,6 +110,7 @@ export class gameInstance {
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
             enemy.draw(this.context, mapStartX, mapStartY);
+            enemy.drawHealthBar(this.context, mapStartX, mapStartY);
         }
 
         // Demander une nouvelle animation
@@ -109,6 +124,13 @@ export class gameInstance {
                 const dx = this.enemies[i].x - this.enemies[j].x;
                 const dy = this.enemies[i].y - this.enemies[j].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < this.enemies[i].width / 2 + this.player.width / 2) {
+                    // Handle collisions and inflict damage to the player based on enemy damage
+                    this.enemies[i].inflictDamageToPlayer(this.player);
+
+                    // Additional logic can be added, such as removing dead enemies or players
+                }
 
                 if (distance < this.enemies[i].width / 2 + this.enemies[j].width / 2) {
                     // Les ennemis se chevauchent, les faire rebondir dans des directions opposées

@@ -1,25 +1,65 @@
 export class Enemy {
     // Définir le constructeur de la classe
-    constructor(player, mapWidth, mapHeight) {
-        // Initialiser les propriétés de l'ennemi
+    constructor(player, mapWidth, mapHeight, baseHealth, damage) {
         this.width = 20; // La largeur de l'ennemi
         this.height = 20; // La hauteur de l'ennemi
         this.speed = 2.5; // La vitesse de déplacement de l'ennemi
-        // Générer une position aléatoire de l'ennemi par rapport au joueur
         const initialPosition = this.generateRandomPosition(player, mapWidth, mapHeight);
         this.x = initialPosition.x; // La position x de l'ennemi
         this.y = initialPosition.y; // La position y de l'ennemi
+        this.health = baseHealth; // Santé initiale de l'ennemi
+        this.baseHealth = baseHealth; // Santé de base de l'ennemi
+        this.damage = damage; // Les dégâts de l'ennemi
+        this.lastDamageTime = 0; // Le dernier moment où l'ennemi a subi des dégâts
     }
 
     // Méthode pour dessiner l'ennemi
     draw(context, mapStartX, mapStartY) {
+        // Si l'ennemi est mort, ne pas le dessiner
+        if (this.isDead) {
+            return;
+        }
+
         // Remplir un rectangle de couleur verte à la position x et y
         context.fillStyle = 'green';
         context.fillRect(mapStartX + this.x, mapStartY + this.y, this.width, this.height);
     }
 
+    // Méthode pour dessiner la barre de vie
+    drawHealthBar(context, mapStartX, mapStartY) {
+        // Si l'ennemi est mort, ne pas dessiner la barre de vie
+        if (this.isDead) {
+            return;
+        }
+
+        const barHeight = 5; // Hauteur de la barre de vie
+        const barY = mapStartY + this.y - this.height / 2 - 10; // Position y de la barre de vie au-dessus de l'ennemi
+
+        // La largeur de la barre de vie est égale à la santé de base de l'ennemi
+        const barWidth = this.baseHealth;
+
+        // La largeur de la barre de santé est égale à la santé actuelle de l'ennemi
+        const healthBarWidth = this.health;
+
+        // Ajustez la position x de la barre de vie pour la centrer
+        const barX = mapStartX + this.x + this.width / 2 - barWidth / 2; // Position x de la barre de vie centrée sur l'ennemi
+
+        // Dessinez le contour de la barre de vie
+        context.strokeStyle = 'black';
+        context.strokeRect(barX, barY, barWidth, barHeight);
+
+        // Remplissez l'intérieur de la barre de vie en rouge
+        context.fillStyle = 'red';
+        context.fillRect(barX, barY, healthBarWidth, barHeight);
+    }
+
     // Méthode pour déplacer l'ennemi
     move(player) {
+        // Si l'ennemi est en collision avec le joueur, ne pas se déplacer
+        if (this.isCollidingWithPlayer(player)) {
+            return;
+        }
+
         // Calculer la distance et la direction entre l'ennemi et le joueur
         const dx = player.x - this.x;
         const dy = player.y - this.y;
@@ -33,6 +73,57 @@ export class Enemy {
             this.x += moveX * this.speed;
             this.y += moveY * this.speed;
         }
+    }
+
+    // Méthode pour gérer la collision avec le joueur
+    handleCollisionWithPlayer(player) {
+        // Si l'ennemi est en collision avec le joueur
+        if (this.isCollidingWithPlayer(player)) {
+            // Obtenir le temps actuel
+            const currentTime = Date.now();
+
+            // Si suffisamment de temps s'est écoulé depuis la dernière fois que l'ennemi a subi des dégâts
+            if (currentTime - this.lastDamageTime >= 1000) { // 1000 millisecondes = 1 seconde
+                // Infliger des dégâts au joueur
+                this.inflictDamageToPlayer(player);
+
+                // Réduire la santé de l'ennemi
+                this.decreaseHealth(player.damage);
+                console.log(player.damage, ' damage inflicted to enemy');
+
+                // Mettre à jour la dernière fois que l'ennemi a subi des dégâts
+                this.lastDamageTime = currentTime;
+            }
+        }
+    }
+
+    // Méthode pour vérifier si l'ennemi est en collision avec le joueur
+    isCollidingWithPlayer(player) {
+        // Calculer la distance entre l'ennemi et le joueur
+        const dx = player.x - this.x;
+        const dy = player.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Si la distance est inférieure ou égale à la somme des rayons de l'ennemi et du joueur, ils sont en collision
+        return distance <= this.width / 2 + player.width / 2;
+    }
+
+    // Méthode pour réduire la santé de l'ennemi
+    decreaseHealth(amount) {
+        this.health -= amount;
+        console.log('Enemy health:', this.health);
+
+        // Si la santé de l'ennemi est inférieure ou égale à 0, marquer l'ennemi comme mort
+        if (this.health <= 0) {
+            this.health = 0;
+            this.isDead = true;
+        }
+    }
+
+    // Méthode pour infliger des dégâts au joueur
+    inflictDamageToPlayer(player) {
+        player.decreaseHealth(this.damage);
+        this.health -= this.damage;
     }
 
     // Méthode pour générer une position aléatoire de l'ennemi par rapport au joueur
