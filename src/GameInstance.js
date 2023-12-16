@@ -107,6 +107,9 @@ export class gameInstance {
         // Dessiner le joueur au milieu de l'écran
         this.player.draw(this.context, this.canvas.width / 2 - this.player.width / 2, this.canvas.height / 2 - this.player.height / 2);
 
+        // Dessiner la barre de vie du joueur
+        this.player.drawHealthBar(this.context);
+
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
             enemy.draw(this.context, mapStartX, mapStartY);
@@ -124,13 +127,6 @@ export class gameInstance {
                 const dx = this.enemies[i].x - this.enemies[j].x;
                 const dy = this.enemies[i].y - this.enemies[j].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < this.enemies[i].width / 2 + this.player.width / 2) {
-                    // Handle collisions and inflict damage to the player based on enemy damage
-                    this.enemies[i].inflictDamageToPlayer(this.player);
-
-                    // Additional logic can be added, such as removing dead enemies or players
-                }
 
                 if (distance < this.enemies[i].width / 2 + this.enemies[j].width / 2) {
                     // Les ennemis se chevauchent, les faire rebondir dans des directions opposées

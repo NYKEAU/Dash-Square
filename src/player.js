@@ -7,7 +7,8 @@ export class Player {
         this.width = 30; // La largeur du joueur
         this.height = 30; // La hauteur du joueur
         this.speed = 10; // La vitesse de déplacement du joueur
-        this.health = 100; // La santé du joueur
+        this.health = 1000; // La santé du joueur
+        this.maxHealth = this.health; // La santé maximale du joueur
         this.damage = 10; // Les dégâts du joueur
     }
 
@@ -16,6 +17,34 @@ export class Player {
         // Remplir un rectangle de couleur rouge à la position x et y
         context.fillStyle = 'red';
         context.fillRect(x, y, this.width, this.height);
+    }
+
+    // Méthode pour dessiner la barre de vie du joueur
+    drawHealthBar(context) {
+        const barWidth = this.health; // La largeur de la barre de vie est égale à la santé du joueur
+        const barHeight = 25; // La hauteur de la barre de vie
+        const barX = 10; // La position x de la barre de vie (10 pixels depuis le bord gauche de l'écran)
+        const barY = 10; // La position y de la barre de vie (10 pixels depuis le haut de l'écran)
+
+        // Dessiner le contour de la barre de vie
+        context.strokeStyle = 'black';
+        context.strokeRect(barX, barY, this.maxHealth, barHeight); // La largeur du contour est toujours de 100 pixels, indépendamment de la santé du joueur
+
+        // Remplir l'intérieur de la barre de vie en rouge
+        context.fillStyle = 'red';
+        context.fillRect(barX, barY, barWidth, barHeight);
+
+        // Préparer le texte
+        const healthText = this.health + '/' + this.maxHealth;
+        const textWidth = context.measureText(healthText).width;
+
+        // Calculer la position x du texte
+        const textX = Math.max(barX + barWidth - textWidth - 5, barX + 5);
+
+        // Dessiner le nombre de points de vie dans la barre de vie
+        context.fillStyle = 'black'; // Couleur du texte
+        context.font = '16px Arial'; // Taille et police du texte
+        context.fillText(healthText, textX, barY + 17.5); // Position du texte
     }
 
     // Méthode pour déplacer le joueur
@@ -28,23 +57,6 @@ export class Player {
         if (keys['ArrowDown'] || keys['s']) newY += this.speed;
         if (keys['ArrowLeft'] || keys['a']) newX -= this.speed;
         if (keys['ArrowRight'] || keys['d']) newX += this.speed;
-
-        // Vérifier les collisions avec les ennemis
-        for (let enemy of enemies) {
-            const dx = newX - enemy.x;
-            const dy = newY - enemy.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < this.width / 2 + enemy.width / 2) {
-                // Le joueur est en collision avec l'ennemi, repousser l'ennemi
-                const angle = Math.atan2(dy, dx);
-                const sin = Math.sin(angle);
-                const cos = Math.cos(angle);
-
-                enemy.x -= this.speed * cos;
-                enemy.y -= this.speed * sin;
-            }
-        }
 
         // Vérifier si le joueur est à l'intérieur de la zone de jeu
         this.x = Math.max(0, Math.min(mapWidth - this.width, newX));

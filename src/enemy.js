@@ -99,13 +99,23 @@ export class Enemy {
 
     // Méthode pour vérifier si l'ennemi est en collision avec le joueur
     isCollidingWithPlayer(player) {
-        // Calculer la distance entre l'ennemi et le joueur
-        const dx = player.x - this.x;
-        const dy = player.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        // Vérifier si le coin supérieur gauche, le coin supérieur droit, le coin inférieur gauche ou le coin inférieur droit de l'ennemi est à l'intérieur du joueur
+        return (
+            this.isPointInsidePlayer(player, this.x, this.y) ||
+            this.isPointInsidePlayer(player, this.x + this.width, this.y) ||
+            this.isPointInsidePlayer(player, this.x, this.y + this.height) ||
+            this.isPointInsidePlayer(player, this.x + this.width, this.y + this.height)
+        );
+    }
 
-        // Si la distance est inférieure ou égale à la somme des rayons de l'ennemi et du joueur, ils sont en collision
-        return distance <= this.width / 2 + player.width / 2;
+    // Méthode pour vérifier si un point est à l'intérieur du joueur
+    isPointInsidePlayer(player, x, y) {
+        return (
+            x >= player.x &&
+            x <= player.x + player.width &&
+            y >= player.y &&
+            y <= player.y + player.height
+        );
     }
 
     // Méthode pour réduire la santé de l'ennemi
