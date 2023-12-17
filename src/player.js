@@ -7,9 +7,12 @@ export class Player {
         this.width = 30; // La largeur du joueur
         this.height = 30; // La hauteur du joueur
         this.speed = 10; // La vitesse de déplacement du joueur
-        this.health = 1000; // La santé du joueur
+        this.health = 100; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
         this.damage = 10; // Les dégâts du joueur
+        this.experience = 0; // Ajouter cette ligne
+        this.maxExperience = 100; // Ajouter cette ligne
+        this.level = 1; // Ajouter cette ligne
     }
 
     // Méthode pour dessiner le joueur
@@ -45,6 +48,37 @@ export class Player {
         context.fillStyle = 'black'; // Couleur du texte
         context.font = '16px Arial'; // Taille et police du texte
         context.fillText(healthText, textX, barY + 17.5); // Position du texte
+    }
+
+    // Méthode pour dessiner la barre d'expérience du joueur
+    drawExperienceBar(context) {
+        // Sauvegarder l'état actuel du contexte
+        context.save();
+
+        const barWidth = (this.experience / this.maxExperience) * this.maxHealth; // La largeur de la barre d'expérience est proportionnelle à l'expérience du joueur
+        const barHeight = 10; // La hauteur de la barre d'expérience
+        const barX = 10; // La position x de la barre d'expérience (10 pixels depuis le bord gauche de l'écran)
+        const barY = 40; // La position y de la barre d'expérience (40 pixels depuis le haut de l'écran)
+
+        // Dessiner le contour de la barre d'expérience
+        context.strokeStyle = 'black';
+        context.strokeRect(barX, barY, this.maxHealth, barHeight); // La largeur du contour est maintenant égale à la santé maximale du joueur
+
+        // Remplir l'intérieur de la barre d'expérience en bleu
+        context.fillStyle = 'blue';
+        context.fillRect(barX, barY, barWidth, barHeight);
+
+        // Préparer le texte
+        const experienceText = this.experience + '/' + this.maxExperience;
+
+        // Dessiner l'expérience du joueur dans la barre d'expérience
+        context.fillStyle = 'black'; // Couleur du texte
+        context.font = '10px Arial'; // Taille et police du texte
+        context.textAlign = 'right'; // Aligner le texte à droite
+        context.fillText(experienceText, barX + this.maxHealth - 5, barY + 7.5); // Position du texte
+
+        // Restaurer l'état du contexte
+        context.restore();
     }
 
     // Méthode pour déplacer le joueur

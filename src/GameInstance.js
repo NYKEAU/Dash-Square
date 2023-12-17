@@ -18,8 +18,7 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         this.addEnemy(); // Ajouter un premier ennemi
         this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
-        this.addEnemyInterval = setInterval(() => this.addEnemy(), 5000); // Ajouter un nouvel ennemi toutes les 5 secondes
-        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2);
+        this.addEnemyInterval = setInterval(() => this.addEnemy(), 500); // Ajouter un nouvel ennemi toutes les 5 secondes
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -84,9 +83,6 @@ export class gameInstance {
         // Appeler la méthode de vérification des collisions entre les ennemis
         this.checkEnemyCollisions();
 
-        // Autres mises à jour du jeu...
-        // ...
-
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.update());
     }
@@ -107,14 +103,15 @@ export class gameInstance {
         // Dessiner le joueur au milieu de l'écran
         this.player.draw(this.context, this.canvas.width / 2 - this.player.width / 2, this.canvas.height / 2 - this.player.height / 2);
 
-        // Dessiner la barre de vie du joueur
-        this.player.drawHealthBar(this.context);
-
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
             enemy.draw(this.context, mapStartX, mapStartY);
             enemy.drawHealthBar(this.context, mapStartX, mapStartY);
         }
+
+        // Dessiner l'ATH
+        this.player.drawHealthBar(this.context);
+        this.player.drawExperienceBar(this.context);
 
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.draw());
