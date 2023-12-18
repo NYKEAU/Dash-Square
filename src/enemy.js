@@ -14,6 +14,7 @@ export class Enemy {
         this.damage = damage; // Les dégâts de l'ennemi
         this.lastDamageTime = 0; // Le dernier moment où l'ennemi a subi des dégâts
         this.hitEffects = []; // Tableau des hitmarkers
+        this.lastAttackTime = 0; // Le dernier moment où l'ennemi a attaqué
     }
 
     // Méthode pour dessiner l'ennemi
@@ -78,11 +79,6 @@ export class Enemy {
         }
     }
 
-    // Méthode pour gérer les dégâts infligés à l'ennemi
-    hit(x, y, damage) {
-        this.hitEffects.push(new HitEffect(x, y, damage));
-    }
-
     // Méthode pour gérer la collision avec le joueur
     handleCollisionWithPlayer(player) {
         // Si l'ennemi est en collision avec le joueur
@@ -90,19 +86,13 @@ export class Enemy {
             // Obtenir le temps actuel
             const currentTime = Date.now();
 
-            // Si suffisamment de temps s'est écoulé depuis la dernière fois que l'ennemi a subi des dégâts
-            if (currentTime - this.lastDamageTime >= 1000) { // 1000 millisecondes = 1 seconde
+            // Si suffisamment de temps s'est écoulé depuis la dernière fois que l'ennemi a infligé des dégâts
+            if (currentTime - this.lastAttackTime >= 1000) { // 1000 millisecondes = 1 seconde
                 // Infliger des dégâts au joueur
-                this.inflictDamageToPlayer(player);
+                player.decreaseHealth(this.damage);
 
-                // Réduire la santé de l'ennemi
-                this.decreaseHealth(player.damage);
-
-                // Ajouter un effet de "hit" sur le joueur
-                player.hit(this.x + this.width / 2, this.y + this.height / 2, this.damage);
-
-                // Mettre à jour la dernière fois que l'ennemi a subi des dégâts
-                this.lastDamageTime = currentTime;
+                // Mettre à jour la dernière fois que l'ennemi a attaqué
+                this.lastAttackTime = currentTime;
             }
         }
     }
@@ -130,19 +120,12 @@ export class Enemy {
 
     // Méthode pour réduire la santé de l'ennemi
     decreaseHealth(amount) {
-        this.health -= amount;
-
-        // Si la santé de l'ennemi est inférieure ou égale à 0, marquer l'ennemi comme mort
-        if (this.health <= 0) {
-            this.health = 0;
-            this.isDead = true;
+        if (this.health > 0) {
+            this.health -= amount;
+            if (this.health < 0) {
+                this.health = 0;
+            }
         }
-    }
-
-    // Méthode pour infliger des dégâts au joueur
-    inflictDamageToPlayer(player) {
-        player.decreaseHealth(this.damage);
-        this.health -= this.damage;
     }
 
     // Méthode pour générer une position aléatoire de l'ennemi par rapport au joueur

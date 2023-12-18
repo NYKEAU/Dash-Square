@@ -6,6 +6,7 @@ export class gameInstance {
     // Définir le constructeur de la classe
     constructor(canvas) {
         // Initialiser les propriétés de l'instance de jeu
+        this.startTime = Date.now();
         this.canvas = canvas; // L'objet canvas
         this.context = canvas.getContext('2d'); // Le contexte de dessin du canvas
         this.screenWidth = window.innerWidth; // La largeur de l'écran du navigateur
@@ -47,6 +48,10 @@ export class gameInstance {
         // Appeler les méthodes de mise à jour et de dessin du jeu
         this.draw();
         this.update();
+
+        setInterval(() => {
+            this.player.weapon.shoot({ x: 1, y: 0 });
+        }, 2000);
     }
 
     // Ajoutez cette fonction à la classe GameInstance
@@ -56,10 +61,45 @@ export class gameInstance {
         }, 2000);
     }
 
+    // Méthode pour obtenir le temps écoulé depuis le début du jeu en format "00:00"
+    getElapsedTime() {
+        const totalSeconds = Math.floor((Date.now() - this.startTime) / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    }
+
     // Méthode pour mettre à jour le jeu
     update() {
         // Appeler la méthode de déplacement du joueur
         this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
+
+        // Mettre à jour la position de chaque projectile
+        for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
+            const projectile = this.player.projectiles[i];
+            projectile.move();
+
+            // Supprimer le projectile s'il est sorti des limites de la carte
+            if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
+                this.player.projectiles.splice(i, 1);
+                continue;
+            }
+
+            // Vérifier la collision avec chaque ennemi
+            for (let j = this.enemies.length - 1; j >= 0; j--) {
+                const enemy = this.enemies[j];
+                console.log('Checking collision between projectile and enemy', projectile, enemy);
+                const distance = Math.sqrt((projectile.x - enemy.x) ** 2 + (projectile.y - enemy.y) ** 2) - projectile.size - enemy.size;
+                console.log('Distance between projectile and enemy:', distance);
+                if (distance < projectile.size + enemy.size) {
+                    // Collision détectée, réduire la santé de l'ennemi et supprimer le projectile
+                    enemy.health -= this.player.damage;
+                    console.log('Enemy health:', enemy.health);
+                    this.player.projectiles.splice(i, 1);
+                    break;
+                }
+            }
+        }
 
         // Mettre à jour la position et la santé de chaque ennemi
         for (let i = 0; i < this.enemies.length; i++) {
@@ -70,14 +110,22 @@ export class gameInstance {
                 enemy.move(this.player);
             }
 
-            // Gérer la collision entre l'ennemi et le joueur
-            enemy.handleCollisionWithPlayer(this.player);
+            // Vérifier les collisions entre le joueur et les ennemis
+            if (this.player.isCollidingWithEnemy(enemy)) {
+                // Gérer la collision entre le joueur et l'ennemi
+                enemy.handleCollisionWithPlayer(this.player);
+            }
 
             // Si l'ennemi est mort, le retirer de la liste des ennemis
             if (enemy.isDead) {
                 this.enemies.splice(i, 1);
                 i--;
             }
+        }
+
+        // Mettre à jour la position de chaque projectile
+        for (let projectile of this.player.projectiles) {
+            projectile.move();
         }
 
         // Appeler la méthode de vérification des collisions entre les ennemis
@@ -99,6 +147,11 @@ export class gameInstance {
         // Dessiner le décor (arrière-plan) centré sur le joueur
         this.context.fillStyle = 'lightblue'; // Couleur de la carte
         this.context.fillRect(mapStartX, mapStartY, this.mapWidth, this.mapHeight);
+
+        // Dessiner tous les projectiles
+        for (let projectile of this.player.projectiles) {
+            projectile.draw(this.context, mapStartX, mapStartY);
+        }
 
         // Dessiner le joueur au milieu de l'écran
         this.player.draw(this.context, this.canvas.width / 2 - this.player.width / 2, this.canvas.height / 2 - this.player.height / 2);
@@ -124,11 +177,16 @@ export class gameInstance {
         // Dessiner les effets de hit des ennemis
         for (let enemy of this.enemies) {
             for (let hitEffect of enemy.hitEffects) {
-                hitEffect.draw(this.context, this.canvas.width, this.canvas.height);
+                hitEffect.draw(this.context, enemy.x + enemy.width / 2, enemy.y);
             }
-            // Supprimer les effets de hit qui ont expiré
-            enemy.hitEffects = enemy.hitEffects.filter(hitEffect => hitEffect.duration > 0);
         }
+
+        // Timer
+        this.context.fillStyle = 'black';
+        this.context.font = '30px Arial';
+        const timerText = this.getElapsedTime();
+        const textWidth = this.context.measureText(timerText).width;
+        this.context.fillText(timerText, (this.canvas.width - textWidth) / 2, this.canvas.height - 10);
 
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.draw());
@@ -143,15 +201,16 @@ export class gameInstance {
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance < this.enemies[i].width / 2 + this.enemies[j].width / 2) {
-                    // Les ennemis se chevauchent, les faire rebondir dans des directions opposées
+                    // Les ennemis se chevauchent, les déplacer hors de collision
+                    const overlap = this.enemies[i].width / 2 + this.enemies[j].width / 2 - distance;
                     const angle = Math.atan2(dy, dx);
                     const sin = Math.sin(angle);
                     const cos = Math.cos(angle);
 
-                    this.enemies[i].x += this.enemies[i].speed * cos;
-                    this.enemies[i].y += this.enemies[i].speed * sin;
-                    this.enemies[j].x -= this.enemies[j].speed * cos;
-                    this.enemies[j].y -= this.enemies[j].speed * sin;
+                    this.enemies[i].x += overlap * cos / 2;
+                    this.enemies[i].y += overlap * sin / 2;
+                    this.enemies[j].x -= overlap * cos / 2;
+                    this.enemies[j].y -= overlap * sin / 2;
 
                     // Vérifier si les ennemis sont à l'intérieur de la zone de jeu
                     this.enemies[i].x = Math.max(0, Math.min(this.mapWidth - this.enemies[i].width, this.enemies[i].x));

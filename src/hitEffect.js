@@ -6,11 +6,12 @@ export class HitEffect {
         this.duration = 30; // Durée de l'effet en frames
     }
 
-    draw(context, playerX, playerY) {
+    draw(context) {
         if (this.duration > 0) {
-            context.fillStyle = 'red';
+            context.fillStyle = 'black';
             context.font = '20px Arial';
-            context.fillText(this.damage, this.x - playerX, this.y - playerY);
+            const textWidth = context.measureText(this.damage).width;
+            context.fillText(this.damage, this.x - textWidth / 2, this.y);
             this.duration--;
         }
     }

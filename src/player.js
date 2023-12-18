@@ -1,4 +1,5 @@
 import { HitEffect } from './hitEffect.js';
+import { Pistol } from './weapon.js';
 
 export class Player {
     // Définir le constructeur de la classe
@@ -16,6 +17,8 @@ export class Player {
         this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
         this.level = 1; // Niveau du joueur au début du jeu
         this.hitEffects = []; // Tableau des hitmarkers
+        this.weapon = new Pistol(this); // Ajouter l'arme de base du joueur
+        this.projectiles = []; // Initialiser les projectiles comme un tableau vide
     }
 
     // Méthode pour dessiner le joueur
@@ -100,27 +103,24 @@ export class Player {
         this.y = Math.max(0, Math.min(mapHeight - this.height, newY));
     }
 
-    // Méthode pour vérifier les collisions entre le joueur et les ennemis
+    // Méthode pour gérer la collision avec un ennemi
     handleCollisionWithEnemy(enemy) {
-        if (currentTime - this.lastAttackTime >= 1000) { // 1000 millisecondes = 1 seconde
-            // Infliger des dégâts à l'ennemi
-            enemy.decreaseHealth(this.damage);
-
-            // Ajouter un effet de "hit" sur l'ennemi
-            enemy.hit(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, this.damage);
-
-            // Mettre à jour la dernière fois que le joueur a attaqué
-            this.lastAttackTime = currentTime;
+        // Si le joueur est en collision avec l'ennemi
+        if (this.isCollidingWithEnemy(enemy)) {
+            // Réduire la santé du joueur
+            this.decreaseHealth(enemy.damage);
         }
+    }
+
+    isCollidingWithEnemy(object) {
+        return this.x < object.x + object.width &&
+            this.x + this.width > object.x &&
+            this.y < object.y + object.height &&
+            this.y + this.height > object.y;
     }
 
     // Méthode pour réduire la santé du joueur
     decreaseHealth(amount) {
         this.health -= amount;
-    }
-
-    // Méthode pour afficher un hitmarker
-    hit(x, y, damage) {
-        this.hitEffects.push(new HitEffect(x, y, damage));
     }
 }
