@@ -1,3 +1,5 @@
+import { HitEffect } from './hitEffect.js';
+
 export class Enemy {
     // Définir le constructeur de la classe
     constructor(player, mapWidth, mapHeight, baseHealth, damage) {
@@ -11,6 +13,7 @@ export class Enemy {
         this.baseHealth = baseHealth; // Santé de base de l'ennemi
         this.damage = damage; // Les dégâts de l'ennemi
         this.lastDamageTime = 0; // Le dernier moment où l'ennemi a subi des dégâts
+        this.hitEffects = []; // Tableau des hitmarkers
     }
 
     // Méthode pour dessiner l'ennemi
@@ -75,6 +78,11 @@ export class Enemy {
         }
     }
 
+    // Méthode pour gérer les dégâts infligés à l'ennemi
+    hit(x, y, damage) {
+        this.hitEffects.push(new HitEffect(x, y, damage));
+    }
+
     // Méthode pour gérer la collision avec le joueur
     handleCollisionWithPlayer(player) {
         // Si l'ennemi est en collision avec le joueur
@@ -89,7 +97,9 @@ export class Enemy {
 
                 // Réduire la santé de l'ennemi
                 this.decreaseHealth(player.damage);
-                console.log(player.damage, ' damage inflicted to enemy');
+
+                // Ajouter un effet de "hit" sur le joueur
+                player.hit(this.x + this.width / 2, this.y + this.height / 2, this.damage);
 
                 // Mettre à jour la dernière fois que l'ennemi a subi des dégâts
                 this.lastDamageTime = currentTime;
@@ -121,7 +131,6 @@ export class Enemy {
     // Méthode pour réduire la santé de l'ennemi
     decreaseHealth(amount) {
         this.health -= amount;
-        console.log('Enemy health:', this.health);
 
         // Si la santé de l'ennemi est inférieure ou égale à 0, marquer l'ennemi comme mort
         if (this.health <= 0) {

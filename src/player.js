@@ -1,3 +1,5 @@
+import { HitEffect } from './hitEffect.js';
+
 export class Player {
     // Définir le constructeur de la classe
     constructor(x, y) {
@@ -10,9 +12,10 @@ export class Player {
         this.health = 100; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
         this.damage = 10; // Les dégâts du joueur
-        this.experience = 0; // Ajouter cette ligne
-        this.maxExperience = 100; // Ajouter cette ligne
-        this.level = 1; // Ajouter cette ligne
+        this.experience = 0; // Expérience du joueur au début du jeu
+        this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
+        this.level = 1; // Niveau du joueur au début du jeu
+        this.hitEffects = []; // Tableau des hitmarkers
     }
 
     // Méthode pour dessiner le joueur
@@ -56,7 +59,7 @@ export class Player {
         context.save();
 
         const barWidth = (this.experience / this.maxExperience) * this.maxHealth; // La largeur de la barre d'expérience est proportionnelle à l'expérience du joueur
-        const barHeight = 10; // La hauteur de la barre d'expérience
+        const barHeight = 12.5; // La hauteur de la barre d'expérience
         const barX = 10; // La position x de la barre d'expérience (10 pixels depuis le bord gauche de l'écran)
         const barY = 40; // La position y de la barre d'expérience (40 pixels depuis le haut de l'écran)
 
@@ -75,7 +78,7 @@ export class Player {
         context.fillStyle = 'black'; // Couleur du texte
         context.font = '10px Arial'; // Taille et police du texte
         context.textAlign = 'right'; // Aligner le texte à droite
-        context.fillText(experienceText, barX + this.maxHealth - 5, barY + 7.5); // Position du texte
+        context.fillText(experienceText, barX + this.maxHealth - 5, barY + barHeight / 2 + 4); // Position du texte
 
         // Restaurer l'état du contexte
         context.restore();
@@ -97,8 +100,27 @@ export class Player {
         this.y = Math.max(0, Math.min(mapHeight - this.height, newY));
     }
 
+    // Méthode pour vérifier les collisions entre le joueur et les ennemis
+    handleCollisionWithEnemy(enemy) {
+        if (currentTime - this.lastAttackTime >= 1000) { // 1000 millisecondes = 1 seconde
+            // Infliger des dégâts à l'ennemi
+            enemy.decreaseHealth(this.damage);
+
+            // Ajouter un effet de "hit" sur l'ennemi
+            enemy.hit(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, this.damage);
+
+            // Mettre à jour la dernière fois que le joueur a attaqué
+            this.lastAttackTime = currentTime;
+        }
+    }
+
     // Méthode pour réduire la santé du joueur
     decreaseHealth(amount) {
         this.health -= amount;
+    }
+
+    // Méthode pour afficher un hitmarker
+    hit(x, y, damage) {
+        this.hitEffects.push(new HitEffect(x, y, damage));
     }
 }

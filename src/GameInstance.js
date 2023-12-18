@@ -18,7 +18,7 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         this.addEnemy(); // Ajouter un premier ennemi
         this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
-        this.addEnemyInterval = setInterval(() => this.addEnemy(), 500); // Ajouter un nouvel ennemi toutes les 5 secondes
+        this.addEnemyInterval = setInterval(() => this.addEnemy(), 5000); // Ajouter un nouvel ennemi toutes les 5 secondes
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -112,6 +112,23 @@ export class gameInstance {
         // Dessiner l'ATH
         this.player.drawHealthBar(this.context);
         this.player.drawExperienceBar(this.context);
+
+        // Dessiner les effets de hit
+        for (let hitEffect of this.player.hitEffects) {
+            hitEffect.draw(this.context, this.canvas.width, this.canvas.height);
+        }
+
+        // Supprimer les effets de hit qui ont expiré
+        this.player.hitEffects = this.player.hitEffects.filter(hitEffect => hitEffect.duration > 0);
+
+        // Dessiner les effets de hit des ennemis
+        for (let enemy of this.enemies) {
+            for (let hitEffect of enemy.hitEffects) {
+                hitEffect.draw(this.context, this.canvas.width, this.canvas.height);
+            }
+            // Supprimer les effets de hit qui ont expiré
+            enemy.hitEffects = enemy.hitEffects.filter(hitEffect => hitEffect.duration > 0);
+        }
 
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.draw());
