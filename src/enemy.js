@@ -5,7 +5,7 @@ export class Enemy {
     constructor(player, mapWidth, mapHeight, baseHealth, damage) {
         this.width = 20; // La largeur de l'ennemi
         this.height = 20; // La hauteur de l'ennemi
-        this.speed = 2.5; // La vitesse de déplacement de l'ennemi
+        this.speed = 1; // La vitesse de déplacement de l'ennemi
         const initialPosition = this.generateRandomPosition(player, mapWidth, mapHeight);
         this.x = initialPosition.x; // La position x de l'ennemi
         this.y = initialPosition.y; // La position y de l'ennemi
@@ -122,15 +122,18 @@ export class Enemy {
     decreaseHealth(amount) {
         if (this.health > 0) {
             this.health -= amount;
-            if (this.health < 0) {
+            console.log('Enemy health: ' + this.health);
+            if (this.health <= 0) {
                 this.health = 0;
+                this.isDead = true;
+                console.log('Enemy died');
             }
         }
     }
 
     // Méthode pour générer une position aléatoire de l'ennemi par rapport au joueur
     generateRandomPosition(player, mapWidth, mapHeight) {
-        const minDistance = 200; // Distance minimale de l'ennemi par rapport au joueur
+        const minDistance = 400; // Distance minimale de l'ennemi par rapport au joueur
         const maxDistance = 500; // Distance maximale de l'ennemi par rapport au joueur
 
         // Générer un angle aléatoire en radians

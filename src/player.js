@@ -9,7 +9,7 @@ export class Player {
         this.y = y; // La position y du joueur
         this.width = 30; // La largeur du joueur
         this.height = 30; // La hauteur du joueur
-        this.speed = 10; // La vitesse de déplacement du joueur
+        this.speed = 7.5; // La vitesse de déplacement du joueur
         this.health = 100; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
         this.damage = 10; // Les dégâts du joueur
@@ -93,9 +93,9 @@ export class Player {
         let newX = this.x;
         let newY = this.y;
 
-        if (keys['ArrowUp'] || keys['w']) newY -= this.speed;
+        if (keys['ArrowUp'] || keys['z']) newY -= this.speed;
         if (keys['ArrowDown'] || keys['s']) newY += this.speed;
-        if (keys['ArrowLeft'] || keys['a']) newX -= this.speed;
+        if (keys['ArrowLeft'] || keys['q']) newX -= this.speed;
         if (keys['ArrowRight'] || keys['d']) newX += this.speed;
 
         // Vérifier si le joueur est à l'intérieur de la zone de jeu

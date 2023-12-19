@@ -20,6 +20,8 @@ export class gameInstance {
         this.addEnemy(); // Ajouter un premier ennemi
         this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = setInterval(() => this.addEnemy(), 5000); // Ajouter un nouvel ennemi toutes les 5 secondes
+        this.lastFrameTime = Date.now();
+        this.frameCount = 0;
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -37,7 +39,7 @@ export class gameInstance {
     // Méthode pour ajouter un nouvel ennemi
     addEnemy() {
         // Créer une nouvelle instance d'ennemi à partir de la classe Enemy
-        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, 100, 10);
+        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, 50, 5);
 
         // Ajouter l'ennemi au tableau des ennemis
         this.enemies.push(enemy);
@@ -50,8 +52,17 @@ export class gameInstance {
         this.update();
 
         setInterval(() => {
-            this.player.weapon.shoot({ x: 1, y: 0 });
-        }, 2000);
+            const closestEnemy = this.getClosestEnemy();
+            if (closestEnemy) {
+                const dx = closestEnemy.x - this.player.x;
+                const dy = closestEnemy.y - this.player.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 0) {
+                    const direction = { x: dx / distance, y: dy / distance };
+                    this.player.weapon.shoot(direction);
+                }
+            }
+        }, 1000);
     }
 
     // Ajoutez cette fonction à la classe GameInstance
@@ -88,16 +99,29 @@ export class gameInstance {
             // Vérifier la collision avec chaque ennemi
             for (let j = this.enemies.length - 1; j >= 0; j--) {
                 const enemy = this.enemies[j];
-                console.log('Checking collision between projectile and enemy', projectile, enemy);
-                const distance = Math.sqrt((projectile.x - enemy.x) ** 2 + (projectile.y - enemy.y) ** 2) - projectile.size - enemy.size;
-                console.log('Distance between projectile and enemy:', distance);
-                if (distance < projectile.size + enemy.size) {
+                if (projectile.x < enemy.x + enemy.width &&
+                    projectile.x + projectile.size > enemy.x &&
+                    projectile.y < enemy.y + enemy.height &&
+                    projectile.y + projectile.size > enemy.y) {
                     // Collision détectée, réduire la santé de l'ennemi et supprimer le projectile
-                    enemy.health -= this.player.damage;
-                    console.log('Enemy health:', enemy.health);
+                    this.enemies[j].decreaseHealth(this.player.damage);
                     this.player.projectiles.splice(i, 1);
                     break;
                 }
+            }
+
+            // Augmenter le nombre de frames
+            this.frameCount++;
+
+            // Vérifier si plus d'une seconde s'est écoulée depuis la dernière mise à jour du compteur de FPS
+            const now = Date.now();
+            if (now - this.lastFrameTime >= 1000) {
+                // Afficher le nombre de frames par seconde
+                console.log('FPS:', this.frameCount);
+
+                // Réinitialiser le compteur de FPS
+                this.lastFrameTime = now;
+                this.frameCount = 0;
             }
         }
 
@@ -190,6 +214,25 @@ export class gameInstance {
 
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.draw());
+    }
+
+    // Trouver l'ennemi le plus proche
+    getClosestEnemy() {
+        let closestEnemy = null;
+        let closestDistance = Infinity;
+
+        for (let enemy of this.enemies) {
+            const dx = this.player.x - enemy.x;
+            const dy = this.player.y - enemy.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestEnemy = enemy;
+            }
+        }
+
+        return closestEnemy;
     }
 
     // Méthode pour vérifier les collisions entre les ennemis
