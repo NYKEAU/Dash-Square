@@ -20,6 +20,11 @@ export class Enemy {
 
     // Méthode pour dessiner l'ennemi
     draw(context, mapStartX, mapStartY) {
+        // Dessiner les effets de coup avant de vérifier si l'ennemi est mort
+        for (let hitEffect of this.hitEffects) {
+            hitEffect.draw(context, mapStartX, mapStartY);
+        }
+
         // Si l'ennemi est mort, ne pas le dessiner
         if (this.isDead) {
             return;
@@ -123,6 +128,8 @@ export class Enemy {
     decreaseHealth(amount) {
         if (this.health > 0) {
             this.health -= amount;
+            // Afficher sur l'ennemi le nombre de dégâts subis
+            this.hitEffects.push(new HitEffect(this, amount));
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;

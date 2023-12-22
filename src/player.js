@@ -12,7 +12,7 @@ export class Player {
         this.speed = 7.5; // La vitesse de déplacement du joueur
         this.health = 100; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
-        this.damage = 100; // Les dégâts du joueur
+        this.damage = 10; // Les dégâts du joueur
         this.experience = 0; // Expérience du joueur au début du jeu
         this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
         this.level = 1; // Niveau du joueur au début du jeu
@@ -130,33 +130,17 @@ export class Player {
         this.level++;
         let healthPercent = this.health / this.maxHealth;
 
-        if (this.level < 5) {
+        // Augmenter la vie max du joueur en fonction de sa vie max actuelle
+        let increment = 10 ** Math.floor(Math.log10(this.maxHealth));
+        this.maxHealth += increment / 10;
+
+        if (this.level % 10 === 0) {
             this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
-            console.log("LESS THAN 5 : " + this.maxHealth);
-        } else if (this.level < 10) {
-            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
-            console.log("LESS THAN 10 : " + this.maxHealth);
-        } else if (this.level % 10 === 0) {
-            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
-            this.damage = Math.floor(this.damage * 1.1 / 10) * 10;
-            this.maxExperience = Math.floor(this.maxExperience * 1.1 / 10) * 10;
-            console.log("LVL 10 : " + this.maxHealth);
-        } else if (this.level < 25) {
-            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
-            console.log("LESS THAN 10 : " + this.maxHealth);
-        } else {
-            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
-            console.log("MORE THAN 100 : " + this.maxHealth);
+            this.maxExperience += 100;
         };
 
-        // Augmenter la santé maximale du joueur (sans décimales et arrondi à la dizaine supérieure)
-        this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
-
-        // Augmenter les dégâts du joueur (sans décimales et arrondi à la dizaine inférieure)
-        this.damage = Math.floor(this.damage * 1.1 / 10) * 10;
-
-        // Augmenter l'expérience maximale du joueur (sans décimales et arrondi à la dizaine inférieure)
-        this.maxExperience = Math.floor(this.maxExperience * 1.1 / 10) * 10;
+        // Augmenter les dégâts du joueur (sans décimales et arrondi au chiffre supérieur)
+        this.damage = Math.floor(this.damage * 1.1);
 
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
         // Réinitialiser l'expérience du joueur

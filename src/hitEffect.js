@@ -1,18 +1,21 @@
 export class HitEffect {
-    constructor(x, y, damage) {
-        this.x = x;
-        this.y = y;
+    constructor(enemy, damage) {
+        this.enemy = enemy;
         this.damage = damage;
         this.duration = 30; // Durée de l'effet en frames
     }
 
-    draw(context) {
+    draw(context, mapStartX, mapStartY) {
         if (this.duration > 0) {
             context.fillStyle = 'black';
             context.font = '20px Arial';
             const textWidth = context.measureText(this.damage).width;
-            context.fillText(this.damage, this.x - textWidth / 2, this.y);
+            const textHeight = 20; // Hauteur du texte basée sur la taille de la police
+            const textX = mapStartX + this.enemy.x + this.enemy.width / 2 - textWidth / 2;
+            const textY = mapStartY + this.enemy.y - textHeight;
+            context.fillText(this.damage, textX, textY);
             this.duration--;
         }
+        console.log("HIT");
     }
 }
