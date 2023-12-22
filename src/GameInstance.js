@@ -18,8 +18,8 @@ export class gameInstance {
         this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         this.addEnemy(); // Ajouter un premier ennemi
-        this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
-        this.addEnemyInterval = setInterval(() => this.addEnemy(), 5000); // Ajouter un nouvel ennemi toutes les 5 secondes
+        // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
+        this.addEnemyInterval = setInterval(() => this.addEnemy(), 250); // Ajouter un nouvel ennemi toutes les 5 secondes
         this.lastFrameTime = Date.now();
         this.frameCount = 0;
     }
@@ -39,7 +39,7 @@ export class gameInstance {
     // Méthode pour ajouter un nouvel ennemi
     addEnemy() {
         // Créer une nouvelle instance d'ennemi à partir de la classe Enemy
-        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, 50, 5);
+        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, 50, 5, 10);
 
         // Ajouter l'ennemi au tableau des ennemis
         this.enemies.push(enemy);
@@ -62,15 +62,15 @@ export class gameInstance {
                     this.player.weapon.shoot(direction);
                 }
             }
-        }, 1000);
+        }, 100);
     }
 
     // Ajoutez cette fonction à la classe GameInstance
-    logPlayerPosition() {
-        setInterval(() => {
-            console.log('Player position:', this.player.x, this.player.y);
-        }, 2000);
-    }
+    // logPlayerPosition() {
+    //     setInterval(() => {
+    //         console.log('Player position:', this.player.x, this.player.y);
+    //     }, 2000);
+    // }
 
     // Méthode pour obtenir le temps écoulé depuis le début du jeu en format "00:00"
     getElapsedTime() {
@@ -143,6 +143,7 @@ export class gameInstance {
             // Si l'ennemi est mort, le retirer de la liste des ennemis
             if (enemy.isDead) {
                 this.enemies.splice(i, 1);
+                this.player.increaseExperience(enemy.xpGived);
                 i--;
             }
         }

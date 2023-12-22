@@ -1,5 +1,5 @@
 // Importer la classe GameInstance depuis le fichier GameInstance.js (avec la casse correcte)
-import { gameInstance } from './src/GameInstance.js';
+import { gameInstance } from './src/gameInstance.js';
 
 // Créer un objet canvas à partir de l'élément HTML
 const canvas = document.getElementById('gameCanvas');

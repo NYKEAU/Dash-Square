@@ -2,10 +2,11 @@ import { HitEffect } from './hitEffect.js';
 
 export class Enemy {
     // Définir le constructeur de la classe
-    constructor(player, mapWidth, mapHeight, baseHealth, damage) {
+    constructor(player, mapWidth, mapHeight, baseHealth, damage, xpGived) {
         this.width = 20; // La largeur de l'ennemi
         this.height = 20; // La hauteur de l'ennemi
         this.speed = 1; // La vitesse de déplacement de l'ennemi
+        this.xpGived = xpGived; // L'expérience donnée par l'ennemi
         const initialPosition = this.generateRandomPosition(player, mapWidth, mapHeight);
         this.x = initialPosition.x; // La position x de l'ennemi
         this.y = initialPosition.y; // La position y de l'ennemi
@@ -122,11 +123,9 @@ export class Enemy {
     decreaseHealth(amount) {
         if (this.health > 0) {
             this.health -= amount;
-            console.log('Enemy health: ' + this.health);
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;
-                console.log('Enemy died');
             }
         }
     }

@@ -12,7 +12,7 @@ export class Player {
         this.speed = 7.5; // La vitesse de déplacement du joueur
         this.health = 100; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
-        this.damage = 10; // Les dégâts du joueur
+        this.damage = 100; // Les dégâts du joueur
         this.experience = 0; // Expérience du joueur au début du jeu
         this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
         this.level = 1; // Niveau du joueur au début du jeu
@@ -53,7 +53,7 @@ export class Player {
         // Dessiner le nombre de points de vie dans la barre de vie
         context.fillStyle = 'black'; // Couleur du texte
         context.font = '16px Arial'; // Taille et police du texte
-        context.fillText(healthText, textX, barY + 17.5); // Position du texte
+        context.fillText(healthText, barX + 5, barY + 17.5); // Position du texte
     }
 
     // Méthode pour dessiner la barre d'expérience du joueur
@@ -122,5 +122,55 @@ export class Player {
     // Méthode pour réduire la santé du joueur
     decreaseHealth(amount) {
         this.health -= amount;
+    }
+
+    // Méthode pour augmenter le niveau d'expérience du joueur
+    levelUp() {
+        // Augmenter le niveau du joueur
+        this.level++;
+        let healthPercent = this.health / this.maxHealth;
+
+        if (this.level < 5) {
+            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
+            console.log("LESS THAN 5 : " + this.maxHealth);
+        } else if (this.level < 10) {
+            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
+            console.log("LESS THAN 10 : " + this.maxHealth);
+        } else if (this.level % 10 === 0) {
+            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
+            this.damage = Math.floor(this.damage * 1.1 / 10) * 10;
+            this.maxExperience = Math.floor(this.maxExperience * 1.1 / 10) * 10;
+            console.log("LVL 10 : " + this.maxHealth);
+        } else if (this.level < 25) {
+            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
+            console.log("LESS THAN 10 : " + this.maxHealth);
+        } else {
+            this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
+            console.log("MORE THAN 100 : " + this.maxHealth);
+        };
+
+        // Augmenter la santé maximale du joueur (sans décimales et arrondi à la dizaine supérieure)
+        this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
+
+        // Augmenter les dégâts du joueur (sans décimales et arrondi à la dizaine inférieure)
+        this.damage = Math.floor(this.damage * 1.1 / 10) * 10;
+
+        // Augmenter l'expérience maximale du joueur (sans décimales et arrondi à la dizaine inférieure)
+        this.maxExperience = Math.floor(this.maxExperience * 1.1 / 10) * 10;
+
+        this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
+        // Réinitialiser l'expérience du joueur
+        this.experience = 0;
+    }
+
+    // Méthode pour augmenter l'expérience du joueur
+    increaseExperience(amount) {
+        this.experience += amount;
+
+        // Si l'expérience du joueur est supérieure à l'expérience maximale
+        if (this.experience >= this.maxExperience) {
+            // Augmenter le niveau du joueur
+            this.levelUp();
+        }
     }
 }
