@@ -62,7 +62,7 @@ export class gameInstance {
                     this.player.weapon.shoot(direction);
                 }
             }
-        }, 100);
+        }, 1000);
     }
 
     // Ajoutez cette fonction à la classe GameInstance
@@ -89,19 +89,6 @@ export class gameInstance {
         for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.player.projectiles[i];
 
-            // Trouver l'ennemi le plus proche
-            const closestEnemy = this.getClosestEnemy();
-            if (closestEnemy) {
-                // Calculer la direction vers l'ennemi le plus proche
-                const dx = closestEnemy.x - projectile.x;
-                const dy = closestEnemy.y - projectile.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 0) {
-                    const direction = { x: dx / distance, y: dy / distance };
-                    projectile.direction = direction;
-                }
-            }
-
             // Déplacer le projectile
             projectile.move();
 
@@ -114,10 +101,11 @@ export class gameInstance {
             // Vérifier la collision avec chaque ennemi
             for (let j = this.enemies.length - 1; j >= 0; j--) {
                 const enemy = this.enemies[j];
-                if (projectile.x < enemy.x + enemy.width &&
-                    projectile.x + projectile.size > enemy.x &&
-                    projectile.y < enemy.y + enemy.height &&
-                    projectile.y + projectile.size > enemy.y) {
+                const dx = projectile.x - enemy.x - enemy.width / 2;
+                const dy = projectile.y - enemy.y - enemy.height / 2;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
                     // Collision détectée, réduire la santé de l'ennemi et supprimer le projectile
                     this.enemies[j].decreaseHealth(this.player.damage);
                     this.player.projectiles.splice(i, 1);
