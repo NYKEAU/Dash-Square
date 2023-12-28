@@ -22,7 +22,6 @@ export class gameInstance {
         this.addEnemyInterval = setInterval(() => this.addEnemy(), 500); // Ajouter un nouvel ennemi toutes les 5 secondes
         this.lastFrameTime = Date.now();
         this.frameCount = 0;
-        this.hitEffects = [];
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -105,6 +104,40 @@ export class gameInstance {
 
             // Déplacer le projectile
             projectile.move();
+
+            // Supprimer le projectile s'il est sorti des limites de la carte
+            if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
+                this.player.projectiles.splice(i, 1);
+                continue;
+            }
+
+            // Vérifier la collision avec chaque ennemi
+            for (let j = this.enemies.length - 1; j >= 0; j--) {
+                const enemy = this.enemies[j];
+                if (projectile.x < enemy.x + enemy.width &&
+                    projectile.x + projectile.size > enemy.x &&
+                    projectile.y < enemy.y + enemy.height &&
+                    projectile.y + projectile.size > enemy.y) {
+                    // Collision détectée, réduire la santé de l'ennemi et supprimer le projectile
+                    this.enemies[j].decreaseHealth(this.player.damage);
+                    this.player.projectiles.splice(i, 1);
+                    break;
+                }
+            }
+
+            // Augmenter le nombre de frames
+            this.frameCount++;
+
+            // Vérifier si plus d'une seconde s'est écoulée depuis la dernière mise à jour du compteur de FPS
+            const now = Date.now();
+            if (now - this.lastFrameTime >= 1000) {
+                // Afficher le nombre de frames par seconde
+                console.log('FPS:', this.frameCount);
+
+                // Réinitialiser le compteur de FPS
+                this.lastFrameTime = now;
+                this.frameCount = 0;
+            }
         }
 
         // Mettre à jour la position et la santé de chaque ennemi
@@ -123,7 +156,7 @@ export class gameInstance {
             }
 
             // Si l'ennemi est mort, le retirer de la liste des ennemis
-            if (enemy.isDead && enemy.hitEffects.length === 0) {
+            if (enemy.isDead) {
                 this.enemies.splice(i, 1);
                 this.player.increaseExperience(enemy.xpGived);
                 i--;
@@ -167,21 +200,26 @@ export class gameInstance {
         for (let enemy of this.enemies) {
             enemy.draw(this.context, mapStartX, mapStartY);
             enemy.drawHealthBar(this.context, mapStartX, mapStartY);
-            // Dessiner les effets de coup pour chaque ennemi
-            for (let hitEffect of enemy.hitEffects) {
-                hitEffect.draw(this.context, mapStartX, mapStartY);
-            }
         }
-
-        // Supprimer les ennemis morts
-        this.enemies = this.enemies.filter(enemy => !enemy.isDead || enemy.hitEffects.length > 0);
 
         // Dessiner l'ATH
         this.player.drawHealthBar(this.context);
         this.player.drawExperienceBar(this.context);
 
+        // Dessiner les effets de hit
+        for (let hitEffect of this.player.hitEffects) {
+            hitEffect.draw(this.context, this.canvas.width, this.canvas.height);
+        }
+
         // Supprimer les effets de hit qui ont expiré
         this.player.hitEffects = this.player.hitEffects.filter(hitEffect => hitEffect.duration > 0);
+
+        // Dessiner les effets de hit des ennemis
+        for (let enemy of this.enemies) {
+            for (let hitEffect of enemy.hitEffects) {
+                hitEffect.draw(this.context, enemy.x + enemy.width / 2, enemy.y);
+            }
+        }
 
         // Timer
         this.context.fillStyle = 'black';
