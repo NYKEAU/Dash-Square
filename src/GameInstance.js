@@ -19,7 +19,7 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         this.addEnemy(); // Ajouter un premier ennemi
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
-        this.addEnemyInterval = setInterval(() => this.addEnemy(), 5000); // Ajouter un nouvel ennemi toutes les 5 secondes
+        this.addEnemyInterval = setInterval(() => this.addEnemy(), 500); // Ajouter un nouvel ennemi toutes les 5 secondes
         this.lastFrameTime = Date.now();
         this.frameCount = 0;
         this.hitEffects = [];
@@ -40,7 +40,7 @@ export class gameInstance {
     // Méthode pour ajouter un nouvel ennemi
     addEnemy() {
         // Créer une nouvelle instance d'ennemi à partir de la classe Enemy
-        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, -50, 5, 10);
+        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, 50, 5, 10);
 
         // Ajouter l'ennemi au tableau des ennemis
         this.enemies.push(enemy);
@@ -63,7 +63,7 @@ export class gameInstance {
                     this.player.weapon.shoot(direction);
                 }
             }
-        }, 1000);
+        }, 100);
     }
 
     // Ajoutez cette fonction à la classe GameInstance
@@ -89,26 +89,22 @@ export class gameInstance {
         // Mettre à jour la position de chaque projectile
         for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.player.projectiles[i];
-            projectile.move();
 
-            // Supprimer le projectile s'il est sorti des limites de la carte
-            if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
-                this.player.projectiles.splice(i, 1);
-                continue;
-            }
-
-            // Vérifier la collision avec chaque ennemi
-            for (let j = this.enemies.length - 1; j >= 0; j--) {
-                const enemy = this.enemies[j];
-                if (projectile.x < enemy.x + enemy.width &&
-                    projectile.x + projectile.size > enemy.x &&
-                    projectile.y < enemy.y + enemy.height &&
-                    projectile.y + projectile.size > enemy.y) {
-                    this.enemies[j].decreaseHealth(this.player.damage);
-                    this.player.projectiles.splice(i, 1);
-                    break;
+            // Trouver l'ennemi le plus proche
+            const closestEnemy = this.getClosestEnemy();
+            if (closestEnemy) {
+                // Calculer la direction vers l'ennemi le plus proche
+                const dx = closestEnemy.x - projectile.x;
+                const dy = closestEnemy.y - projectile.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 0) {
+                    const direction = { x: dx / distance, y: dy / distance };
+                    projectile.direction = direction;
                 }
             }
+
+            // Déplacer le projectile
+            projectile.move();
         }
 
         // Mettre à jour la position et la santé de chaque ennemi
@@ -138,7 +134,6 @@ export class gameInstance {
         for (let projectile of this.player.projectiles) {
             projectile.move();
         }
-
 
         // Appeler la méthode de vérification des collisions entre les ennemis
         this.checkEnemyCollisions();
