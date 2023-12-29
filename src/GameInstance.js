@@ -19,21 +19,36 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         this.addEnemy(); // Ajouter un premier ennemi
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
-        this.addEnemyInterval = setInterval(() => this.addEnemy(), 500); // Ajouter un nouvel ennemi toutes les 5 secondes
+        this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
         this.lastFrameTime = Date.now();
         this.frameCount = 0;
+        this.isPaused = false;
+        this.canTogglePause = true;
     }
 
     // Méthode pour ajouter les écouteurs d'événements
     addEventListeners() {
-        // Gestion des touches enfoncées
         document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !this.keys[event.key]) {
+                this.isPaused ^= true;
+                console.log(this.isPaused);
+                if (this.isPaused) {
+                    this.stopEnemyGeneration();
+                } else {
+                    this.startEnemyGeneration();
+                }
+            }
             this.keys[event.key] = true;
         });
 
         document.addEventListener('keyup', (event) => {
             this.keys[event.key] = false;
         });
+    }
+
+    // Méthode pour démarrer la génération d'ennemis
+    startEnemyGeneration() {
+        this.addEnemyInterval = setInterval(() => this.addEnemy(), 5000);
     }
 
     // Méthode pour ajouter un nouvel ennemi
@@ -43,6 +58,12 @@ export class gameInstance {
 
         // Ajouter l'ennemi au tableau des ennemis
         this.enemies.push(enemy);
+    }
+
+    // Nouvelle méthode pour arrêter la génération d'ennemis
+    stopEnemyGeneration() {
+        clearInterval(this.addEnemyInterval);
+        this.addEnemyInterval = null;
     }
 
     // Méthode pour lancer le jeu
@@ -84,6 +105,15 @@ export class gameInstance {
     update() {
         // Appeler la méthode de déplacement du joueur
         this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
+
+        // Afficher ou cacher le menu de pause en fonction de la valeur de isPaused et arrêter ou reprendre le jeu
+        const pauseMenu = document.getElementById('pause-menu');
+        if (this.isPaused) {
+            pauseMenu.style.display = 'block';
+            return;
+        } else {
+            pauseMenu.style.display = 'none';
+        }
 
         // Mettre à jour la position de chaque projectile
         for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
@@ -143,11 +173,16 @@ export class gameInstance {
                 enemy.handleCollisionWithPlayer(this.player);
             }
 
-            // Si l'ennemi est mort, le retirer de la liste des ennemis
+            // Si l'ennemi est mort, vérifier si tous les effets de coup associés à cet ennemi ont fini de s'afficher
             if (enemy.isDead) {
-                this.enemies.splice(i, 1);
-                this.player.increaseExperience(enemy.xpGived);
-                i--;
+                const allHitEffectsDone = enemy.hitEffects.every(hitEffect => hitEffect.duration <= 0);
+
+                // Si tous les effets de coup ont fini de s'afficher, supprimer l'ennemi
+                if (allHitEffectsDone) {
+                    this.enemies.splice(i, 1);
+                    this.player.increaseExperience(enemy.xpGived);
+                    i--;
+                }
             }
         }
 

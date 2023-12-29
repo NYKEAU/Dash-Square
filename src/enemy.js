@@ -16,17 +16,28 @@ export class Enemy {
         this.lastDamageTime = 0; // Le dernier moment où l'ennemi a subi des dégâts
         this.hitEffects = []; // Tableau des hitmarkers
         this.lastAttackTime = 0; // Le dernier moment où l'ennemi a attaqué
+        this.hitFlashDuration = 0; // La durée de l'effet de flash quand l'ennemi subit des dégâts
     }
 
     // Méthode pour dessiner l'ennemi
     draw(context, mapStartX, mapStartY) {
+        // Dessiner les effets de coup avant de vérifier si l'ennemi est mort
+        for (let hitEffect of this.hitEffects) {
+            hitEffect.draw(context, mapStartX, mapStartY);
+        }
+
         // Si l'ennemi est mort, ne pas le dessiner
         if (this.isDead) {
             return;
         }
 
         // Remplir un rectangle de couleur verte à la position x et y
-        context.fillStyle = 'green';
+        if (this.hitFlashDuration > 0) {
+            context.fillStyle = 'white';
+            this.hitFlashDuration--;
+        } else {
+            context.fillStyle = 'green';
+        }
         context.fillRect(mapStartX + this.x, mapStartY + this.y, this.width, this.height);
     }
 
@@ -121,8 +132,11 @@ export class Enemy {
 
     // Méthode pour réduire la santé de l'ennemi
     decreaseHealth(amount) {
+        this.hitFlashDuration = 10; // L'ennemi deviendra blanc pendant 5 frames
         if (this.health > 0) {
             this.health -= amount;
+            // Afficher sur l'ennemi le nombre de dégâts subis
+            this.hitEffects.push(new HitEffect(this, amount));
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;
