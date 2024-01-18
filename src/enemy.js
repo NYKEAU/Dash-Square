@@ -1,4 +1,5 @@
 import { HitEffect } from './hitEffect.js';
+import { Particle } from './particle.js';
 
 export class Enemy {
     // Définir le constructeur de la classe
@@ -6,6 +7,7 @@ export class Enemy {
         this.width = 20; // La largeur de l'ennemi
         this.height = 20; // La hauteur de l'ennemi
         this.speed = 1; // La vitesse de déplacement de l'ennemi
+        this.enemyColor = 'green'; // La couleur de l'ennemi
         this.xpGived = xpGived; // L'expérience donnée par l'ennemi
         const initialPosition = this.generateRandomPosition(player, mapWidth, mapHeight);
         this.x = initialPosition.x; // La position x de l'ennemi
@@ -17,10 +19,16 @@ export class Enemy {
         this.hitEffects = []; // Tableau des hitmarkers
         this.lastAttackTime = 0; // Le dernier moment où l'ennemi a attaqué
         this.hitFlashDuration = 0; // La durée de l'effet de flash quand l'ennemi subit des dégâts
+        this.particles = []; // Tableau pour stocker les particules
     }
 
     // Méthode pour dessiner l'ennemi
     draw(context, mapStartX, mapStartY) {
+        // Dessiner les particules
+        for (let particle of this.particles) {
+            particle.draw(context);
+        }
+
         // Dessiner les effets de coup avant de vérifier si l'ennemi est mort
         for (let hitEffect of this.hitEffects) {
             hitEffect.draw(context, mapStartX, mapStartY);
@@ -36,7 +44,7 @@ export class Enemy {
             context.fillStyle = 'white';
             this.hitFlashDuration--;
         } else {
-            context.fillStyle = 'green';
+            context.fillStyle = this.enemyColor;
         }
         context.fillRect(mapStartX + this.x, mapStartY + this.y, this.width, this.height);
     }
@@ -141,6 +149,11 @@ export class Enemy {
                 this.health = 0;
                 this.isDead = true;
             }
+        }
+        console.log(this);
+        // Créer des particules
+        for (let i = 0; i < 10; i++) {
+            this.particles.push(new Particle(this.x, this.y, this.enemyColor));
         }
     }
 

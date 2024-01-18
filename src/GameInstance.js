@@ -20,24 +20,11 @@ export class gameInstance {
         this.addEnemy(); // Ajouter un premier ennemi
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        this.lastFrameTime = Date.now();
-        this.frameCount = 0;
-        this.isPaused = false;
-        this.canTogglePause = true;
     }
 
     // Méthode pour ajouter les écouteurs d'événements
     addEventListeners() {
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !this.keys[event.key]) {
-                this.isPaused ^= true;
-                console.log(this.isPaused);
-                if (this.isPaused) {
-                    this.stopEnemyGeneration();
-                } else {
-                    this.startEnemyGeneration();
-                }
-            }
             this.keys[event.key] = true;
         });
 
@@ -71,6 +58,7 @@ export class gameInstance {
         // Appeler les méthodes de mise à jour et de dessin du jeu
         this.draw();
         this.update();
+        this.startEnemyGeneration();
 
         setInterval(() => {
             const closestEnemy = this.getClosestEnemy();
@@ -106,15 +94,6 @@ export class gameInstance {
         // Appeler la méthode de déplacement du joueur
         this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
 
-        // Afficher ou cacher le menu de pause en fonction de la valeur de isPaused et arrêter ou reprendre le jeu
-        const pauseMenu = document.getElementById('pause-menu');
-        if (this.isPaused) {
-            pauseMenu.style.display = 'block';
-            return;
-        } else {
-            pauseMenu.style.display = 'none';
-        }
-
         // Mettre à jour la position de chaque projectile
         for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.player.projectiles[i];
@@ -142,25 +121,22 @@ export class gameInstance {
                     break;
                 }
             }
-
-            // Augmenter le nombre de frames
-            this.frameCount++;
-
-            // Vérifier si plus d'une seconde s'est écoulée depuis la dernière mise à jour du compteur de FPS
-            const now = Date.now();
-            if (now - this.lastFrameTime >= 1000) {
-                // Afficher le nombre de frames par seconde
-                console.log('FPS:', this.frameCount);
-
-                // Réinitialiser le compteur de FPS
-                this.lastFrameTime = now;
-                this.frameCount = 0;
-            }
         }
 
         // Mettre à jour la position et la santé de chaque ennemi
         for (let i = 0; i < this.enemies.length; i++) {
             const enemy = this.enemies[i];
+
+            // Mettre à jour les particules de chaque ennemi
+            for (let j = enemy.particles.length - 1; j >= 0; j--) {
+                const particle = enemy.particles[j];
+                particle.update();
+
+                // Supprimer la particule si sa taille est inférieure ou égale à zéro
+                if (particle.size <= 0) {
+                    enemy.particles.splice(j, 1);
+                }
+            }
 
             // Si l'ennemi n'est pas en collision avec le joueur, mettre à jour sa position
             if (!enemy.isCollidingWithPlayer(this.player)) {
