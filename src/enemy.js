@@ -26,7 +26,7 @@ export class Enemy {
     draw(context, mapStartX, mapStartY) {
         // Dessiner les particules
         for (let particle of this.particles) {
-            particle.draw(context);
+            particle.draw(context, this.width, mapStartX, mapStartY);
         }
 
         // Dessiner les effets de coup avant de vérifier si l'ennemi est mort

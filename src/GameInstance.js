@@ -193,7 +193,7 @@ export class gameInstance {
         }
 
         // Dessiner le joueur au milieu de l'écran
-        this.player.draw(this.context, this.canvas.width / 2 - this.player.width / 2, this.canvas.height / 2 - this.player.height / 2);
+        this.player.draw(this.context, this.canvas.width / 2 - this.player.width / 2, this.canvas.height / 2 - this.player.height / 2, mapStartX, mapStartY);
 
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
@@ -205,11 +205,6 @@ export class gameInstance {
         this.player.drawHealthBar(this.context);
         this.player.drawExperienceBar(this.context);
 
-        // Dessiner les effets de hit
-        for (let hitEffect of this.player.hitEffects) {
-            hitEffect.draw(this.context, this.canvas.width, this.canvas.height);
-        }
-
         // Supprimer les effets de hit qui ont expiré
         this.player.hitEffects = this.player.hitEffects.filter(hitEffect => hitEffect.duration > 0);
 
@@ -218,6 +213,11 @@ export class gameInstance {
             for (let hitEffect of enemy.hitEffects) {
                 hitEffect.draw(this.context, enemy.x + enemy.width / 2, enemy.y);
             }
+        }
+
+        // Dessiner les effets de hit du joueur
+        for (let hitEffect of this.player.hitEffects) {
+            hitEffect.draw(this.context, this.player.x + this.player.width / 2, this.player.y);
         }
 
         // Timer

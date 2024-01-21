@@ -19,13 +19,19 @@ export class Player {
         this.hitEffects = []; // Tableau des hitmarkers
         this.weapon = new Pistol(this); // Ajouter l'arme de base du joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
+        this.duration = 100; // La durée de l'effet de flash quand le joueur subit des dégâts
+        this.hitFlash = false; // Si le joueur subit des dégâts
     }
 
     // Méthode pour dessiner le joueur
-    draw(context, x, y) {
-        // Remplir un rectangle de couleur rouge à la position x et y
-        context.fillStyle = 'red';
-        context.fillRect(x, y, this.width, this.height);
+    draw(context, x, y, mapStartX, mapStartY) {
+        // Dessiner les effets de coup avant de vérifier si le joueur est mort
+        for (let hitEffect of this.hitEffects) {
+            hitEffect.draw(context, mapStartX, mapStartY);
+        }
+
+        context.fillStyle = this.hitFlash ? 'white' : 'red';
+        context.fillRect(x + mapStartX, y + mapStartY, this.width, this.height);
     }
 
     // Méthode pour dessiner la barre de vie du joueur
@@ -122,6 +128,13 @@ export class Player {
     // Méthode pour réduire la santé du joueur
     decreaseHealth(amount) {
         this.health -= amount;
+        this.hitFlash = true;
+        setTimeout(() => {
+            this.hitFlash = false;
+        }, this.duration);
+
+        // Afficher le nombre de dégâts subis
+        this.hitEffects.push(new HitEffect(this, amount));
     }
 
     // Méthode pour augmenter le niveau d'expérience du joueur
