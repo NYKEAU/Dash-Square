@@ -31,7 +31,7 @@ export class Player {
         }
 
         context.fillStyle = this.hitFlash ? 'white' : 'red';
-        context.fillRect(x + mapStartX, y + mapStartY, this.width, this.height);
+        context.fillRect(x, y, this.width, this.height);
     }
 
     // Méthode pour dessiner la barre de vie du joueur
@@ -134,7 +134,7 @@ export class Player {
         }, this.duration);
 
         // Afficher le nombre de dégâts subis
-        this.hitEffects.push(new HitEffect(this, amount));
+        this.hitEffects.push(new HitEffect(this, amount, 'player'));
     }
 
     // Méthode pour augmenter le niveau d'expérience du joueur

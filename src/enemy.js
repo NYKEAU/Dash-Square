@@ -150,7 +150,6 @@ export class Enemy {
                 this.isDead = true;
             }
         }
-        console.log(this);
         // Créer des particules
         for (let i = 0; i < 10; i++) {
             this.particles.push(new Particle(this.x, this.y, this.enemyColor));
