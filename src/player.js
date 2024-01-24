@@ -135,6 +135,10 @@ export class Player {
 
         // Afficher le nombre de dégâts subis
         this.hitEffects.push(new HitEffect(this, amount, 'player'));
+
+        // Jouer le son de dégâts
+        const hitSound = new Audio('../sounds/playerHitSound.mp3');
+        hitSound.play();
     }
 
     // Méthode pour augmenter le niveau d'expérience du joueur
