@@ -110,19 +110,16 @@ export class Player {
     }
 
     // Méthode pour gérer la collision avec un ennemi
-    handleCollisionWithEnemy(enemy) {
-        // Si le joueur est en collision avec l'ennemi
-        if (this.isCollidingWithEnemy(enemy)) {
-            // Réduire la santé du joueur
-            this.decreaseHealth(enemy.damage);
-        }
-    }
-
     isCollidingWithEnemy(object) {
-        return this.x < object.x + object.width &&
-            this.x + this.width > object.x &&
-            this.y < object.y + object.height &&
-            this.y + this.height > object.y;
+        // Si l'ennemi est mort, ne pas gérer la collision
+        if (!object.isDead) {
+            return this.x < object.x + object.width &&
+                this.x + this.width > object.x &&
+                this.y < object.y + object.height &&
+                this.y + this.height > object.y;
+        } else {
+            return;
+        }
     }
 
     // Méthode pour réduire la santé du joueur
@@ -137,8 +134,8 @@ export class Player {
         this.hitEffects.push(new HitEffect(this, amount, 'player'));
 
         // Jouer le son de dégâts
-        const hitSound = new Audio('../sounds/playerHitSound.mp3');
-        hitSound.play();
+        // const hitSound = new Audio('../sounds/playerHitSound.mp3');
+        // hitSound.play();
     }
 
     // Méthode pour augmenter le niveau d'expérience du joueur

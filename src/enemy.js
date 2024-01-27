@@ -139,8 +139,28 @@ export class Enemy {
     }
 
     // Méthode pour réduire la santé de l'ennemi
-    decreaseHealth(amount) {
+    decreaseHealth(amount, bulletX, bulletY, bulletDirection, bulletSpeed) {
         this.hitFlashDuration = 10; // L'ennemi deviendra blanc pendant 5 frames
+
+        // Utiliser la même direction que le projectile pour la direction des particules
+        const direction = {
+            x: bulletDirection.x,
+            y: bulletDirection.y
+        };
+
+        // Calculer le facteur de dispersion en fonction de la vitesse du projectile
+        const dispersionFactor = 10 / bulletSpeed;
+
+        // Créer des particules
+        for (let i = 0; i < 10; i++) {
+            // Ajouter une petite variation aléatoire à la direction de chaque particule
+            const particleDirection = {
+                x: direction.x + (Math.random() - 0.5) * dispersionFactor,
+                y: direction.y + (Math.random() - 0.5) * dispersionFactor
+            };
+            this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection));
+        }
+
         if (this.health > 0) {
             this.health -= amount;
             // Afficher sur l'ennemi le nombre de dégâts subis
@@ -149,10 +169,6 @@ export class Enemy {
                 this.health = 0;
                 this.isDead = true;
             }
-        }
-        // Créer des particules
-        for (let i = 0; i < 10; i++) {
-            this.particles.push(new Particle(this.x, this.y, this.enemyColor));
         }
     }
 

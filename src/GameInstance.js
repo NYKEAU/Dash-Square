@@ -110,15 +110,21 @@ export class gameInstance {
             // Vérifier la collision avec chaque ennemi
             for (let j = this.enemies.length - 1; j >= 0; j--) {
                 const enemy = this.enemies[j];
-                const dx = projectile.x - enemy.x - enemy.width / 2;
-                const dy = projectile.y - enemy.y - enemy.height / 2;
-                const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
-                    // Collision détectée, réduire la santé de l'ennemi et supprimer le projectile
-                    this.enemies[j].decreaseHealth(this.player.damage);
-                    this.player.projectiles.splice(i, 1);
-                    break;
+                // Vérifier la collision avec chaque ennemi
+                for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
+                    const projectile = this.player.projectiles[i];
+
+                    const dx = projectile.x - enemy.x - enemy.width / 2;
+                    const dy = projectile.y - enemy.y - enemy.height / 2;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
+                        // Collision détectée, réduire la santé de l'ennemi et supprimer le projectile
+                        this.enemies[j].decreaseHealth(this.player.damage, projectile.x, projectile.y, projectile.direction, projectile.speed);
+                        this.player.projectiles.splice(i, 1);
+                        break;
+                    }
                 }
             }
         }
