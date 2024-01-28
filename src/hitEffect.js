@@ -1,5 +1,6 @@
 export class HitEffect {
     constructor(target, damage, targetType) {
+        console.log("HitEffect");
         this.target = target;
         this.targetType = targetType;
         this.x = target.x;

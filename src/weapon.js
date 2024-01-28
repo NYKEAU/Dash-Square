@@ -47,7 +47,7 @@ export class Pistol extends Weapon {
     constructor(player) {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 10; // Initialiser this.speed ici pour la classe Pistol
-        this.fireRate = 2; // Initialiser this.fireRate ici pour la classe Pistol
+        this.fireRate = 1; // Initialiser this.fireRate ici pour la classe Pistol
     }
 
     shoot(direction) {
