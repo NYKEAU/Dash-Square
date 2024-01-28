@@ -1,5 +1,5 @@
 export class Particle {
-    constructor(x, y, color, direction) {
+    constructor(x, y, color, direction, speed) {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -18,7 +18,6 @@ export class Particle {
 
     // Méthode pour dessiner la particule
     draw(context, enemySize, mapStartX, mapStartY) {
-        console.log('Drawing particle at:', this.x + enemySize / 2 + mapStartX, this.y + enemySize / 2 + mapStartY, this.x, this.y, enemySize, mapStartX, mapStartY);
         if (this.duration > 0) {
             context.fillStyle = 'white';
             this.duration--;

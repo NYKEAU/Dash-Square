@@ -13,7 +13,7 @@ export class gameInstance {
         this.screenHeight = window.innerHeight; // La hauteur de l'écran du navigateur
         this.mapWidth = this.screenWidth * 1.5; // La largeur de la carte (1.5 fois la largeur de l'écran)
         this.mapHeight = this.screenHeight * 1.5; // La hauteur de la carte (1.5 fois la hauteur de l'écran)
-        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2); // Le joueur
+        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
         this.enemies = []; // Le tableau des ennemis
         this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
         this.addEventListeners(); // Ajouter les écouteurs d'événements
@@ -60,18 +60,7 @@ export class gameInstance {
         this.update();
         this.startEnemyGeneration();
 
-        setInterval(() => {
-            const closestEnemy = this.getClosestEnemy();
-            if (closestEnemy) {
-                const dx = closestEnemy.x - this.player.x;
-                const dy = closestEnemy.y - this.player.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 0) {
-                    const direction = { x: dx / distance, y: dy / distance };
-                    this.player.weapon.shoot(direction);
-                }
-            }
-        }, 1000);
+        this.player.weapon.startShooting();
     }
 
     // Ajoutez cette fonction à la classe GameInstance
@@ -121,7 +110,7 @@ export class gameInstance {
 
                     if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
                         // Collision détectée, réduire la santé de l'ennemi et supprimer le projectile
-                        this.enemies[j].decreaseHealth(this.player.damage, projectile.x, projectile.y, projectile.direction, projectile.speed);
+                        this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, projectile.speed);
                         this.player.projectiles.splice(i, 1);
                         break;
                     }

@@ -1,26 +1,38 @@
 import { HitEffect } from './hitEffect.js';
-import { Pistol } from './weapon.js';
+import { Pistol, Shotgun } from './weapon.js';
 
 export class Player {
     // Définir le constructeur de la classe
-    constructor(x, y) {
-        // Initialiser les propriétés du joueur
+    constructor(x, y, gameInstance) {
+        this.gameInstance = gameInstance;
         this.x = x; // La position x du joueur
         this.y = y; // La position y du joueur
         this.width = 30; // La largeur du joueur
         this.height = 30; // La hauteur du joueur
+
+        // Mouvement
         this.speed = 7.5; // La vitesse de déplacement du joueur
+
+        // Santé et Niveau
         this.health = 100; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
-        this.damage = 10; // Les dégâts du joueur
+        this.level = 1; // Niveau du joueur au début du jeu
         this.experience = 0; // Expérience du joueur au début du jeu
         this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
-        this.level = 1; // Niveau du joueur au début du jeu
+
+        // Dégâts et Attaque
+        this.damage = 10; // Les dégâts du joueur
+        this.defense = 0; // La défense du joueur
+        this.rof = 0; // La cadence de tir du joueur
+
+        // Effets Visuels
         this.hitEffects = []; // Tableau des hitmarkers
-        this.weapon = new Pistol(this); // Ajouter l'arme de base du joueur
-        this.projectiles = []; // Initialiser les projectiles comme un tableau vide
         this.duration = 100; // La durée de l'effet de flash quand le joueur subit des dégâts
         this.hitFlash = false; // Si le joueur subit des dégâts
+
+        // Armes et Projets
+        this.weapon = new Shotgun(this); // Ajouter l'arme de base du joueur
+        this.projectiles = []; // Initialiser les projectiles comme un tableau vide
     }
 
     // Méthode pour dessiner le joueur

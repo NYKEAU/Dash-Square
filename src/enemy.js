@@ -139,7 +139,7 @@ export class Enemy {
     }
 
     // Méthode pour réduire la santé de l'ennemi
-    decreaseHealth(amount, bulletX, bulletY, bulletDirection, bulletSpeed) {
+    decreaseHealth(amount, bulletDirection, bulletSpeed) {
         this.hitFlashDuration = 10; // L'ennemi deviendra blanc pendant 5 frames
 
         // Utiliser la même direction que le projectile pour la direction des particules
@@ -158,7 +158,7 @@ export class Enemy {
                 x: direction.x + (Math.random() - 0.5) * dispersionFactor,
                 y: direction.y + (Math.random() - 0.5) * dispersionFactor
             };
-            this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection));
+            this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, bulletSpeed));
         }
 
         if (this.health > 0) {
