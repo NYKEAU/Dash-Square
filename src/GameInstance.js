@@ -88,7 +88,9 @@ export class gameInstance {
             const projectile = this.player.projectiles[i];
 
             // Déplacer le projectile
-            projectile.move();
+            if (projectile) {
+                projectile.move();
+            }
 
             // Supprimer le projectile s'il est sorti des limites de la carte
             if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
@@ -122,6 +124,18 @@ export class gameInstance {
         for (let i = 0; i < this.enemies.length; i++) {
             const enemy = this.enemies[i];
 
+            // Si l'ennemi est mort, vérifier si tous les effets de coup associés à cet ennemi ont fini de s'afficher
+            if (enemy.isDead) {
+                const allHitEffectsDone = enemy.hitEffects.every(hitEffect => hitEffect.duration <= 0);
+
+                // Si tous les effets de coup ont fini de s'afficher, supprimer l'ennemi
+                if (allHitEffectsDone) {
+                    this.enemies.splice(i, 1);
+                    this.player.increaseExperience(enemy.xpGived);
+                    i--;
+                }
+            }
+
             // Mettre à jour les particules de chaque ennemi
             for (let j = enemy.particles.length - 1; j >= 0; j--) {
                 const particle = enemy.particles[j];
@@ -142,18 +156,6 @@ export class gameInstance {
             if (this.player.isCollidingWithEnemy(enemy)) {
                 // Gérer la collision entre le joueur et l'ennemi
                 enemy.handleCollisionWithPlayer(this.player);
-            }
-
-            // Si l'ennemi est mort, vérifier si tous les effets de coup associés à cet ennemi ont fini de s'afficher
-            if (enemy.isDead) {
-                const allHitEffectsDone = enemy.hitEffects.every(hitEffect => hitEffect.duration <= 0);
-
-                // Si tous les effets de coup ont fini de s'afficher, supprimer l'ennemi
-                if (allHitEffectsDone) {
-                    this.enemies.splice(i, 1);
-                    this.player.increaseExperience(enemy.xpGived);
-                    i--;
-                }
             }
         }
 
@@ -232,6 +234,12 @@ export class gameInstance {
         let closestDistance = Infinity;
 
         for (let enemy of this.enemies) {
+            if (enemy.isDead) {
+                enemy.width = 0;
+                enemy.height = 0;
+                continue;
+            }
+
             const dx = this.player.x - enemy.x;
             const dy = this.player.y - enemy.y;
             const distance = Math.sqrt(dx * dx + dy * dy);

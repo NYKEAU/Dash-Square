@@ -102,7 +102,7 @@ export class Enemy {
     // Méthode pour gérer la collision avec le joueur
     handleCollisionWithPlayer(player) {
         // Si l'ennemi est en collision avec le joueur
-        if (this.isCollidingWithPlayer(player)) {
+        if (this.isCollidingWithPlayer(player) && !this.isDead) {
             // Obtenir le temps actuel
             const currentTime = Date.now();
 

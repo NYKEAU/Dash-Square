@@ -19,8 +19,10 @@ class Weapon {
         }
 
         this.timeoutId = setTimeout(() => {
+            // If closestEnemy is dead, get the next closest enemy
             const closestEnemy = this.player.gameInstance.getClosestEnemy();
-            if (closestEnemy) {
+
+            if (closestEnemy && !closestEnemy.isDead) {
                 const dx = closestEnemy.x - this.player.x;
                 const dy = closestEnemy.y - this.player.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);

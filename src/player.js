@@ -31,7 +31,7 @@ export class Player {
         this.hitFlash = false; // Si le joueur subit des dégâts
 
         // Armes et Projets
-        this.weapon = new Pistol(this); // Ajouter l'arme de base du joueur
+        this.weapon = new Shotgun(this); // Ajouter l'arme de base du joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
     }
 
