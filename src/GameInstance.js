@@ -87,15 +87,16 @@ export class gameInstance {
         for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.player.projectiles[i];
 
-            // Déplacer le projectile
+            // Vérifier si le projectile est défini
             if (projectile) {
+                // Déplacer le projectile
                 projectile.move();
-            }
 
-            // Supprimer le projectile s'il est sorti des limites de la carte
-            if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
-                this.player.projectiles.splice(i, 1);
-                continue;
+                // Supprimer le projectile s'il est sorti des limites de la carte
+                if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
+                    this.player.projectiles.splice(i, 1);
+                    continue;
+                }
             }
 
             // Vérifier la collision avec chaque ennemi
