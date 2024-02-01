@@ -1,5 +1,5 @@
 import { HitEffect } from './hitEffect.js';
-import { Pistol, Shotgun } from './weapon.js';
+import { Pistol, Shotgun, SMG, Famas, Sniper } from './weapon.js';
 
 export class Player {
     // Définir le constructeur de la classe
@@ -10,6 +10,10 @@ export class Player {
         this.width = 30; // La largeur du joueur
         this.height = 30; // La hauteur du joueur
 
+        // Armes et Projets
+        this.weapon = new SMG(this); // Ajouter l'arme de base du joueur
+        this.projectiles = []; // Initialiser les projectiles comme un tableau vide
+
         // Mouvement
         this.speed = 7.5; // La vitesse de déplacement du joueur
 
@@ -19,9 +23,10 @@ export class Player {
         this.level = 1; // Niveau du joueur au début du jeu
         this.experience = 0; // Expérience du joueur au début du jeu
         this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
+        this.money = 0; // Argent du joueur au début du jeu
 
         // Dégâts et Attaque
-        this.damage = 10; // Les dégâts du joueur
+        this.damage = this.weapon.damage; // Les dégâts du joueur
         this.defense = 0; // La défense du joueur
         this.rof = 0; // La cadence de tir du joueur
 
@@ -29,17 +34,13 @@ export class Player {
         this.hitEffects = []; // Tableau des hitmarkers
         this.duration = 100; // La durée de l'effet de flash quand le joueur subit des dégâts
         this.hitFlash = false; // Si le joueur subit des dégâts
-
-        // Armes et Projets
-        this.weapon = new Shotgun(this); // Ajouter l'arme de base du joueur
-        this.projectiles = []; // Initialiser les projectiles comme un tableau vide
     }
 
     // Méthode pour dessiner le joueur
     draw(context, x, y, mapStartX, mapStartY) {
         // Dessiner les effets de coup avant de vérifier si le joueur est mort
         for (let hitEffect of this.hitEffects) {
-            hitEffect.draw(context, mapStartX, mapStartY);
+            hitEffect.draw(context, mapStartX - 10, mapStartY);
         }
 
         context.fillStyle = this.hitFlash ? 'white' : 'red';
@@ -105,6 +106,17 @@ export class Player {
         context.restore();
     }
 
+    // Méthode pour dessiner l'argent du joueur
+    drawMoney(context) {
+        // Préparer le texte
+        const moneyText = 'Argent: ' + this.money;
+
+        // Dessiner l'argent du joueur en haut de l'écran
+        context.fillStyle = 'black'; // Couleur du texte
+        context.font = '16px Arial'; // Taille et police du texte
+        context.fillText(moneyText, 10, 70); // Position du texte
+    }
+
     // Méthode pour déplacer le joueur
     move(keys, mapWidth, mapHeight, enemies) {
         // Calculer la nouvelle position du joueur
@@ -132,6 +144,19 @@ export class Player {
         } else {
             return;
         }
+    }
+
+    // Méthode pour vérifier la collision avec une pièce
+    isCollidingWithCoin(coin) {
+        return this.x < coin.x + coin.width &&
+            this.x + this.width > coin.x &&
+            this.y < coin.y + coin.height &&
+            this.y + this.height > coin.y;
+    }
+
+    // Méthode pour augmenter l'argent du joueur
+    increaseMoney(amount) {
+        this.money += amount;
     }
 
     // Méthode pour réduire la santé du joueur
@@ -166,9 +191,12 @@ export class Player {
         };
 
         // Augmenter les dégâts du joueur (sans décimales et arrondi au chiffre supérieur)
-        this.damage = Math.floor(this.damage * 1.1);
-
+        this.damage = Math.floor(this.damage * 1.01);
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
+
+        // Modifier la génération des ennemis
+        this.gameInstance.startEnemyGeneration(this.level);
+
         // Réinitialiser l'expérience du joueur
         this.experience = 0;
     }

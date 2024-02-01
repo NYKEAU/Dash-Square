@@ -1,5 +1,6 @@
 import { HitEffect } from './hitEffect.js';
 import { Particle } from './particle.js';
+import { Coin } from './coin.js';
 
 export class Enemy {
     // Définir le constructeur de la classe
@@ -20,6 +21,8 @@ export class Enemy {
         this.lastAttackTime = 0; // Le dernier moment où l'ennemi a attaqué
         this.hitFlashDuration = 0; // La durée de l'effet de flash quand l'ennemi subit des dégâts
         this.particles = []; // Tableau pour stocker les particules
+        this.knockbackSpeed = { x: 0, y: 0 }; // Vitesse de recul
+        this.coinGenerated = false; // Si une pièce a été générée
     }
 
     // Méthode pour dessiner l'ennemi
@@ -31,7 +34,7 @@ export class Enemy {
 
         // Dessiner les effets de coup avant de vérifier si l'ennemi est mort
         for (let hitEffect of this.hitEffects) {
-            hitEffect.draw(context, mapStartX, mapStartY);
+            hitEffect.draw(context, mapStartX - 10, mapStartY);
         }
 
         // Si l'ennemi est mort, ne pas le dessiner
@@ -47,6 +50,17 @@ export class Enemy {
             context.fillStyle = this.enemyColor;
         }
         context.fillRect(mapStartX + this.x, mapStartY + this.y, this.width, this.height);
+    }
+
+    // Méthode pour mettre à jour l'ennemi
+    update() {
+        // Déplace l'ennemi en fonction du recul
+        this.x += this.knockback.x;
+        this.y += this.knockback.y;
+
+        // Réduit progressivement le recul pour que l'ennemi s'arrête
+        this.knockback.x *= 0.9;
+        this.knockback.y *= 0.9;
     }
 
     // Méthode pour dessiner la barre de vie
@@ -97,6 +111,14 @@ export class Enemy {
             this.x += moveX * this.speed;
             this.y += moveY * this.speed;
         }
+
+        // Appliquer le recul
+        this.x += this.knockbackSpeed.x;
+        this.y += this.knockbackSpeed.y;
+
+        // Réduire progressivement le recul
+        this.knockbackSpeed.x *= 0.9;
+        this.knockbackSpeed.y *= 0.9;
     }
 
     // Méthode pour gérer la collision avec le joueur
@@ -139,7 +161,7 @@ export class Enemy {
     }
 
     // Méthode pour réduire la santé de l'ennemi
-    decreaseHealth(amount, bulletDirection, bulletSpeed) {
+    decreaseHealth(amount, bulletDirection) {
         this.hitFlashDuration = 10; // L'ennemi deviendra blanc pendant 5 frames
 
         // Utiliser la même direction que le projectile pour la direction des particules
@@ -148,17 +170,14 @@ export class Enemy {
             y: bulletDirection.y
         };
 
-        // Calculer le facteur de dispersion en fonction de la vitesse du projectile
-        const dispersionFactor = 10 / bulletSpeed;
-
         // Créer des particules
         for (let i = 0; i < 10; i++) {
             // Ajouter une petite variation aléatoire à la direction de chaque particule
             const particleDirection = {
-                x: direction.x + (Math.random() - 0.5) * dispersionFactor,
-                y: direction.y + (Math.random() - 0.5) * dispersionFactor
+                x: direction.x + (Math.random() - 0.5) * 0.5,
+                y: direction.y + (Math.random() - 0.5) * 0.5
             };
-            this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, bulletSpeed));
+            this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1));
         }
 
         if (this.health > 0) {
@@ -170,7 +189,31 @@ export class Enemy {
                 this.isDead = true;
             }
         }
+
+        // Ajouter un effet de recul
+        const knockbackFactor = 0.25; // Ajustez cette valeur pour augmenter ou diminuer l'effet de recul
+        this.knockbackSpeed.x += direction.x * amount * knockbackFactor;
+        this.knockbackSpeed.y += direction.y * amount * knockbackFactor;
     }
+
+    // Méthode pour générer une pièce lorsque l'ennemi meurt
+    generateCoin(mapHeight, mapWidth) {
+        // Vérifier si la pièce a déjà été générée
+        if (this.coinGenerated) {
+            return null;
+        }
+
+        // Marquer l'ennemi comme ayant généré une pièce
+        this.coinGenerated = true;
+
+        // Calculer la position de la pièce en fonction de la position de l'ennemi
+        const coinX = this.x + this.width / 4;  // ou ajustez selon votre logique
+        const coinY = this.y + this.height / 4;  // ou ajustez selon votre logique
+
+        // Créer et retourner la pièce
+        return new Coin(coinX, coinY);
+    }
+
 
     // Méthode pour générer une position aléatoire de l'ennemi par rapport au joueur
     generateRandomPosition(player, mapWidth, mapHeight) {

@@ -1,5 +1,5 @@
 export class Projectile {
-    constructor(initialX, initialY, speed, maxDistance, player) {
+    constructor(initialX, initialY, speed, damage, piercing = false, maxDistance, player) {
         this.initialX = initialX;
         this.initialY = initialY;
         this.x = initialX;
@@ -8,7 +8,9 @@ export class Projectile {
         this.size = 5;
         this.maxDistance = maxDistance;
         this.distanceTraveled = 0;
+        this.damage = damage;
         this.player = player;
+        this.piercing = piercing;
     }
 
     move() {
@@ -39,5 +41,12 @@ export class Projectile {
         context.beginPath();
         context.arc(this.x + offsetX, this.y + offsetY, this.size, 0, Math.PI * 2);
         context.fill();
+    }
+}
+
+export class SniperProjectile extends Projectile {
+    constructor(x, y, speed, damage, range, player) {
+        super(x, y, speed, damage, range, player);
+        // Ajoutez d'autres propriétés spécifiques au SniperProjectile ici si nécessaire
     }
 }
