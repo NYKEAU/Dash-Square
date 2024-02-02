@@ -13,4 +13,26 @@ export class Coin {
         context.fillStyle = 'yellow'; // Couleur de la pièce (à ajuster selon vos besoins)
         context.fillRect(this.x + mapStartX, this.y + mapStartY, this.width, this.height);
     }
+
+    // Ajoutez une méthode pour attirer la pièce vers le joueur
+    attractToPlayer(player) {
+        // Calculez la distance entre la pièce et le joueur
+        let dx = player.x - this.x;
+        let dy = player.y - this.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Si la distance est inférieure à une certaine valeur, déplacez la pièce vers le joueur
+        if (distance < 50) {
+            // Calculez le vecteur de direction
+            let directionX = dx / distance;
+            let directionY = dy / distance;
+
+            // Calculez la vitesse d'attraction en fonction de la proximité de la pièce au joueur
+            let attractionSpeed = 5 * (500 - distance) / 500;
+
+            // Déplacez la pièce vers le joueur
+            this.x += directionX * attractionSpeed;
+            this.y += directionY * attractionSpeed;
+        }
+    }
 }

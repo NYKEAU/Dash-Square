@@ -3,26 +3,36 @@ import { Particle } from './particle.js';
 import { Coin } from './coin.js';
 
 export class Enemy {
-    // Définir le constructeur de la classe
     constructor(player, mapWidth, mapHeight, baseHealth, damage, xpGived) {
-        this.width = 20; // La largeur de l'ennemi
-        this.height = 20; // La hauteur de l'ennemi
-        this.speed = 1; // La vitesse de déplacement de l'ennemi
-        this.enemyColor = 'green'; // La couleur de l'ennemi
-        this.xpGived = xpGived; // L'expérience donnée par l'ennemi
+        // Dimensions
+        this.width = 20;
+        this.height = 20;
+
+        // Position
         const initialPosition = this.generateRandomPosition(player, mapWidth, mapHeight);
-        this.x = initialPosition.x; // La position x de l'ennemi
-        this.y = initialPosition.y; // La position y de l'ennemi
-        this.health = baseHealth; // Santé initiale de l'ennemi
-        this.baseHealth = baseHealth; // Santé de base de l'ennemi
-        this.damage = damage; // Les dégâts de l'ennemi
-        this.lastDamageTime = 0; // Le dernier moment où l'ennemi a subi des dégâts
-        this.hitEffects = []; // Tableau des hitmarkers
-        this.lastAttackTime = 0; // Le dernier moment où l'ennemi a attaqué
-        this.hitFlashDuration = 0; // La durée de l'effet de flash quand l'ennemi subit des dégâts
-        this.particles = []; // Tableau pour stocker les particules
-        this.knockbackSpeed = { x: 0, y: 0 }; // Vitesse de recul
-        this.coinGenerated = false; // Si une pièce a été générée
+        this.x = initialPosition.x;
+        this.y = initialPosition.y;
+
+        // Mouvement
+        this.speed = 1;
+        this.knockbackSpeed = { x: 0, y: 0 };
+
+        // Apparence
+        this.enemyColor = 'green';
+        this.hitEffects = [];
+        this.particles = [];
+        this.hitFlashDuration = 0;
+
+        // Combat
+        this.health = baseHealth;
+        this.baseHealth = baseHealth;
+        this.damage = damage;
+        this.lastDamageTime = 0;
+        this.lastAttackTime = 0;
+
+        // Récompenses
+        this.xpGived = xpGived;
+        this.coinGenerated = false;
     }
 
     // Méthode pour dessiner l'ennemi
@@ -181,9 +191,9 @@ export class Enemy {
         }
 
         if (this.health > 0) {
-            this.health -= amount;
             // Afficher sur l'ennemi le nombre de dégâts subis
-            this.hitEffects.push(new HitEffect(this, amount));
+            this.hitEffects.push(new HitEffect(this, amount, 'enemy'));
+            this.health -= amount;
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;

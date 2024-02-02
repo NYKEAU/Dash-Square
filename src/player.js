@@ -195,7 +195,11 @@ export class Player {
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
 
         // Modifier la génération des ennemis
-        this.gameInstance.startEnemyGeneration(this.level);
+        if (this.level % 5 === 0) {
+            this.gameInstance.stopEnemyGeneration();
+            console.log("STOPPED");
+            this.gameInstance.displayShop();
+        }
 
         // Réinitialiser l'expérience du joueur
         this.experience = 0;

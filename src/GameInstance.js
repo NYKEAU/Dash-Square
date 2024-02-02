@@ -20,16 +20,23 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        this.spawnFrequency = 5000;
+        this.spawnFrequency = 250;
         this.coins = []; // Le tableau des pièces
         this.enemiesWithGeneratedCoins = [];
         this.enemiesWithGeneratedCoins = new Set();
+        this.isPaused = false;
+        this.pausedTime = 0;
     }
 
     // Méthode pour ajouter les écouteurs d'événements
     addEventListeners() {
         document.addEventListener('keydown', (event) => {
             this.keys[event.key] = true;
+
+            // Si la touche Echap est enfoncée, basculer la pause
+            if (event.key === 'Escape') {
+                this.togglePause();
+            }
         });
 
         document.addEventListener('keyup', (event) => {
@@ -37,8 +44,24 @@ export class gameInstance {
         });
     }
 
+    // Méthode pour basculer la pause
+    togglePause() {
+        if (this.isPaused) {
+            this.resumeGame();
+            document.getElementById('pauseMenu').style.display = 'none';
+        } else {
+            this.pauseGame();
+            document.getElementById('pauseMenu').style.display = 'block';
+        }
+    }
+
     // Méthode pour démarrer la génération d'ennemis
     startEnemyGeneration(level) {
+        // Arrêter l'ancien intervalle de génération d'ennemis
+        if (this.addEnemyInterval !== null) {
+            this.stopEnemyGeneration();
+        }
+
         // Définir la fréquence de spawn des ennemis en fonction de l'avancement du jeu
         if (level % 5 == 0) {
             this.spawnFrequency = Math.floor(this.spawnFrequency * 0.9);
@@ -47,6 +70,119 @@ export class gameInstance {
         console.log('Spawn frequency:', this.spawnFrequency);
 
         this.addEnemyInterval = setInterval(() => this.addEnemy(50, 5, 10), this.spawnFrequency);
+    }
+
+    // Nouvelle méthode pour arrêter la génération d'ennemis
+    stopEnemyGeneration() {
+        clearInterval(this.addEnemyInterval);
+        this.addEnemyInterval = null;
+    }
+
+    // Méthode pour afficher le magasin
+    displayShop() {
+        // Mettre le jeu en pause
+        this.pauseGame();
+
+        // Afficher le magasin
+        document.getElementById('shop').style.display = 'block';
+
+        // Créez trois options d'amélioration
+        let upgradeOptions = [
+            { name: 'Amélioration 1', effect: "/* ... */" },
+            { name: 'Amélioration 2', effect: "/* ... */" },
+            { name: 'Amélioration 3', effect: "/* ... */" },
+        ];
+
+        // Affichez les options d'amélioration à l'utilisateur
+        for (let i = 0; i < upgradeOptions.length; i++) {
+            console.log(`${i + 1}. ${upgradeOptions[i].name}`);
+        }
+    }
+
+    // Méthode pour redémarrer le jeu
+    restartGame() {
+        // Réinitialiser les propriétés de l'instance de jeu
+        this.startTime = Date.now();
+        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
+        this.enemies = []; // Le tableau des ennemis
+        this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
+        this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
+        this.spawnFrequency = 250;
+        this.coins = []; // Le tableau des pièces
+        this.enemiesWithGeneratedCoins = new Set();
+        this.isPaused = false;
+        this.pausedTime = 0;
+
+        // Arrêter le tir du joueur
+        this.player.weapon.stopShooting();
+
+        // Arrêter l'ajout d'ennemis
+        clearInterval(this.addEnemyInterval);
+        this.addEnemyInterval = null;
+
+        document.getElementById('pauseMenu').style.display = 'none';
+
+        // Redémarrer le jeu
+        this.start();
+    }
+
+    // Méthode pour mettre en pause le jeu
+    pauseGame() {
+
+        // Mettre le jeu en pause
+        this.isPaused = true;
+
+        // Mettre en pause le timer
+        this.pausedTime = Date.now() - this.startTime;
+
+        // Arrêtez la génération d'ennemis
+        this.stopEnemyGeneration();
+
+        // Cacher le timer
+        this.showTimer = false;
+
+        // Arrêtez de tirer
+        this.player.weapon.stopShooting();
+    }
+
+    resumeGame() {
+        document.getElementById('shop').style.display = 'none';
+        document.getElementById('pauseMenu').style.display = 'none';
+
+        // Une fois que le joueur a fait son choix, reprenez le jeu
+        this.isPaused = false;
+
+        // Reprendre le temps de jeu à partir du moment où le jeu a été mis en pause
+        this.startTime = Date.now() - this.pausedTime;
+
+        // Reprendre la génération d'ennemis
+        this.stopEnemyGeneration();
+        this.startEnemyGeneration(this.player.level);
+
+        // Afficher le timerText avec this.context.fillText
+        this.showTimer = true;
+
+        // Reprendre le tir
+        this.player.weapon.stopShooting();
+        this.player.weapon.startShooting();
+    }
+
+    // Méthode pour quitter le jeu
+    quitGame() {
+        // Cacher le menu de pause
+        document.getElementById('pauseMenu').style.display = 'none';
+
+        // Afficher le menu de démarrage
+        document.getElementById('startMenu').style.display = 'block';
+
+        // Cacher le jeu
+        this.canvas.style.display = 'none';
+    }
+
+    // Méthode pour choisir une amélioration
+    chooseUpgrade(option) {
+        // Appliquez l'effet de l'option d'amélioration au joueur
+        // ...
     }
 
     // Méthode pour ajouter un nouvel ennemi
@@ -58,128 +194,132 @@ export class gameInstance {
         this.enemies.push(enemy);
     }
 
-    // Nouvelle méthode pour arrêter la génération d'ennemis
-    stopEnemyGeneration() {
-        clearInterval(this.addEnemyInterval);
-        this.addEnemyInterval = null;
-    }
-
     // Méthode pour lancer le jeu
     start() {
         // Appeler les méthodes de mise à jour et de dessin du jeu
         this.draw();
         this.update();
-        this.startEnemyGeneration();
+
+        this.startEnemyGeneration(this.player.level);
+        console.log("STARTED");
 
         this.player.weapon.startShooting();
     }
 
     // Méthode pour obtenir le temps écoulé depuis le début du jeu en format "00:00"
     getElapsedTime() {
-        const totalSeconds = Math.floor((Date.now() - this.startTime) / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        if (!this.isPaused) {
+            const totalSeconds = Math.floor((Date.now() - this.startTime) / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        } else {
+            const totalSeconds = Math.floor(this.pausedTime / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        }
     }
 
     // Méthode pour mettre à jour le jeu
     update() {
-        // Appeler la méthode de déplacement du joueur
-        this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
+        if (!this.isPaused) {
+            // Appeler la méthode de déplacement du joueur
+            this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
 
-        // Mettre à jour la position de chaque projectile
-        for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
-            const projectile = this.player.projectiles[i];
+            // Mettre à jour la position de chaque projectile
+            for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
+                const projectile = this.player.projectiles[i];
 
-            // Vérifier si le projectile est défini
-            if (projectile) {
-                // Déplacer le projectile
-                projectile.move();
+                // Vérifier si le projectile est défini
+                if (projectile) {
+                    // Déplacer le projectile
+                    projectile.move();
 
-                // Supprimer le projectile s'il est sorti des limites de la carte
-                if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
-                    this.player.projectiles.splice(i, 1);
-                    continue;
+                    // Supprimer le projectile s'il est sorti des limites de la carte
+                    if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
+                        this.player.projectiles.splice(i, 1);
+                        continue;
+                    }
                 }
-            }
-
-            // Vérifier la collision avec chaque ennemi
-            for (let j = this.enemies.length - 1; j >= 0; j--) {
-                const enemy = this.enemies[j];
 
                 // Vérifier la collision avec chaque ennemi
-                for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
-                    const projectile = this.player.projectiles[i];
+                for (let j = this.enemies.length - 1; j >= 0; j--) {
+                    const enemy = this.enemies[j];
 
-                    const dx = projectile.x - enemy.x - enemy.width / 2;
-                    const dy = projectile.y - enemy.y - enemy.height / 2;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    // Vérifier la collision avec chaque ennemi
+                    for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
+                        const projectile = this.player.projectiles[i];
 
-                    if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
-                        // Collision détectée, réduire la santé de l'ennemi
-                        this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, projectile.speed);
+                        const dx = projectile.x - enemy.x - enemy.width / 2;
+                        const dy = projectile.y - enemy.y - enemy.height / 2;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
 
-                        // Si le projectile n'est pas un projectile de Sniper, le supprimer
-                        if (!(projectile instanceof SniperProjectile)) {
-                            this.player.projectiles.splice(i, 1);
+                        if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
+                            // Collision détectée, réduire la santé de l'ennemi
+                            this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, projectile.speed);
+
+                            // Si le projectile n'est pas un projectile de Sniper, le supprimer
+                            if (!(projectile instanceof SniperProjectile)) {
+                                this.player.projectiles.splice(i, 1);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
-        }
 
-        // Mettre à jour la position et la santé de chaque ennemi
-        for (let i = 0; i < this.enemies.length; i++) {
-            const enemy = this.enemies[i];
+            // Mettre à jour la position et la santé de chaque ennemi
+            for (let i = 0; i < this.enemies.length; i++) {
+                const enemy = this.enemies[i];
 
-            // Si l'ennemi est mort, vérifier si tous les effets de coup associés à cet ennemi ont fini de s'afficher
-            if (enemy.isDead && !enemy.coinGenerated) {
-                // Générer la pièce
-                const coin = enemy.generateCoin(this.mapHeight, this.mapWidth);
-                if (coin) {
-                    // Ajouter la pièce à la liste des objets à dessiner ou gérer
-                    this.coins.push(coin);
-                    // Marquer l'ennemi comme ayant généré une pièce
-                    enemy.coinGenerated = true;
+                // Si l'ennemi est mort, vérifier si tous les effets de coup associés à cet ennemi ont fini de s'afficher
+                if (enemy.isDead && !enemy.coinGenerated) {
+                    // Générer la pièce
+                    const coin = enemy.generateCoin(this.mapHeight, this.mapWidth);
+                    if (coin) {
+                        this.coins.push(coin);
+                        enemy.coinGenerated = true;
+                    }
+
+                    // Supprimer l'ennemi
+                    this.enemies.splice(i, 1);
+                    this.player.increaseExperience(enemy.xpGived);
+                    i--;
                 }
 
-                // Supprimer l'ennemi
-                this.enemies.splice(i, 1);
-                this.player.increaseExperience(enemy.xpGived);
-                i--;
-            }
+                // Mettre à jour les particules de chaque ennemi
+                for (let j = enemy.particles.length - 1; j >= 0; j--) {
+                    const particle = enemy.particles[j];
+                    particle.update();
 
-            // Mettre à jour les particules de chaque ennemi
-            for (let j = enemy.particles.length - 1; j >= 0; j--) {
-                const particle = enemy.particles[j];
-                particle.update();
+                    // Supprimer la particule si sa taille est inférieure ou égale à zéro
+                    if (particle.size <= 0) {
+                        enemy.particles.splice(j, 1);
+                    }
+                }
 
-                // Supprimer la particule si sa taille est inférieure ou égale à zéro
-                if (particle.size <= 0) {
-                    enemy.particles.splice(j, 1);
+                // Si l'ennemi n'est pas en collision avec le joueur, mettre à jour sa position
+                if (!enemy.isCollidingWithPlayer(this.player)) {
+                    enemy.move(this.player);
+                }
+
+                // Vérifier les collisions entre le joueur et les ennemis
+                if (this.player.isCollidingWithEnemy(enemy)) {
+                    // Gérer la collision entre le joueur et l'ennemi
+                    enemy.handleCollisionWithPlayer(this.player);
                 }
             }
 
-            // Si l'ennemi n'est pas en collision avec le joueur, mettre à jour sa position
-            if (!enemy.isCollidingWithPlayer(this.player)) {
-                enemy.move(this.player);
+            // Mettre à jour la position de chaque projectile
+            for (let projectile of this.player.projectiles) {
+                projectile.move();
             }
 
-            // Vérifier les collisions entre le joueur et les ennemis
-            if (this.player.isCollidingWithEnemy(enemy)) {
-                // Gérer la collision entre le joueur et l'ennemi
-                enemy.handleCollisionWithPlayer(this.player);
-            }
-        }
+            // Appeler la méthode de vérification des collisions entre les ennemis
+            this.checkEnemyCollisions();
 
-        // Mettre à jour la position de chaque projectile
-        for (let projectile of this.player.projectiles) {
-            projectile.move();
         }
-
-        // Appeler la méthode de vérification des collisions entre les ennemis
-        this.checkEnemyCollisions();
 
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.update());
@@ -206,6 +346,7 @@ export class gameInstance {
                 this.coins.splice(i, 1);
                 i--; // Ajuster l'index après la suppression
             } else {
+                this.coins[i].attractToPlayer(this.player);
                 this.coins[i].draw(this.context, mapStartX, mapStartY);
             }
         }

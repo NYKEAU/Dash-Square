@@ -9,13 +9,41 @@
 </head>
 
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="pause-menu"
-        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; text-align: center;">
-        <h1>Menu Pause</h1>
-        <!-- Ajoutez ici d'autres éléments de menu comme des boutons ou des liens -->
+    <div id="startMenu"
+        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; text-align: center;">
+        <h1>Rogue-lite</h1>
+        <p>Appuyez sur le bouton pour commencer</p>
+        <button id="startButton">Start</button>
     </div>
-    <!-- Script JavaScript pour le jeu -->
+    <div id="pauseMenu"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; text-align: center;">
+        <h1>Pause</h1>
+        <button id="resumeButton">Resume</button>
+        <button id="restartButton">Restart</button>
+        <button id="quitButton">Quit</button>
+    </div>
+    <canvas id="gameCanvas" style="display: none;"></canvas>
+    <div id="shop" style="display: none;">
+        <h1>Shop</h1>
+        <ul>
+            <li class="shopItem">
+                <h2>Item 1</h2>
+                <p>Description de l'item 1</p>
+                <button>Acheter</button>
+            </li>
+            <li class="shopItem">
+                <h2>Item 2</h2>
+                <p>Description de l'item 2</p>
+                <button>Acheter</button>
+            </li>
+            <li class="shopItem">
+                <h2>Item 3</h2>
+                <p>Description de l'item 3</p>
+                <button>Acheter</button>
+            </li>
+        </ul>
+        <button id="shopClose">Close</button>
+    </div>
     <script type="module" src="index.js"></script>
 </body>
 
