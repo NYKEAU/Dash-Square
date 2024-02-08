@@ -20,7 +20,7 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        this.spawnFrequency = 500;
+        this.spawnFrequency = 3000;
         this.coins = []; // Le tableau des pièces
         this.enemiesWithGeneratedCoins = [];
         this.enemiesWithGeneratedCoins = new Set();
@@ -84,8 +84,6 @@ export class gameInstance {
         if (level % 5 == 0) {
             this.spawnFrequency = Math.floor(this.spawnFrequency * 0.9);
         }
-
-        console.log('Spawn frequency:', this.spawnFrequency);
 
         this.addEnemyInterval = setInterval(() => this.addEnemy(50, 5, 10), this.spawnFrequency);
     }
@@ -296,9 +294,27 @@ export class gameInstance {
                 }
             }
 
+            // Supprimer les ennemis morts dont tous les effets ont été traités
+            this.enemies = this.enemies.filter(enemy => !(enemy.isDead && enemy.allEffectsProcessed()));
+
             // Mettre à jour la position et la santé de chaque ennemi
-            for (let i = 0; i < this.enemies.length; i++) {
+            for (let i = this.enemies.length - 1; i >= 0; i--) {
                 const enemy = this.enemies[i];
+
+                // Mettre à jour les particules de chaque ennemi
+                for (let j = enemy.particles.length - 1; j >= 0; j--) {
+                    const particle = enemy.particles[j];
+
+                    // Décrémentez l'opacité de la particule indépendamment de l'opacité de l'ennemi
+                    particle.opacity -= 1 / 60;
+
+                    particle.update();
+
+                    // Supprimer la particule si sa taille est inférieure ou égale à zéro
+                    if (particle.size <= 0) {
+                        enemy.particles.splice(j, 1);
+                    }
+                }
 
                 // Si l'ennemi est mort, vérifier si tous les effets de coup associés à cet ennemi ont fini de s'afficher
                 if (enemy.isDead && !enemy.coinGenerated) {
@@ -309,25 +325,14 @@ export class gameInstance {
                         enemy.coinGenerated = true;
                     }
 
-                    // Supprimer l'ennemi
-                    this.enemies.splice(i, 1);
+                    // Créer un effet de mort pour l'ennemi
+                    enemy.createDeathEffect(enemy);
                     this.player.increaseExperience(enemy.xpGived);
                     i--;
                 }
 
-                // Mettre à jour les particules de chaque ennemi
-                for (let j = enemy.particles.length - 1; j >= 0; j--) {
-                    const particle = enemy.particles[j];
-                    particle.update();
-
-                    // Supprimer la particule si sa taille est inférieure ou égale à zéro
-                    if (particle.size <= 0) {
-                        enemy.particles.splice(j, 1);
-                    }
-                }
-
                 // Si l'ennemi n'est pas en collision avec le joueur, mettre à jour sa position
-                if (!enemy.isCollidingWithPlayer(this.player)) {
+                if (!enemy.isCollidingWithPlayer(this.player) && !enemy.isDead) {
                     enemy.move(this.player);
                 }
 

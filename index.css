@@ -102,3 +102,8 @@ body {
     right: 10px;
     cursor: pointer;
 }
+
+.hidden {
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+}

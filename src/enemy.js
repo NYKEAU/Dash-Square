@@ -210,7 +210,6 @@ export class Enemy {
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;
-                this.dead = true;
                 console.log('Enemy marked as dead:', this);
             }
         }
@@ -267,5 +266,22 @@ export class Enemy {
             // Si les coordonnées ne sont pas dans la zone de jeu, réessayer
             return this.generateRandomPosition(player, mapWidth, mapHeight);
         }
+    }
+
+    // Méthode pour créer un effet de mort
+    createDeathEffect(enemy) {
+        // Créer des particules après une seconde
+        setTimeout(() => {
+            for (let i = 0; i < 50; i++) {
+                const direction = {
+                    x: (Math.random() - 0.5) * 2, // Nombre aléatoire entre -1 et 1
+                    y: (Math.random() - 0.5) * 2 // Nombre aléatoire entre -1 et 1
+                };
+                // Ajouter la moitié de la largeur et de la hauteur de l'ennemi à la position x et y
+                const particleX = this.x + this.width / 2;
+                const particleY = this.y + this.height / 2;
+                this.particles.push(new Particle(particleX, particleY, this.enemyColor, direction, 3));
+            }
+        }, 850);
     }
 }

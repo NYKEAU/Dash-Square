@@ -11,7 +11,7 @@ export class Player {
         this.height = 30; // La hauteur du joueur
 
         // Armes et Projets
-        this.weapon = new SMG(this); // Ajouter l'arme de base du joueur
+        this.weapon = new Pistol(this); // Ajouter l'arme de base du joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
 
         // Mouvement
