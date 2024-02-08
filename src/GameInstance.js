@@ -20,7 +20,7 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        this.spawnFrequency = 250;
+        this.spawnFrequency = 500;
         this.coins = []; // Le tableau des pièces
         this.enemiesWithGeneratedCoins = [];
         this.enemiesWithGeneratedCoins = new Set();
@@ -42,13 +42,31 @@ export class gameInstance {
         document.addEventListener('keyup', (event) => {
             this.keys[event.key] = false;
         });
+
+        // Ajouter un écouteur d'événements pour visibilitychange
+        document.addEventListener('visibilitychange', () => {
+            // Si l'onglet est devenu invisible, mettre le jeu en pause
+            if (document.hidden && !this.isPaused) {
+                this.togglePause();
+            }
+        });
     }
 
     // Méthode pour basculer la pause
     togglePause() {
         if (this.isPaused) {
-            this.resumeGame();
-            document.getElementById('pauseMenu').style.display = 'none';
+            const shop = document.getElementById('shop');
+            const pause = document.getElementById('pauseMenu');
+
+            if (shop.style.display === 'block' && pause.style.display === 'block') {
+                shop.style.display = 'none';
+            } else if (shop.style.display === 'block' && pause.style.display === 'none') {
+                shop.style.display = 'none';
+                this.resumeGame();
+            } else {
+                pause.style.display = 'none';
+                this.resumeGame();
+            }
         } else {
             this.pauseGame();
             document.getElementById('pauseMenu').style.display = 'block';
@@ -99,31 +117,32 @@ export class gameInstance {
         }
     }
 
-    // Méthode pour redémarrer le jeu
+    // Méthode pour redémarrer le jeu ------ Non fonctionnelle pour le moment
     restartGame() {
-        // Réinitialiser les propriétés de l'instance de jeu
-        this.startTime = Date.now();
-        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
-        this.enemies = []; // Le tableau des ennemis
-        this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
-        this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        this.spawnFrequency = 250;
-        this.coins = []; // Le tableau des pièces
-        this.enemiesWithGeneratedCoins = new Set();
-        this.isPaused = false;
-        this.pausedTime = 0;
+        // // Réinitialiser les propriétés de l'instance de jeu
+        // this.startTime = Date.now();
+        // this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
+        // this.enemies = []; // Le tableau des ennemis
+        // this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
+        // this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
+        // this.spawnFrequency = 250;
+        // this.coins = []; // Le tableau des pièces
+        // this.enemiesWithGeneratedCoins = new Set();
+        // this.isPaused = false;
+        // this.pausedTime = 0;
 
-        // Arrêter le tir du joueur
-        this.player.weapon.stopShooting();
+        // // Arrêter le tir du joueur
+        // this.player.weapon.stopShooting();
 
-        // Arrêter l'ajout d'ennemis
-        clearInterval(this.addEnemyInterval);
-        this.addEnemyInterval = null;
+        // // Arrêter l'ajout d'ennemis
+        // clearInterval(this.addEnemyInterval);
+        // this.addEnemyInterval = null;
 
-        document.getElementById('pauseMenu').style.display = 'none';
+        // // Cacher le menu de pause
+        // document.getElementById('pauseMenu').style.display = 'none';
 
-        // Redémarrer le jeu
-        this.start();
+        // // Redémarrer le jeu
+        // this.start();
     }
 
     // Méthode pour mettre en pause le jeu
@@ -138,6 +157,9 @@ export class gameInstance {
         // Arrêtez la génération d'ennemis
         this.stopEnemyGeneration();
 
+        clearInterval(this.shopInterval);
+        clearTimeout(this.shopTimeout);
+
         // Cacher le timer
         this.showTimer = false;
 
@@ -146,8 +168,13 @@ export class gameInstance {
     }
 
     resumeGame() {
-        document.getElementById('shop').style.display = 'none';
-        document.getElementById('pauseMenu').style.display = 'none';
+        const shop = document.getElementById('shop');
+        const pause = document.getElementById('pauseMenu');
+        if (shop.style.display === 'block') {
+            shop.style.display = 'none';
+        } else if (pause.style.display === 'block') {
+            pause.style.display = 'none';
+        }
 
         // Une fois que le joueur a fait son choix, reprenez le jeu
         this.isPaused = false;

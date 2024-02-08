@@ -197,7 +197,7 @@ export class Player {
         // Modifier la génération des ennemis
         if (this.level % 5 === 0) {
             this.gameInstance.stopEnemyGeneration();
-            console.log("STOPPED");
+            console.log(this.level);
             this.gameInstance.displayShop();
         }
 

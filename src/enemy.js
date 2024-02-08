@@ -48,11 +48,11 @@ export class Enemy {
         }
 
         // Si l'ennemi est mort, ne pas le dessiner
-        if (this.isDead) {
-            return;
-        }
+        // if (this.isDead) {
+        //     return;
+        // }
 
-        // Remplir un rectangle de couleur verte à la position x et y
+        // Remplir un rectangle de couleur à la position x et y
         if (this.hitFlashDuration > 0) {
             context.fillStyle = 'white';
             this.hitFlashDuration--;
@@ -71,6 +71,18 @@ export class Enemy {
         // Réduit progressivement le recul pour que l'ennemi s'arrête
         this.knockback.x *= 0.9;
         this.knockback.y *= 0.9;
+    }
+
+    // Méthode pour vérifier si tous les effets ont été traités
+    allEffectsProcessed() {
+        // Vérifier si toutes les particules ont été traitées
+        const allParticlesProcessed = this.particles.every(particle => particle.isDone());
+
+        // Vérifier si tous les effets de coup ont été traités
+        const allHitEffectsProcessed = this.hitEffects.every(hitEffect => hitEffect.isDone());
+
+        // Retourner true si tous les effets ont été traités, false sinon
+        return allParticlesProcessed && allHitEffectsProcessed;
     }
 
     // Méthode pour dessiner la barre de vie
@@ -190,13 +202,16 @@ export class Enemy {
             this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1));
         }
 
+        // Afficher sur l'ennemi le nombre de dégâts subis
+        this.hitEffects.push(new HitEffect(this, amount, 'enemy'));
+
         if (this.health > 0) {
-            // Afficher sur l'ennemi le nombre de dégâts subis
-            this.hitEffects.push(new HitEffect(this, amount, 'enemy'));
             this.health -= amount;
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;
+                this.dead = true;
+                console.log('Enemy marked as dead:', this);
             }
         }
 

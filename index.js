@@ -23,7 +23,7 @@ document.getElementById('startButton').addEventListener('click', function () {
 
     document.getElementById('shopClose').addEventListener('click', () => game.resumeGame());
     document.getElementById('resumeButton').addEventListener('click', () => game.resumeGame());
-    document.getElementById('restartButton').addEventListener('click', () => game.restartGame());
+    // document.getElementById('restartButton').addEventListener('click', () => game.restartGame()); ---- Fonction restart non fonctionnelle pour le moment
     document.getElementById('quitButton').addEventListener('click', () => game.quitGame());
 
     // Lancer le jeu

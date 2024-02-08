@@ -46,4 +46,10 @@ export class HitEffect {
             this.opacity -= 1 / 60; // Diminuer progressivement l'opacité, ajustée à la nouvelle durée
         }
     }
+
+    // Méthode pour vérifier si l'effet de coup a terminé son affichage
+    isDone() {
+        // Retourner true si la durée de l'effet est inférieure ou égale à 0, false sinon
+        return this.duration <= 0;
+    }
 }

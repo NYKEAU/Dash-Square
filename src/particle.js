@@ -37,4 +37,10 @@ export class Particle {
         // Réduire la taille de la particule au fil du temps
         this.size -= 0.1;
     }
+
+    // Méthode pour vérifier si la particule a terminé son animation
+    isDone() {
+        // Retourner true si la taille de la particule est inférieure ou égale à 0, false sinon
+        return this.size <= 0;
+    }
 }
