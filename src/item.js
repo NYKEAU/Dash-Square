@@ -56,6 +56,15 @@ export class Item {
     }
 }
 
+function randomItem(statsPossibles, exclude) {
+    let item = allItems[Math.floor(Math.random() * allItems.length)];
+    console.log(item);
+
+    do {
+        item.stats = { [statsPossibles[Math.floor(Math.random() * statsPossibles.length)]]: 0 };
+    } while (Object.keys(item.stats)[0] === exclude);
+}
+
 // Définir les stats possibles
 const healthStatsPossibles = ['Vie', 'VieMax', 'Exp', 'Argent'];
 const damageStatsPossibles = ['DégâtsJoueur', 'Défense', 'CadenceJoueur'];
@@ -66,22 +75,22 @@ let allItems = [];
 // Créer des items pour les stats de santé
 let potion1 = new Item(1, "Potion", { Vie: 0 }, 1, 0);
 let potion2 = new Item(2, "Potion", { Vie: 0 }, 2, 0);
-let potion3 = new Item(3, "Potion", { Vie: 0, [healthStatsPossibles[Math.floor(Math.random() * healthStatsPossibles.length)]]: 0 }, 3, 0);
-let potion4 = new Item(4, "Potion", { Vie: 0, [healthStatsPossibles[Math.floor(Math.random() * healthStatsPossibles.length)]]: 0 }, 4, 0);
+let potion3 = new Item(3, "Potion", { Vie: 0, [randomItem(healthStatsPossibles, "Vie")]: 0 }, 3, 0);
+let potion4 = new Item(4, "Potion", { Vie: 0, [randomItem(healthStatsPossibles, "Vie")]: 0 }, 4, 0);
 allItems.push(potion1, potion2, potion3, potion4);
 
 // Créer des items pour les stats de dégâts
-let bow1 = new Item(5, "Arc", { Dégâts: 0 }, 1, 0);
-let bow2 = new Item(6, "Arc", { Dégâts: 0 }, 2, 0);
-let bow3 = new Item(7, "Arc", { Dégâts: 0, [damageStatsPossibles[Math.floor(Math.random() * damageStatsPossibles.length)]]: 0 }, 3, 0);
-let bow4 = new Item(8, "Arc", { Dégâts: 0, [damageStatsPossibles[Math.floor(Math.random() * damageStatsPossibles.length)]]: 0 }, 4, 0);
+let bow1 = new Item(5, "Arc", { DégâtsJoueur: 0 }, 1, 0);
+let bow2 = new Item(6, "Arc", { DégâtsJoueur: 0 }, 2, 0);
+let bow3 = new Item(7, "Arc", { DégâtsJoueur: 0, [randomItem(damageStatsPossibles, "DégâtsJoueur")]: 0 }, 3, 0);
+let bow4 = new Item(8, "Arc", { DégâtsJoueur: 0, [randomItem(damageStatsPossibles, "DégâtsJoueur")]: 0 }, 4, 0);
 allItems.push(bow1, bow2, bow3, bow4);
 
 // Créer des items pour les armes
 let drumLoader1 = new Item(9, "Chargeur tambour", { CadenceTir: 0 }, 1, 0);
 let drumLoader2 = new Item(10, "Chargeur tambour", { CadenceTir: 0 }, 2, 0);
-let drumLoader3 = new Item(11, "Chargeur tambour", { CadenceTir: 0, [weaponStatsPossibles[Math.floor(Math.random() * weaponStatsPossibles.length)]]: 0 }, 3, 0);
-let drumLoader4 = new Item(12, "Chargeur tambour", { CadenceTir: 0, [weaponStatsPossibles[Math.floor(Math.random() * weaponStatsPossibles.length)]]: 0 }, 4, 0);
+let drumLoader3 = new Item(11, "Chargeur tambour", { CadenceTir: 0, [randomItem(weaponStatsPossibles, "CadenceTir")]: 0 }, 3, 0);
+let drumLoader4 = new Item(12, "Chargeur tambour", { CadenceTir: 0, [randomItem(weaponStatsPossibles, "CadenceTir")]: 0 }, 4, 0);
 allItems.push(drumLoader1, drumLoader2, drumLoader3, drumLoader4);
 
 
