@@ -1,6 +1,7 @@
 import { Player } from './player.js';
 import { Enemy } from './enemy.js';
 import { SniperProjectile } from './projectile.js';
+import { Item } from './item.js';
 
 // Définir la classe GameInstance
 export class gameInstance {
@@ -20,7 +21,7 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        this.spawnFrequency = 3000;
+        this.spawnFrequency = 500;
         this.coins = []; // Le tableau des pièces
         this.enemiesWithGeneratedCoins = [];
         this.enemiesWithGeneratedCoins = new Set();
@@ -102,16 +103,81 @@ export class gameInstance {
         // Afficher le magasin
         document.getElementById('shop').style.display = 'block';
 
-        // Créez trois options d'amélioration
-        let upgradeOptions = [
-            { name: 'Amélioration 1', effect: "/* ... */" },
-            { name: 'Amélioration 2', effect: "/* ... */" },
-            { name: 'Amélioration 3', effect: "/* ... */" },
-        ];
+        // Créez trois options d'amélioration (via la méthode generateItems de la classe item.js)
+        let items = Item.generateItems(this.player.level);
 
-        // Affichez les options d'amélioration à l'utilisateur
-        for (let i = 0; i < upgradeOptions.length; i++) {
-            console.log(`${i + 1}. ${upgradeOptions[i].name}`);
+        // Obtenir le conteneur de la boutique
+        let shopContainer = document.getElementById('shop');
+        let itemsContainer = document.getElementById('shopItems');
+
+        // Supprimer les éléments de la boutique précédente
+        itemsContainer.innerHTML = '';
+
+        // Parcourir les items
+        for (let i = 0; i < items.length; i++) {
+            // Vérifier si l'item est défini
+            if (items[i]) {
+                // Créer un nouvel élément de liste
+                let shopItem = document.createElement('li');
+                shopItem.className = 'shopItem';
+
+                // Créer les éléments de l'item
+                let title = document.createElement('h2');
+                let rarete = document.createElement('h3');
+                // let image = document.createElement('img');
+                let stats = document.createElement('p');
+                let price = document.createElement('div');
+
+                // Mettre à jour les éléments de l'item
+                title.textContent = items[i].nom;
+                switch (items[i].rarete) {
+                    case 1:
+                        rarete.textContent = 'Commun';
+                        rarete.style.color = 'grey';
+                        break;
+                    case 2:
+                        rarete.textContent = 'Rare';
+                        rarete.style.color = 'blue';
+                        break;
+                    case 3:
+                        rarete.textContent = 'Épique';
+                        rarete.style.color = 'purple';
+                        break;
+                    case 4:
+                        rarete.textContent = 'Légendaire';
+                        rarete.style.color = 'orange';
+                        break;
+                }
+                // image.src = items[i].image;
+
+                if (items[i].rarete === 3 || items[i].rarete === 4) {
+                    stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%' + '<br>' + Object.keys(items[i].stats)[1] + ': +' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
+                } else {
+                    stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
+                }
+
+                price.innerHTML += items[i].prix + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.5 3C11.9853 3 14 7.02944 14 12M9.5 3C7.01472 3 5 7.02944 5 12C5 16.9706 7.01472 21 9.5 21M9.5 3H15C17.2091 3 19 7.02944 19 12M14 12C14 16.9706 11.9853 21 9.5 21M14 12H19M9.5 21H15C17.2091 21 19 16.9706 19 12M18.3264 17H13.2422M18.3264 7H13.2422M9.5 8C10.3284 8 11 9.79086 11 12C11 14.2091 10.3284 16 9.5 16C8.67157 16 8 14.2091 8 12C8 9.79086 8.67157 8 9.5 8Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
+
+                // Ajouter les éléments à l'élément de la liste
+                shopItem.appendChild(title);
+                shopItem.appendChild(rarete);
+                // shopItem.appendChild(image);
+                shopItem.appendChild(stats);
+                shopItem.appendChild(price);
+
+                // Ajouter l'élément de la liste à l'élément ul
+                itemsContainer.appendChild(shopItem);
+
+                shopItem.addEventListener('click', () => {
+                    if (this.player.money >= items[i].prix) {
+                        this.player.money -= items[i].prix;
+                        this.player.addItem(items[i]);
+                        this.resumeGame();
+                    } else {
+                        alert('Vous n\'avez pas assez d\'argent pour acheter cet item.');
+                    }
+                });
+            }
         }
     }
 

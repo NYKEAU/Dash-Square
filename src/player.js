@@ -9,6 +9,7 @@ export class Player {
         this.y = y; // La position y du joueur
         this.width = 30; // La largeur du joueur
         this.height = 30; // La hauteur du joueur
+        this.items = []; // Les items du joueur
 
         // Armes et Projets
         this.weapon = new Pistol(this); // Ajouter l'arme de base du joueur
@@ -117,6 +118,46 @@ export class Player {
         context.fillText(moneyText, 10, 70); // Position du texte
     }
 
+    // Méthode pour ajouter un item et mettre à jour les statistiques du joueur
+    addItem(item) {
+        this.items.push(item);
+        console.log(item);
+        this.updateStats(item.stats);
+    }
+
+    // Méthode pour mettre à jour les statistiques du joueur
+    updateStats(stats) {
+        // Mettre à jour les statistiques du joueur en fonction de l'item
+        for (let stat in stats) {
+            if (stat === 'Vie') {
+                this.health = this.health + Math.ceil(this.health * stats[stat] / 1000);
+                if (this.health > this.maxHealth) this.health = this.maxHealth;
+            } else if (stat === 'VieMax') {
+                this.maxHealth = this.maxHealth + Math.ceil(this.maxHealth * stats[stat] / 1000);
+            } else if (stat === 'Exp') {
+                this.maxExperience = this.maxExperience + Math.ceil(this.maxExperience * stats[stat] / 1000);
+            } else if (stat === 'Argent') {
+                this.money = this.money + Math.ceil(this.money * stats[stat] / 1000);
+            } else if (stat === 'DégâtsJoueur') {
+                this.damage = this.damage + Math.ceil(this.damage * stats[stat] / 1000);
+            } else if (stat === 'Défense') {
+                this.defense = this.defense + Math.ceil(this.defense * stats[stat] / 1000);
+            } else if (stat === 'CadenceJoueur') {
+                this.rof = this.rof + Math.ceil(this.rof * stats[stat] / 1000);
+            } else if (stat === 'CadenceTir') {
+                this.speed = this.weapon.speed + Math.ceil(this.speed * stats[stat] / 1000);
+            } else if (stat === 'Vitesse') {
+                this.speed = this.speed + Math.ceil(this.speed * stats[stat] / 1000);
+            } else if (stat === 'Portée') {
+                this.range = this.range + Math.ceil(this.range * stats[stat] / 1000);
+            } else if (stat === 'DégâtsArmes') {
+                this.damage = this.weapon.damage + Math.ceil(this.damage * stats[stat] / 1000);
+            }
+        }
+    }
+
+    // VieMax', 'Exp', 'Argent', 'Dégâts', 'Défense', 'CadenceTir', 'CadenceTir', 'Vitesse', 'Portée', 'Dégâts'
+
     // Méthode pour déplacer le joueur
     move(keys, mapWidth, mapHeight, enemies) {
         // Calculer la nouvelle position du joueur
@@ -195,9 +236,8 @@ export class Player {
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
 
         // Modifier la génération des ennemis
-        if (this.level % 5 === 0) {
+        if (this.level % 1 === 0) {
             this.gameInstance.stopEnemyGeneration();
-            console.log(this.level);
             this.gameInstance.displayShop();
         }
 

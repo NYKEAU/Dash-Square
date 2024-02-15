@@ -87,13 +87,31 @@ body {
 .shopItem {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
+    text-align: center;
     width: 25%;
     padding: 5px;
     border: 1px solid #000;
     cursor: pointer;
     background-color: white;
+}
+
+.shopItem h2 {
+    margin-bottom: 0;
+}
+
+.shopItem h3 {
+    margin-top: 0;
+}
+
+.shopItem div {
+    display: flex;
+    flex-direction: row;
+}
+
+.shopItem svg {
+    width: 20px;
 }
 
 #shopClose {

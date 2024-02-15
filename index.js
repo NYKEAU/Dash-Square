@@ -21,6 +21,7 @@ document.getElementById('startButton').addEventListener('click', function () {
     // Créer une nouvelle instance de jeu à partir de la classe GameInstance
     const game = new gameInstance(canvas);
 
+    // Ajouter des gestionnaires d'événements pour les boutons du menu de pause si ceux-ci sont existants
     document.getElementById('shopClose').addEventListener('click', () => game.resumeGame());
     document.getElementById('resumeButton').addEventListener('click', () => game.resumeGame());
     // document.getElementById('restartButton').addEventListener('click', () => game.restartGame()); ---- Fonction restart non fonctionnelle pour le moment
