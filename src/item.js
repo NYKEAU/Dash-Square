@@ -41,29 +41,54 @@ export class Item {
 
     // Sélectionner au hasard les 3 items à afficher dans la boutique en fonction du niveau du joueur
     static generateItems(level) {
-        let items = [...allItems].filter(item => item.stats[Object.keys(item.stats)[0]] >= level / 10 + 1);
+        const commonItems = allItems.filter((item) => item.rarete === 1);
+        const rareItems = allItems.filter((item) => item.rarete === 2);
+        const epicItems = allItems.filter((item) => item.rarete === 3);
+        const legendaryItems = allItems.filter((item) => item.rarete === 4);
+
+        let rareProb, epicProb, legendaryProb;
         let selectedItems = [];
 
-        for (let i = 0; i < 3; i++) {
-            let randomIndex = Math.floor(Math.random() * items.length);
-            selectedItems.push(items[randomIndex]);
-            items.splice(randomIndex, 1);
+        for (let i = 0; i <= 10; i++) {
+            if (level < i * 10) {
+                rareProb = 50 - i * 5;
+                epicProb = 80 - i * 5;
+                legendaryProb = 95 - i * 5;
+                break;
+            } else {
+                rareProb = 0;
+                epicProb = 30;
+                legendaryProb = 45;
+            }
         }
 
-        console.log(allItems);
+        console.log(rareProb, epicProb, legendaryProb);
+
+        let randomIndex = 0;
+
+        for (let i = 0; i < 3; i++) {
+            const randomNumber = Math.floor(Math.random() * 100);
+            console.log("NBR:" + randomNumber);
+
+            if (randomNumber >= 0 && randomNumber < rareProb) {
+                randomIndex = Math.floor(Math.random() * commonItems.length);
+                selectedItems.push(commonItems[randomIndex]);
+            } else if (randomNumber >= rareProb && randomNumber < epicProb) {
+                randomIndex = Math.floor(Math.random() * rareItems.length);
+                selectedItems.push(rareItems[randomIndex]);
+            } else if (randomNumber >= epicProb && randomNumber < legendaryProb) {
+                randomIndex = Math.floor(Math.random() * epicItems.length);
+                selectedItems.push(epicItems[randomIndex]);
+            } else {
+                randomIndex = Math.floor(Math.random() * legendaryItems.length);
+                selectedItems.push(legendaryItems[randomIndex]);
+            }
+        }
 
         return selectedItems;
     }
 }
 
-function randomItem(statsPossibles, exclude) {
-    let item = allItems[Math.floor(Math.random() * allItems.length)];
-    console.log(item);
-
-    do {
-        item.stats = { [statsPossibles[Math.floor(Math.random() * statsPossibles.length)]]: 0 };
-    } while (Object.keys(item.stats)[0] === exclude);
-}
 
 // Définir les stats possibles
 const healthStatsPossibles = ['Vie', 'VieMax', 'Exp', 'Argent'];
@@ -93,23 +118,10 @@ let drumLoader3 = new Item(11, "Chargeur tambour", { CadenceTir: 0, [randomItem(
 let drumLoader4 = new Item(12, "Chargeur tambour", { CadenceTir: 0, [randomItem(weaponStatsPossibles, "CadenceTir")]: 0 }, 4, 0);
 allItems.push(drumLoader1, drumLoader2, drumLoader3, drumLoader4);
 
-
-// STATS JOUEUR
-// // Santé et Niveau
-// this.health = 100; // La santé du joueur
-// this.maxHealth = this.health; // La santé maximale du joueur
-// this.level = 1; // Niveau du joueur au début du jeu
-// this.experience = 0; // Expérience du joueur au début du jeu
-// this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
-// this.money = 0; // Argent du joueur au début du jeu
-
-// // Dégâts et Attaque
-// this.damage = this.weapon.damage; // Les dégâts du joueur
-// this.defense = 0; // La défense du joueur
-// this.rof = 0; // La cadence de tir du joueur
-
-// STATS ARMES
-// this.fireRate = 1; // Vitesse de tir en balles par seconde
-// this.speed = 1; // Vitesse des balles par défaut
-// this.range = 1000; // Portée par défaut
-// this.damage = 1; // Dégâts par défaut
+function randomItem(statsPossibles, exclude) {
+    let stat;
+    do {
+        stat = statsPossibles[Math.floor(Math.random() * statsPossibles.length)];
+    } while (stat === exclude);
+    return stat;
+}

@@ -12,11 +12,11 @@ export class Player {
         this.items = []; // Les items du joueur
 
         // Armes et Projets
-        this.weapon = new Pistol(this); // Ajouter l'arme de base du joueur
+        this.weapon = new SMG(this); // Ajouter l'arme de base du joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
 
         // Mouvement
-        this.speed = 7.5; // La vitesse de déplacement du joueur
+        this.speed = 5; // La vitesse de déplacement du joueur
 
         // Santé et Niveau
         this.health = 100; // La santé du joueur
@@ -219,7 +219,9 @@ export class Player {
     // Méthode pour augmenter le niveau d'expérience du joueur
     levelUp() {
         // Augmenter le niveau du joueur
-        this.level++;
+        // this.level++;
+        this.level += 1;
+        console.log("LEVEL:" + this.level);
         let healthPercent = this.health / this.maxHealth;
 
         // Augmenter la vie max du joueur en fonction de sa vie max actuelle
@@ -235,8 +237,8 @@ export class Player {
         this.damage = Math.floor(this.damage * 1.01);
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
 
-        // Modifier la génération des ennemis
-        if (this.level % 1 === 0) {
+        // Modifier la génération des ennemis et afficher la boutique tous les 5 niveaux
+        if (this.level % 5 === 0) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.displayShop();
         }

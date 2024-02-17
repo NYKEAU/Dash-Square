@@ -1,5 +1,5 @@
 import { Player } from './player.js';
-import { Enemy } from './enemy.js';
+import { Slime, Ghost, Shooter } from './enemy.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 
@@ -21,7 +21,7 @@ export class gameInstance {
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
         this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        this.spawnFrequency = 500;
+        this.spawnFrequency = 200;
         this.coins = []; // Le tableau des pièces
         this.enemiesWithGeneratedCoins = [];
         this.enemiesWithGeneratedCoins = new Set();
@@ -86,7 +86,13 @@ export class gameInstance {
             this.spawnFrequency = Math.floor(this.spawnFrequency * 0.9);
         }
 
-        this.addEnemyInterval = setInterval(() => this.addEnemy(50, 5, 10), this.spawnFrequency);
+        // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
+        this.addEnemyInterval = setInterval(() => {
+            if (this.enemies.length < 10) {
+                let enemyType = Math.random() < 0.65 ? 'slime' : 'ghost';
+                this.addEnemy(enemyType);
+            }
+        }, this.spawnFrequency);
     }
 
     // Nouvelle méthode pour arrêter la génération d'ennemis
@@ -107,7 +113,6 @@ export class gameInstance {
         let items = Item.generateItems(this.player.level);
 
         // Obtenir le conteneur de la boutique
-        let shopContainer = document.getElementById('shop');
         let itemsContainer = document.getElementById('shopItems');
 
         // Supprimer les éléments de la boutique précédente
@@ -127,13 +132,16 @@ export class gameInstance {
                 // let image = document.createElement('img');
                 let stats = document.createElement('p');
                 let price = document.createElement('div');
+                let error = document.createElement('p');
 
                 // Mettre à jour les éléments de l'item
                 title.textContent = items[i].nom;
+                error.textContent = 'Pas assez d\'argent!';
+
                 switch (items[i].rarete) {
                     case 1:
                         rarete.textContent = 'Commun';
-                        rarete.style.color = 'grey';
+                        rarete.style.color = 'green';
                         break;
                     case 2:
                         rarete.textContent = 'Rare';
@@ -172,9 +180,40 @@ export class gameInstance {
                     if (this.player.money >= items[i].prix) {
                         this.player.money -= items[i].prix;
                         this.player.addItem(items[i]);
+                        console.log(this.player.items);
+
+                        // Créer un nouvel élément div pour représenter l'item récupéré
+                        let itemDiv = document.createElement('div');
+                        itemDiv.style.width = '20px';
+                        itemDiv.style.height = '20px';
+                        itemDiv.style.backgroundColor = rarete.style.color;
+                        itemDiv.style.position = 'absolute';
+                        itemDiv.style.bottom = '0';
+                        itemDiv.style.left = `${25 * this.player.items.length}px`; // Positionner les carrés côte à côte
+                        itemDiv.style.border = '1px solid black';
+                        itemDiv.style.margin = '5px';
+                        if (items[i].rarete === 3 || items[i].rarete === 4) {
+                            itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '% \u000d' + Object.keys(items[i].stats)[1] + '+' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
+                        } else {
+                            itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
+                        }
+                        // itemDiv.title = items[i].nom + ' (+' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%)';
+
+                        // Ajouter le nouvel élément div au body du document
+                        document.body.appendChild(itemDiv);
+
                         this.resumeGame();
                     } else {
-                        alert('Vous n\'avez pas assez d\'argent pour acheter cet item.');
+                        shopItem.style.borderColor = 'red';
+                        price.style.color = 'red';
+                        price.style.fontWeight = 'bold';
+                        // Mettre la piece en rouge
+                        price.children[0].querySelector("#SVGRepo_iconCarrier > path").style.stroke = 'red';
+                        // price.children[0].lastChild.getElementsByTagName('path').style.stroke = 'red';
+                        shopItem.style.animation = 'horizontal-shaking 0.5s';
+                        shopItem.insertBefore(error, title);
+                        error.style.color = 'red';
+                        error.style.margin = '0';
                     }
                 });
             }
@@ -229,6 +268,9 @@ export class gameInstance {
 
         // Arrêtez de tirer
         this.player.weapon.stopShooting();
+
+        // Arrêtez de tirer les ennemis
+        this.enemies.forEach(enemy => enemy.stopShooting());
     }
 
     resumeGame() {
@@ -256,6 +298,10 @@ export class gameInstance {
         // Reprendre le tir
         this.player.weapon.stopShooting();
         this.player.weapon.startShooting();
+
+        // Reprendre le tir des ennemis
+        this.enemies.forEach(enemy => enemy.stopShooting());
+        this.enemies.forEach(enemy => enemy.startShooting(this.player));
     }
 
     // Méthode pour quitter le jeu
@@ -277,9 +323,20 @@ export class gameInstance {
     }
 
     // Méthode pour ajouter un nouvel ennemi
-    addEnemy(baseHealth, damage, xpGived) {
-        // Créer une nouvelle instance d'ennemi à partir de la classe Enemy
-        const enemy = new Enemy(this.player, this.mapWidth, this.mapHeight, baseHealth, damage, xpGived);
+    addEnemy(enemyType) {
+        let enemy;
+        switch (enemyType) {
+            case 'slime':
+                enemy = new Shooter(this.player, this.mapWidth, this.mapHeight);
+                break;
+            case 'ghost':
+                enemy = new Ghost(this.player, this.mapWidth, this.mapHeight);
+                break;
+            // Ajoutez d'autres types d'ennemis ici...
+            default:
+                console.error(`Unknown enemy type: ${enemyType}`);
+                return;
+        }
 
         // Ajouter l'ennemi au tableau des ennemis
         this.enemies.push(enemy);
@@ -294,7 +351,13 @@ export class gameInstance {
         this.startEnemyGeneration(this.player.level);
         console.log("STARTED");
 
+        // Commencer à tirer (joueur et ennemis)
         this.player.weapon.startShooting();
+        this.enemies.forEach(enemy => {
+            if (typeof enemy.startShooting === 'function') {
+                enemy.startShooting(this.player);
+            }
+        });
     }
 
     // Méthode pour obtenir le temps écoulé depuis le début du jeu en format "00:00"
@@ -317,6 +380,20 @@ export class gameInstance {
         if (!this.isPaused) {
             // Appeler la méthode de déplacement du joueur
             this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
+
+            // Mettre à jour la position de chaque projectile de l'ennemi
+            for (let enemy of this.enemies) {
+                enemy.update();
+                for (let projectile of enemy.projectiles) {
+                    projectile.move();
+
+                    // Supprimer le projectile s'il est sorti des limites de la carte
+                    if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
+                        this.player.projectiles.splice(i, 1);
+                        continue;
+                    }
+                }
+            }
 
             // Mettre à jour la position de chaque projectile
             for (let i = this.player.projectiles.length - 1; i >= 0; i--) {

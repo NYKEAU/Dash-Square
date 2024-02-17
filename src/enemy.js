@@ -1,8 +1,9 @@
+import { Projectile, SniperProjectile, EnemyProjectile } from './projectile.js';
 import { HitEffect } from './hitEffect.js';
 import { Particle } from './particle.js';
 import { Coin } from './coin.js';
 
-export class Enemy {
+class Enemy {
     constructor(player, mapWidth, mapHeight, baseHealth, damage, xpGived) {
         // Dimensions
         this.width = 20;
@@ -15,6 +16,7 @@ export class Enemy {
 
         // Mouvement
         this.speed = 1;
+        this.knockback = { x: 0, y: 0 };
         this.knockbackSpeed = { x: 0, y: 0 };
 
         // Apparence
@@ -29,6 +31,7 @@ export class Enemy {
         this.damage = damage;
         this.lastDamageTime = 0;
         this.lastAttackTime = 0;
+        this.projectiles = []; // Initialiser les projectiles comme un tableau vide
 
         // Récompenses
         this.xpGived = xpGived;
@@ -63,7 +66,9 @@ export class Enemy {
     }
 
     // Méthode pour mettre à jour l'ennemi
-    update() {
+    update(player) {
+        console.log('Updating enemy');
+
         // Déplace l'ennemi en fonction du recul
         this.x += this.knockback.x;
         this.y += this.knockback.y;
@@ -71,6 +76,63 @@ export class Enemy {
         // Réduit progressivement le recul pour que l'ennemi s'arrête
         this.knockback.x *= 0.9;
         this.knockback.y *= 0.9;
+
+        // Faire tirer l'ennemi
+        this.startShooting(player);
+    }
+
+    // Method to shoot projectiles at the player
+    startShooting(player) {
+        // Get the current time
+        const currentTime = Date.now();
+
+        console.log('Shooting projectile');
+
+        // If enough time has passed since the last projectile was shot
+        if (currentTime - this.lastProjectileTime >= 1000) { // 1000 milliseconds = 1 second
+            // Create a new projectile
+            const projectile = new EnemyProjectile(this.x, this.y, 5, 10, player);
+
+            // Calculate the direction of the projectile
+            projectile.calculateDirection(player.x, player.y);
+
+            // Add the projectile to the list of projectiles
+            this.projectiles.push(projectile);
+
+            // Update the last time a projectile was shot
+            this.lastProjectileTime = currentTime;
+        }
+    }
+
+    // startShooting() {
+    //     if (this.timeoutId !== null) {
+    //         clearTimeout(this.timeoutId);
+    //     }
+
+    //     this.timeoutId = setTimeout(() => {
+    //         // If closestEnemy is dead, get the next closest enemy
+    //         const closestEnemy = this.player.gameInstance.getClosestEnemy();
+
+    //         if (closestEnemy && !closestEnemy.isDead) {
+    //             const dx = closestEnemy.x - this.player.x;
+    //             const dy = closestEnemy.y - this.player.y;
+    //             const distance = Math.sqrt(dx * dx + dy * dy);
+    //             if (distance > 0) {
+    //                 const direction = { x: dx / distance, y: dy / distance };
+    //                 this.shoot(direction);
+    //             }
+    //         }
+
+    //         // Appeler startShooting à nouveau après le délai
+    //         this.startShooting();
+    //     }, 1000 / this.fireRate); // Le délai est inversément proportionnel à la cadence de tir
+    // }
+
+    stopShooting() {
+        if (this.timeoutId !== null) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+        }
     }
 
     // Méthode pour vérifier si tous les effets ont été traités
@@ -210,7 +272,6 @@ export class Enemy {
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;
-                console.log('Enemy marked as dead:', this);
             }
         }
 
@@ -284,4 +345,31 @@ export class Enemy {
             }
         }, 850);
     }
+}
+
+export class Slime extends Enemy {
+    constructor(player, mapWidth, mapHeight) {
+        super(player, mapWidth, mapHeight, 50, 5, 10);
+        this.enemyColor = 'green';
+    }
+}
+
+export class Ghost extends Enemy {
+    constructor(player, mapWidth, mapHeight) {
+        super(player, mapWidth, mapHeight, 35, 10, 20);
+        this.enemyColor = 'white';
+        this.speed = 2;
+    }
+}
+
+// Enemy class that inherits from the Enemy class, shooting projectiles at the player
+export class Shooter extends Enemy {
+    constructor(player, mapWidth, mapHeight) {
+        super(player, mapWidth, mapHeight, 100, 5, 15);
+        this.enemyColor = 'red';
+        this.speed = 1.5;
+        this.lastProjectileTime = 0;
+    }
+
+
 }

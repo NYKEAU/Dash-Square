@@ -50,7 +50,7 @@ export class Pistol extends Weapon {
     constructor(player) {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 10; // Initialiser this.speed ici pour la classe Pistol
-        this.fireRate = 10; // Initialiser this.fireRate ici pour la classe Pistol
+        this.fireRate = 1; // Initialiser this.fireRate ici pour la classe Pistol
         this.damage = 10; // Initialiser this.damage ici pour la classe Pistol
     }
 
@@ -105,7 +105,7 @@ export class SMG extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 5; // Initialiser this.speed ici pour la classe SMG
         this.fireRate = 10; // Initialiser this.fireRate ici pour la classe SMG
-        this.damage = 3; // Initialiser this.damage ici pour la classe SMG
+        this.damage = 25; // Initialiser this.damage ici pour la classe SMG
     }
 
     shoot(direction) {
@@ -163,7 +163,7 @@ export class Sniper extends Weapon {
         super(player);
         this.speed = 15;
         this.fireRate = 0.5;
-        this.damage = 50;
+        this.damage = 25;
         this.range = 1000;
     }
 

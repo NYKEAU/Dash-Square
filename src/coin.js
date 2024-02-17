@@ -22,7 +22,7 @@ export class Coin {
         let distance = Math.sqrt(dx * dx + dy * dy);
 
         // Si la distance est inférieure à une certaine valeur, déplacez la pièce vers le joueur
-        if (distance < 50) {
+        if (distance < 5000) {
             // Calculez le vecteur de direction
             let directionX = dx / distance;
             let directionY = dy / distance;
