@@ -1,3 +1,5 @@
+import { Shuriken } from './shuriken.js';
+
 export class Item {
     constructor(id, nom, stats, rarete, prix) {
         this.id = id;
@@ -62,13 +64,10 @@ export class Item {
             }
         }
 
-        console.log(rareProb, epicProb, legendaryProb);
-
         let randomIndex = 0;
 
         for (let i = 0; i < 3; i++) {
             const randomNumber = Math.floor(Math.random() * 100);
-            console.log("NBR:" + randomNumber);
 
             if (randomNumber >= 0 && randomNumber < rareProb) {
                 randomIndex = Math.floor(Math.random() * commonItems.length);
@@ -117,6 +116,17 @@ let drumLoader2 = new Item(10, "Chargeur tambour", { CadenceTir: 0 }, 2, 0);
 let drumLoader3 = new Item(11, "Chargeur tambour", { CadenceTir: 0, [randomItem(weaponStatsPossibles, "CadenceTir")]: 0 }, 3, 0);
 let drumLoader4 = new Item(12, "Chargeur tambour", { CadenceTir: 0, [randomItem(weaponStatsPossibles, "CadenceTir")]: 0 }, 4, 0);
 allItems.push(drumLoader1, drumLoader2, drumLoader3, drumLoader4);
+
+// Créer des items pour les stats de vitesse
+let boots1 = new Item(13, "Bottes", { Vitesse: 0 }, 1, 0);
+let boots2 = new Item(14, "Bottes", { Vitesse: 0 }, 2, 0);
+let boots3 = new Item(15, "Bottes", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 3, 0);
+let boots4 = new Item(16, "Bottes", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 4, 0);
+allItems.push(boots1, boots2, boots3, boots4);
+
+// Créer des items spéciaux
+let shuriken = new Item(21, "Shuriken", {}, 1, 0, new Shuriken());
+allItems.push(shuriken);
 
 function randomItem(statsPossibles, exclude) {
     let stat;

@@ -89,7 +89,7 @@ export class gameInstance {
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
             if (this.enemies.length < 10) {
-                let enemyType = Math.random() < 0.65 ? 'slime' : 'ghost';
+                let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
                 this.addEnemy(enemyType);
             }
         }, this.spawnFrequency);
@@ -270,7 +270,11 @@ export class gameInstance {
         this.player.weapon.stopShooting();
 
         // Arrêtez de tirer les ennemis
-        this.enemies.forEach(enemy => enemy.stopShooting());
+        for (let enemy of this.enemies) {
+            if (enemy instanceof Shooter) {
+                enemy.stopShooting();
+            }
+        }
     }
 
     resumeGame() {
@@ -299,9 +303,13 @@ export class gameInstance {
         this.player.weapon.stopShooting();
         this.player.weapon.startShooting();
 
-        // Reprendre le tir des ennemis
-        this.enemies.forEach(enemy => enemy.stopShooting());
-        this.enemies.forEach(enemy => enemy.startShooting(this.player));
+        // Reprendre le tir des ennemis (unquement pour les ennemis de type Shooter)
+        for (let enemy of this.enemies) {
+            if (enemy instanceof Shooter) {
+                enemy.stopShooting();
+                enemy.startShooting();
+            }
+        }
     }
 
     // Méthode pour quitter le jeu
@@ -316,21 +324,19 @@ export class gameInstance {
         this.canvas.style.display = 'none';
     }
 
-    // Méthode pour choisir une amélioration
-    chooseUpgrade(option) {
-        // Appliquez l'effet de l'option d'amélioration au joueur
-        // ...
-    }
-
     // Méthode pour ajouter un nouvel ennemi
     addEnemy(enemyType) {
         let enemy;
         switch (enemyType) {
             case 'slime':
-                enemy = new Shooter(this.player, this.mapWidth, this.mapHeight);
+                enemy = new Slime(this.player, this.mapWidth, this.mapHeight);
                 break;
             case 'ghost':
                 enemy = new Ghost(this.player, this.mapWidth, this.mapHeight);
+                break;
+            case 'shooter':
+                enemy = new Shooter(this.player, this.mapWidth, this.mapHeight);
+                enemy.startShooting();
                 break;
             // Ajoutez d'autres types d'ennemis ici...
             default:
@@ -351,13 +357,8 @@ export class gameInstance {
         this.startEnemyGeneration(this.player.level);
         console.log("STARTED");
 
-        // Commencer à tirer (joueur et ennemis)
+        // Commencer à tirer le joueur
         this.player.weapon.startShooting();
-        this.enemies.forEach(enemy => {
-            if (typeof enemy.startShooting === 'function') {
-                enemy.startShooting(this.player);
-            }
-        });
     }
 
     // Méthode pour obtenir le temps écoulé depuis le début du jeu en format "00:00"
@@ -381,15 +382,15 @@ export class gameInstance {
             // Appeler la méthode de déplacement du joueur
             this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
 
+
             // Mettre à jour la position de chaque projectile de l'ennemi
             for (let enemy of this.enemies) {
-                enemy.update();
                 for (let projectile of enemy.projectiles) {
                     projectile.move();
 
                     // Supprimer le projectile s'il est sorti des limites de la carte
                     if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
-                        this.player.projectiles.splice(i, 1);
+                        enemy.projectiles.splice(enemy.projectiles.indexOf(projectile), 1);
                         continue;
                     }
                 }
@@ -433,6 +434,36 @@ export class gameInstance {
                             }
                             break;
                         }
+                    }
+                }
+            }
+
+            // Mettre à jour la position de chaque projectile de l'ennemi
+            for (let enemy of this.enemies) {
+                for (let projectile of enemy.projectiles) {
+                    projectile.move();
+
+                    // Supprimer le projectile s'il est sorti des limites de la carte
+                    if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
+                        enemy.projectiles.splice(enemy.projectiles.indexOf(projectile), 1);
+                        continue;
+                    }
+                }
+
+                // Vérifier la collision avec le joueur
+                for (let i = enemy.projectiles.length - 1; i >= 0; i--) {
+                    const projectile = enemy.projectiles[i];
+
+                    const dx = projectile.x - this.player.x - this.player.width / 2;
+                    const dy = projectile.y - this.player.y - this.player.height / 2;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < projectile.size + Math.hypot(this.player.width / 2, this.player.height / 2)) {
+                        // Collision détectée, réduire la santé du joueur
+                        this.player.decreaseHealth(enemy.damage, projectile.direction, projectile.speed);
+
+                        // Supprimer le projectile
+                        enemy.projectiles.splice(i, 1);
                     }
                 }
             }
@@ -528,7 +559,14 @@ export class gameInstance {
 
         // Dessiner tous les projectiles
         for (let projectile of this.player.projectiles) {
-            projectile.draw(this.context, mapStartX, mapStartY);
+            projectile.draw(this.context, mapStartX, mapStartY, 'player');
+        }
+
+        // Dessiner tous les projectiles des ennemis
+        for (let enemy of this.enemies) {
+            for (let projectile of enemy.projectiles) {
+                projectile.draw(this.context, mapStartX, mapStartY, 'enemy');
+            }
         }
 
         // Dessiner le joueur au milieu de l'écran

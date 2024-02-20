@@ -1,5 +1,5 @@
 export class Projectile {
-    constructor(initialX, initialY, speed, damage, piercing = false, maxDistance, player) {
+    constructor(initialX, initialY, speed, damage, maxDistance, player) {
         this.initialX = initialX;
         this.initialY = initialY;
         this.x = initialX;
@@ -10,7 +10,7 @@ export class Projectile {
         this.distanceTraveled = 0;
         this.damage = damage;
         this.player = player;
-        this.piercing = piercing;
+        this.piercing = false;
         this.direction = { x: 0, y: 0 };
     }
 
@@ -37,11 +37,19 @@ export class Projectile {
         }
     }
 
-    draw(context, offsetX, offsetY) {
-        context.fillStyle = '#FF4500';
-        context.beginPath();
-        context.arc(this.x + offsetX, this.y + offsetY, this.size, 0, Math.PI * 2);
-        context.fill();
+    draw(context, offsetX, offsetY, shooter) {
+        // Dessiner le projectile en fonction du tireur
+        if (shooter === 'player') {
+            context.fillStyle = '#FF4500';
+            context.beginPath();
+            context.arc(this.x + offsetX, this.y + offsetY, this.size, 0, Math.PI * 2);
+            context.fill();
+        } else {
+            context.fillStyle = '#FF0000';
+            context.beginPath();
+            context.arc(this.x + offsetX, this.y + offsetY, this.size, 0, Math.PI * 2);
+            context.fill();
+        }
     }
 }
 
@@ -55,13 +63,13 @@ export class SniperProjectile extends Projectile {
 export class EnemyProjectile extends Projectile {
     constructor(x, y, speed, damage, range, player) {
         super(x, y, speed, damage, range, player);
-        this.calculateDirection(); // Assurez-vous que calculateDirection est appelé ici
+        this.calculateDirection(player.x, player.y);
     }
 
-    calculateDirection() {
-        // Calculer la direction en fonction de la position du joueur
-        const dx = this.player.x - this.x;
-        const dy = this.player.y - this.y;
+    calculateDirection(playerX, playerY) {
+        // Calculate the direction based on the position of the player
+        const dx = playerX - this.x;
+        const dy = playerY - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 0) {

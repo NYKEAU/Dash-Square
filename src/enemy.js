@@ -1,4 +1,4 @@
-import { Projectile, SniperProjectile, EnemyProjectile } from './projectile.js';
+import { EnemyProjectile } from './projectile.js';
 import { HitEffect } from './hitEffect.js';
 import { Particle } from './particle.js';
 import { Coin } from './coin.js';
@@ -36,6 +36,10 @@ class Enemy {
         // Récompenses
         this.xpGived = xpGived;
         this.coinGenerated = false;
+
+        // Autre
+        this.player = player;
+        this.timeoutId = null;
     }
 
     // Méthode pour dessiner l'ennemi
@@ -50,11 +54,6 @@ class Enemy {
             hitEffect.draw(context, mapStartX - 10, mapStartY);
         }
 
-        // Si l'ennemi est mort, ne pas le dessiner
-        // if (this.isDead) {
-        //     return;
-        // }
-
         // Remplir un rectangle de couleur à la position x et y
         if (this.hitFlashDuration > 0) {
             context.fillStyle = 'white';
@@ -65,68 +64,30 @@ class Enemy {
         context.fillRect(mapStartX + this.x, mapStartY + this.y, this.width, this.height);
     }
 
-    // Méthode pour mettre à jour l'ennemi
-    update(player) {
-        console.log('Updating enemy');
-
-        // Déplace l'ennemi en fonction du recul
-        this.x += this.knockback.x;
-        this.y += this.knockback.y;
-
-        // Réduit progressivement le recul pour que l'ennemi s'arrête
-        this.knockback.x *= 0.9;
-        this.knockback.y *= 0.9;
-
-        // Faire tirer l'ennemi
-        this.startShooting(player);
-    }
+    shoot(direction) { }
 
     // Method to shoot projectiles at the player
-    startShooting(player) {
-        // Get the current time
-        const currentTime = Date.now();
-
-        console.log('Shooting projectile');
-
-        // If enough time has passed since the last projectile was shot
-        if (currentTime - this.lastProjectileTime >= 1000) { // 1000 milliseconds = 1 second
-            // Create a new projectile
-            const projectile = new EnemyProjectile(this.x, this.y, 5, 10, player);
-
-            // Calculate the direction of the projectile
-            projectile.calculateDirection(player.x, player.y);
-
-            // Add the projectile to the list of projectiles
-            this.projectiles.push(projectile);
-
-            // Update the last time a projectile was shot
-            this.lastProjectileTime = currentTime;
+    startShooting() {
+        if (this.timeoutId !== null) {
+            clearTimeout(this.timeoutId);
         }
+
+        this.timeoutId = setTimeout(() => {
+            // Vérifiez si le joueur est vivant
+            const player = this.player;
+
+            const dx = player.x - this.x;
+            const dy = player.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 0) {
+                const direction = { x: dx / distance, y: dy / distance };
+                this.shoot(direction);
+            }
+
+            // Appeler startShooting à nouveau après le délai
+            this.startShooting();
+        }, 1000 / this.fireRate); // Le délai est inversément proportionnel à la cadence de tir
     }
-
-    // startShooting() {
-    //     if (this.timeoutId !== null) {
-    //         clearTimeout(this.timeoutId);
-    //     }
-
-    //     this.timeoutId = setTimeout(() => {
-    //         // If closestEnemy is dead, get the next closest enemy
-    //         const closestEnemy = this.player.gameInstance.getClosestEnemy();
-
-    //         if (closestEnemy && !closestEnemy.isDead) {
-    //             const dx = closestEnemy.x - this.player.x;
-    //             const dy = closestEnemy.y - this.player.y;
-    //             const distance = Math.sqrt(dx * dx + dy * dy);
-    //             if (distance > 0) {
-    //                 const direction = { x: dx / distance, y: dy / distance };
-    //                 this.shoot(direction);
-    //             }
-    //         }
-
-    //         // Appeler startShooting à nouveau après le délai
-    //         this.startShooting();
-    //     }, 1000 / this.fireRate); // Le délai est inversément proportionnel à la cadence de tir
-    // }
 
     stopShooting() {
         if (this.timeoutId !== null) {
@@ -366,10 +327,25 @@ export class Ghost extends Enemy {
 export class Shooter extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 100, 5, 15);
-        this.enemyColor = 'red';
+        this.enemyColor = 'purple';
         this.speed = 1.5;
         this.lastProjectileTime = 0;
+        this.fireRate = 1; // Temps de pause de 1 seconde
     }
 
+    shoot(direction) {
+        console.log('Shooting projectile' + this.projectiles.length);
+        // Calculer la position initiale du projectile
+        const x = this.x + this.width / 2;
+        const y = this.y + this.height / 2;
 
+        // Créer un nouveau projectile
+        const projectile = new EnemyProjectile(x, y, this.speed, this.damage, this.range, this.player);
+
+        // Calculer la direction du projectile
+        projectile.calculateDirection(x + direction.x, y + direction.y);
+
+        // Ajouter le projectile à la liste des projectiles du ennemi
+        this.projectiles.push(projectile);
+    }
 }

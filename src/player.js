@@ -121,7 +121,6 @@ export class Player {
     // Méthode pour ajouter un item et mettre à jour les statistiques du joueur
     addItem(item) {
         this.items.push(item);
-        console.log(item);
         this.updateStats(item.stats);
     }
 
@@ -221,7 +220,6 @@ export class Player {
         // Augmenter le niveau du joueur
         // this.level++;
         this.level += 1;
-        console.log("LEVEL:" + this.level);
         let healthPercent = this.health / this.maxHealth;
 
         // Augmenter la vie max du joueur en fonction de sa vie max actuelle
@@ -238,7 +236,7 @@ export class Player {
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
 
         // Modifier la génération des ennemis et afficher la boutique tous les 5 niveaux
-        if (this.level % 5 === 0) {
+        if (this.level % 1 === 0) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.displayShop();
         }
