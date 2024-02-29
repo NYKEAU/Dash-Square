@@ -1,12 +1,13 @@
-import { Shuriken } from './shuriken.js';
+import { Shuriken } from './specialItems.js';
 
 export class Item {
-    constructor(id, nom, stats, rarete, prix) {
+    constructor(id, nom, stats, rarete, prix, type) {
         this.id = id;
         this.nom = nom;
         this.stats = stats;
         this.rarete = rarete;
         this.prix = prix;
+        this.type = type;
 
         // Modifier les stats et le prix en fonction de la rareté
         let min, max;
@@ -42,11 +43,16 @@ export class Item {
     }
 
     // Sélectionner au hasard les 3 items à afficher dans la boutique en fonction du niveau du joueur
-    static generateItems(level) {
+    static generateItems(player, enemies) {
+        this.enemies = enemies;
+
+        const level = player.level;
         const commonItems = allItems.filter((item) => item.rarete === 1);
         const rareItems = allItems.filter((item) => item.rarete === 2);
         const epicItems = allItems.filter((item) => item.rarete === 3);
         const legendaryItems = allItems.filter((item) => item.rarete === 4);
+
+        const specialItems = ['Shuriken'];
 
         let rareProb, epicProb, legendaryProb;
         let selectedItems = [];
@@ -69,18 +75,33 @@ export class Item {
         for (let i = 0; i < 3; i++) {
             const randomNumber = Math.floor(Math.random() * 100);
 
-            if (randomNumber >= 0 && randomNumber < rareProb) {
-                randomIndex = Math.floor(Math.random() * commonItems.length);
-                selectedItems.push(commonItems[randomIndex]);
-            } else if (randomNumber >= rareProb && randomNumber < epicProb) {
-                randomIndex = Math.floor(Math.random() * rareItems.length);
-                selectedItems.push(rareItems[randomIndex]);
-            } else if (randomNumber >= epicProb && randomNumber < legendaryProb) {
-                randomIndex = Math.floor(Math.random() * epicItems.length);
-                selectedItems.push(epicItems[randomIndex]);
+            // Générez un autre nombre aléatoire pour déterminer si un item spécial doit être généré
+            const specialItemRandomNumber = Math.random();
+
+            // Si le nombre aléatoire est inférieur à 0.01 (ce qui correspond à une chance de 1%), générer un item spécial
+            if (specialItemRandomNumber < 1) {
+                const specialItemName = specialItems[Math.floor(Math.random() * specialItems.length)];
+                switch (specialItemName) {
+                    case 'Shuriken':
+                        selectedItems.push(new Shuriken(player, this.enemies));
+                        break;
+                    // Ajoutez d'autres cas ici pour d'autres types d'items spéciaux
+                }
             } else {
-                randomIndex = Math.floor(Math.random() * legendaryItems.length);
-                selectedItems.push(legendaryItems[randomIndex]);
+                // Sinon, générer un item normal
+                if (randomNumber >= 0 && randomNumber < rareProb) {
+                    randomIndex = Math.floor(Math.random() * commonItems.length);
+                    selectedItems.push(commonItems[randomIndex]);
+                } else if (randomNumber >= rareProb && randomNumber < epicProb) {
+                    randomIndex = Math.floor(Math.random() * rareItems.length);
+                    selectedItems.push(rareItems[randomIndex]);
+                } else if (randomNumber >= epicProb && randomNumber < legendaryProb) {
+                    randomIndex = Math.floor(Math.random() * epicItems.length);
+                    selectedItems.push(epicItems[randomIndex]);
+                } else {
+                    randomIndex = Math.floor(Math.random() * legendaryItems.length);
+                    selectedItems.push(legendaryItems[randomIndex]);
+                }
             }
         }
 
@@ -123,10 +144,6 @@ let boots2 = new Item(14, "Bottes", { Vitesse: 0 }, 2, 0);
 let boots3 = new Item(15, "Bottes", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 3, 0);
 let boots4 = new Item(16, "Bottes", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 4, 0);
 allItems.push(boots1, boots2, boots3, boots4);
-
-// Créer des items spéciaux
-let shuriken = new Item(21, "Shuriken", {}, 1, 0, new Shuriken());
-allItems.push(shuriken);
 
 function randomItem(statsPossibles, exclude) {
     let stat;

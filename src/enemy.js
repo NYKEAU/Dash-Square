@@ -8,6 +8,7 @@ class Enemy {
         // Dimensions
         this.width = 20;
         this.height = 20;
+        this.radius = this.width / 2;
 
         // Position
         const initialPosition = this.generateRandomPosition(player, mapWidth, mapHeight);
@@ -334,7 +335,7 @@ export class Shooter extends Enemy {
     }
 
     shoot(direction) {
-        console.log('Shooting projectile' + this.projectiles.length);
+        // console.log('Shooting projectile' + this.projectiles.length);
         // Calculer la position initiale du projectile
         const x = this.x + this.width / 2;
         const y = this.y + this.height / 2;

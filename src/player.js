@@ -120,7 +120,11 @@ export class Player {
 
     // Méthode pour ajouter un item et mettre à jour les statistiques du joueur
     addItem(item) {
-        this.items.push(item);
+        if (item.rarete === 'special') {
+            this.gameInstance.specialItems.push(item);
+        } else {
+            this.items.push(item);
+        }
         this.updateStats(item.stats);
     }
 

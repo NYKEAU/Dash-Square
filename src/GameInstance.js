@@ -2,6 +2,7 @@ import { Player } from './player.js';
 import { Slime, Ghost, Shooter } from './enemy.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
+import { Shuriken } from './specialItems.js';
 
 // Définir la classe GameInstance
 export class gameInstance {
@@ -27,6 +28,7 @@ export class gameInstance {
         this.enemiesWithGeneratedCoins = new Set();
         this.isPaused = false;
         this.pausedTime = 0;
+        this.specialItems = []; // Les items spéciaux du joueur
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -110,7 +112,7 @@ export class gameInstance {
         document.getElementById('shop').style.display = 'block';
 
         // Créez trois options d'amélioration (via la méthode generateItems de la classe item.js)
-        let items = Item.generateItems(this.player.level);
+        let items = Item.generateItems(this.player, this.enemies);
 
         // Obtenir le conteneur de la boutique
         let itemsContainer = document.getElementById('shopItems');
@@ -160,8 +162,11 @@ export class gameInstance {
 
                 if (items[i].rarete === 3 || items[i].rarete === 4) {
                     stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%' + '<br>' + Object.keys(items[i].stats)[1] + ': +' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
-                } else {
+                } else if (items[i].rarete === 2 || items[i].rarete === 1) {
                     stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
+                } else { // Si l'item est spécial
+                    stats.innerHTML = 'Spécial';
+                    console.log(items[i]);
                 }
 
                 price.innerHTML += items[i].prix + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.5 3C11.9853 3 14 7.02944 14 12M9.5 3C7.01472 3 5 7.02944 5 12C5 16.9706 7.01472 21 9.5 21M9.5 3H15C17.2091 3 19 7.02944 19 12M14 12C14 16.9706 11.9853 21 9.5 21M14 12H19M9.5 21H15C17.2091 21 19 16.9706 19 12M18.3264 17H13.2422M18.3264 7H13.2422M9.5 8C10.3284 8 11 9.79086 11 12C11 14.2091 10.3284 16 9.5 16C8.67157 16 8 14.2091 8 12C8 9.79086 8.67157 8 9.5 8Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
@@ -194,8 +199,10 @@ export class gameInstance {
                         itemDiv.style.margin = '5px';
                         if (items[i].rarete === 3 || items[i].rarete === 4) {
                             itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '% \u000d' + Object.keys(items[i].stats)[1] + '+' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
-                        } else {
+                        } else if (items[i].rarete === 2 || items[i].rarete === 1) {
                             itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
+                        } else { // Si l'item est spécial
+                            itemDiv.title = items[i].nom;
                         }
                         // itemDiv.title = items[i].nom + ' (+' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%)';
 
@@ -438,6 +445,28 @@ export class gameInstance {
                 }
             }
 
+            // Mettez à jour chaque item spécial
+            for (let i = 0; i < this.specialItems.length; i++) {
+                this.specialItems[i].update();
+
+                // Vérifiez les collisions avec chaque ennemi
+                for (let j = 0; j < this.enemies.length; j++) {
+                    if (this.specialItems[i].collidesWith(this.enemies[j])) {
+                        this.enemies[j].health -= this.specialItems[i].damage; // Réduisez la santé de l'ennemi
+
+                        if (this.enemies[j].health <= 0) {
+                            this.enemies.splice(j, 1); // Supprimez l'ennemi s'il n'a plus de santé
+                            j--; // Ajustez l'index pour compenser l'ennemi supprimé
+                        }
+
+                        // Supprimez l'item spécial
+                        this.specialItems.splice(i, 1);
+                        i--; // Ajustez l'index pour compenser l'item spécial supprimé
+                        break; // Sortez de la boucle des ennemis car l'item spécial a été supprimé
+                    }
+                }
+            }
+
             // Mettre à jour la position de chaque projectile de l'ennemi
             for (let enemy of this.enemies) {
                 for (let projectile of enemy.projectiles) {
@@ -552,7 +581,7 @@ export class gameInstance {
                 this.coins.splice(i, 1);
                 i--; // Ajuster l'index après la suppression
             } else {
-                this.coins[i].attractToPlayer(this.player);
+                this.coins[i].attractToPlayer(this.player, this.isPaused);
                 this.coins[i].draw(this.context, mapStartX, mapStartY);
             }
         }
@@ -576,6 +605,11 @@ export class gameInstance {
         for (let enemy of this.enemies) {
             enemy.draw(this.context, mapStartX, mapStartY);
             enemy.drawHealthBar(this.context, mapStartX, mapStartY);
+        }
+
+        // Dessinez les items spéciaux
+        for (let specialItem of this.specialItems) {
+            specialItem.draw(this.context, mapStartX, mapStartY);
         }
 
         // Dessiner l'ATH

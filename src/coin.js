@@ -15,14 +15,14 @@ export class Coin {
     }
 
     // Ajoutez une méthode pour attirer la pièce vers le joueur
-    attractToPlayer(player) {
+    attractToPlayer(player, isPaused) {
         // Calculez la distance entre la pièce et le joueur
         let dx = player.x - this.x;
         let dy = player.y - this.y;
         let distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Si la distance est inférieure à une certaine valeur, déplacez la pièce vers le joueur
-        if (distance < 5000) {
+        // Si la distance est inférieure à une certaine valeur et que le jeu n'est pas en pause, déplacez la pièce vers le joueur
+        if (distance < 5000 && !isPaused) {
             // Calculez le vecteur de direction
             let directionX = dx / distance;
             let directionY = dy / distance;
