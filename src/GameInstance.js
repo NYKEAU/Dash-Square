@@ -1,5 +1,5 @@
 import { Player } from './player.js';
-import { Slime, Ghost, Shooter } from './enemy.js';
+import { Slime, Ghost, Shooter, Tank } from './enemy.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { Shuriken } from './specialItems.js';
@@ -112,7 +112,7 @@ export class gameInstance {
         document.getElementById('shop').style.display = 'block';
 
         // Créez trois options d'amélioration (via la méthode generateItems de la classe item.js)
-        let items = Item.generateItems(this.player, this.enemies);
+        let items = Item.generateItems(this.player, this.enemies, this.canvas);
 
         // Obtenir le conteneur de la boutique
         let itemsContainer = document.getElementById('shopItems');
@@ -143,19 +143,28 @@ export class gameInstance {
                 switch (items[i].rarete) {
                     case 1:
                         rarete.textContent = 'Commun';
+                        shopItem.style.border = '1px green solid';
                         rarete.style.color = 'green';
                         break;
                     case 2:
-                        rarete.textContent = 'Rare';
+                        rarete.textContent = 'Rare'
+                        shopItem.style.border = '1px blue solid';
                         rarete.style.color = 'blue';
                         break;
                     case 3:
                         rarete.textContent = 'Épique';
+                        shopItem.style.border = '1px purple solid';
                         rarete.style.color = 'purple';
                         break;
                     case 4:
                         rarete.textContent = 'Légendaire';
+                        shopItem.style.border = '1px orange solid';
                         rarete.style.color = 'orange';
+                        break;
+                    case 'special':
+                        rarete.textContent = 'Spécial';
+                        shopItem.style.border = '1px red solid';
+                        rarete.style.color = 'red';
                         break;
                 }
                 // image.src = items[i].image;
@@ -164,9 +173,8 @@ export class gameInstance {
                     stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%' + '<br>' + Object.keys(items[i].stats)[1] + ': +' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
                 } else if (items[i].rarete === 2 || items[i].rarete === 1) {
                     stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
-                } else { // Si l'item est spécial
-                    stats.innerHTML = 'Spécial';
-                    console.log(items[i]);
+                } else { // Si l'item est spécialstats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
+                    stats.innerHTML = items[i].type + ' : +' + items[i].damage;
                 }
 
                 price.innerHTML += items[i].prix + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.5 3C11.9853 3 14 7.02944 14 12M9.5 3C7.01472 3 5 7.02944 5 12C5 16.9706 7.01472 21 9.5 21M9.5 3H15C17.2091 3 19 7.02944 19 12M14 12C14 16.9706 11.9853 21 9.5 21M14 12H19M9.5 21H15C17.2091 21 19 16.9706 19 12M18.3264 17H13.2422M18.3264 7H13.2422M9.5 8C10.3284 8 11 9.79086 11 12C11 14.2091 10.3284 16 9.5 16C8.67157 16 8 14.2091 8 12C8 9.79086 8.67157 8 9.5 8Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
@@ -341,11 +349,13 @@ export class gameInstance {
             case 'ghost':
                 enemy = new Ghost(this.player, this.mapWidth, this.mapHeight);
                 break;
+            case 'tank':
+                enemy = new Tank(this.player, this.mapWidth, this.mapHeight);
+                break;
             case 'shooter':
                 enemy = new Shooter(this.player, this.mapWidth, this.mapHeight);
                 enemy.startShooting();
                 break;
-            // Ajoutez d'autres types d'ennemis ici...
             default:
                 console.error(`Unknown enemy type: ${enemyType}`);
                 return;
@@ -435,6 +445,8 @@ export class gameInstance {
                             // Collision détectée, réduire la santé de l'ennemi
                             this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, projectile.speed);
 
+                            this.player.increaseExperience(enemy.xpGived);
+
                             // Si le projectile n'est pas un projectile de Sniper, le supprimer
                             if (!(projectile instanceof SniperProjectile)) {
                                 this.player.projectiles.splice(i, 1);
@@ -448,21 +460,21 @@ export class gameInstance {
             // Mettez à jour chaque item spécial
             for (let i = 0; i < this.specialItems.length; i++) {
                 this.specialItems[i].update();
+                this.specialItems[i].drawCollisionBox(this.context);
 
                 // Vérifiez les collisions avec chaque ennemi
                 for (let j = 0; j < this.enemies.length; j++) {
                     if (this.specialItems[i].collidesWith(this.enemies[j])) {
-                        this.enemies[j].health -= this.specialItems[i].damage; // Réduisez la santé de l'ennemi
-
-                        if (this.enemies[j].health <= 0) {
-                            this.enemies.splice(j, 1); // Supprimez l'ennemi s'il n'a plus de santé
-                            j--; // Ajustez l'index pour compenser l'ennemi supprimé
+                        // Vérifiez si la dernière collision a eu lieu il y a moins de 500 ms
+                        let currentTime = new Date().getTime();
+                        if (!this.enemies[j].lastCollisionTime || currentTime - this.enemies[j].lastCollisionTime > 500) {
+                            this.enemies[j].decreaseHealth(this.specialItems[i].damage);
+                            this.enemies[j].lastCollisionTime = currentTime; // Enregistrez le moment de la collision
+                            if (this.enemies[j].isDead) {
+                                this.enemies.splice(j, 1); // Supprimez l'ennemi s'il n'a plus de santé
+                                j--; // Ajustez l'index pour compenser l'ennemi supprimé
+                            }
                         }
-
-                        // Supprimez l'item spécial
-                        this.specialItems.splice(i, 1);
-                        i--; // Ajustez l'index pour compenser l'item spécial supprimé
-                        break; // Sortez de la boucle des ennemis car l'item spécial a été supprimé
                     }
                 }
             }

@@ -24,7 +24,7 @@ export class Player {
         this.level = 1; // Niveau du joueur au début du jeu
         this.experience = 0; // Expérience du joueur au début du jeu
         this.maxExperience = 100; // Expérience maximale du prochain niveau du joueur
-        this.money = 0; // Argent du joueur au début du jeu
+        this.money = 100; // Argent du joueur au début du jeu
 
         // Dégâts et Attaque
         this.damage = this.weapon.damage; // Les dégâts du joueur
@@ -240,7 +240,7 @@ export class Player {
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
 
         // Modifier la génération des ennemis et afficher la boutique tous les 5 niveaux
-        if (this.level % 1 === 0) {
+        if (this.level % 5 === 0) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.displayShop();
         }

@@ -43,7 +43,7 @@ export class Item {
     }
 
     // Sélectionner au hasard les 3 items à afficher dans la boutique en fonction du niveau du joueur
-    static generateItems(player, enemies) {
+    static generateItems(player, enemies, canvas) {
         this.enemies = enemies;
 
         const level = player.level;
@@ -79,11 +79,11 @@ export class Item {
             const specialItemRandomNumber = Math.random();
 
             // Si le nombre aléatoire est inférieur à 0.01 (ce qui correspond à une chance de 1%), générer un item spécial
-            if (specialItemRandomNumber < 1) {
+            if (specialItemRandomNumber < 3) {
                 const specialItemName = specialItems[Math.floor(Math.random() * specialItems.length)];
                 switch (specialItemName) {
                     case 'Shuriken':
-                        selectedItems.push(new Shuriken(player, this.enemies));
+                        selectedItems.push(new Shuriken(player, this.enemies, canvas));
                         break;
                     // Ajoutez d'autres cas ici pour d'autres types d'items spéciaux
                 }

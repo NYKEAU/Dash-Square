@@ -1,8 +1,9 @@
 export class SpecialItem {
-    constructor(name, player, enemies) {
-        this.name = name;
+    constructor(nom, player, enemies, canvas) {
+        this.nom = nom;
         this.player = player;
         this.enemies = enemies;
+        this.canvas = canvas;
     }
 
     // Méthodes et propriétés communes à tous les items spéciaux
@@ -12,11 +13,12 @@ export class SpecialItem {
 }
 
 export class Shuriken extends SpecialItem {
-    constructor(player, enemies) {
+    constructor(player, enemies, canvas) {
         super("Shuriken");
         this.speed = 10; // Définir une vitesse pour le shuriken
         this.direction = { x: 0, y: 0 }; // Ajouter une propriété direction
         this.radius = 10;
+        this.type = 'Dégâts';
         this.damage = 10;
         this.rotationSpeed = 0.05;
         this.range = 50;
@@ -28,17 +30,7 @@ export class Shuriken extends SpecialItem {
         this.center = { x: window.innerWidth / 2, y: window.innerHeight / 2 }; // Initialiser le centre avec les coordonnées du joueur
         this.position = { x: 0, y: 0 };
         this.isTouchingEnemy = false; // Ajouter cette variable pour suivre l'état de collision
-    }
-
-    calculateDirection(targetX, targetY) {
-        // Calculer la direction en fonction de la position du shuriken et de la cible
-        const dx = targetX - this.position.x;
-        const dy = targetY - this.position.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance > 0) {
-            this.direction = { x: dx / distance, y: dy / distance };
-        }
+        this.canvas = canvas;
     }
 
     move() {
@@ -52,42 +44,11 @@ export class Shuriken extends SpecialItem {
         this.position.x = this.center.x + Math.cos(this.angle) * this.range;
         this.position.y = this.center.y + Math.sin(this.angle) * this.range;
 
-        // Vérifiez les collisions avec chaque ennemi
-        for (let i = 0; i < this.enemies.length; i++) {
-            if (this.collidesWith(this.enemies[i])) {
-                this.hitEnemy(this.enemies[i]);
-            }
-        }
-
+        // Mettre à jour l'angle pour faire tourner le shuriken
         this.angle += this.rotationSpeed;
     }
 
-    hitEnemy(enemy) {
-        // Causer des dégâts à l'ennemi
-        enemy.health -= this.damage;
-        console.log(`L'ennemi a subi ${this.damage} points de dégâts !`);
-
-        // Vérifier si l'ennemi n'a plus de santé
-        if (enemy.health <= 0) {
-            const index = this.enemies.indexOf(enemy);
-            if (index !== -1) {
-                this.enemies.splice(index, 1); // Supprimer l'ennemi du tableau
-            }
-        }
-    }
-
     draw(context) {
-        // Met à jour la position du shuriken pour qu'il tourne autour du joueur
-        this.position.x = this.center.x + Math.cos(this.angle) * this.range;
-        this.position.y = this.center.y + Math.sin(this.angle) * this.range;
-
-        // Vérifie si le shuriken touche un ennemi avant de dessiner
-        for (let i = 0; i < this.enemies.length; i++) {
-            if (this.collidesWith(this.enemies[i])) {
-                this.hitEnemy(this.enemies[i]);
-            }
-        }
-
         context.beginPath();
         context.arc(this.position.x, this.position.y, 10, 0, 2 * Math.PI, false);
         context.fillStyle = 'gray';
@@ -95,20 +56,30 @@ export class Shuriken extends SpecialItem {
         context.lineWidth = 2;
         context.strokeStyle = '#003300';
         context.stroke();
+    }
 
-        this.angle += this.rotationSpeed;
+    drawCollisionBox(context) {
+        context.beginPath();
+        context.rect(
+            this.position.x - 5 - 2.5, // x position
+            this.position.y - 5 - 2.5, // y position
+            this.radius * 2 + 10, // width
+            this.radius * 2 + 10 // height
+        );
+        context.lineWidth = 2;
+        context.strokeStyle = 'red';
+        context.stroke();
     }
 
     collidesWith(enemy) {
-        const dx = this.position.x - enemy.x;
-        const dy = this.position.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const mapStartX = this.canvas.width / 2 - this.player.x - this.player.width / 2;
+        const mapStartY = this.canvas.height / 2 - this.player.y - this.player.height / 2;
 
-        const collision = distance < this.radius + enemy.radius;
-        if (collision) {
-            console.log('Collision détectée avec un ennemi');
-        }
-
-        return collision;
+        return (
+            this.position.x + 5 + 2.5 > enemy.x + mapStartX &&
+            this.position.x - 5 - 2.5 < enemy.x + mapStartX + enemy.width &&
+            this.position.y + 5 + 2.5 > enemy.y + mapStartY &&
+            this.position.y - 5 - 2.5 < enemy.y + mapStartY + enemy.height
+        );
     }
 }

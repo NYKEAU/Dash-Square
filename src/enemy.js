@@ -31,6 +31,7 @@ class Enemy {
         this.baseHealth = baseHealth;
         this.damage = damage;
         this.lastDamageTime = 0;
+        this.lastCollisionTime = 0;
         this.lastAttackTime = 0;
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
 
@@ -210,20 +211,27 @@ class Enemy {
     decreaseHealth(amount, bulletDirection) {
         this.hitFlashDuration = 10; // L'ennemi deviendra blanc pendant 5 frames
 
-        // Utiliser la même direction que le projectile pour la direction des particules
-        const direction = {
-            x: bulletDirection.x,
-            y: bulletDirection.y
-        };
-
-        // Créer des particules
-        for (let i = 0; i < 10; i++) {
-            // Ajouter une petite variation aléatoire à la direction de chaque particule
-            const particleDirection = {
-                x: direction.x + (Math.random() - 0.5) * 0.5,
-                y: direction.y + (Math.random() - 0.5) * 0.5
+        if (bulletDirection) {
+            // Utiliser la même direction que le projectile pour la direction des particules
+            const direction = {
+                x: bulletDirection.x,
+                y: bulletDirection.y
             };
-            this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1));
+
+            // Créer des particules
+            for (let i = 0; i < 10; i++) {
+                // Ajouter une petite variation aléatoire à la direction de chaque particule
+                const particleDirection = {
+                    x: direction.x + (Math.random() - 0.5) * 0.5,
+                    y: direction.y + (Math.random() - 0.5) * 0.5
+                };
+                this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1));
+            }
+
+            // Ajouter un effet de recul
+            const knockbackFactor = 0.1; // Ajustez cette valeur pour augmenter ou diminuer l'effet de recul
+            this.knockbackSpeed.x += direction.x * amount * knockbackFactor;
+            this.knockbackSpeed.y += direction.y * amount * knockbackFactor;
         }
 
         // Afficher sur l'ennemi le nombre de dégâts subis
@@ -231,16 +239,15 @@ class Enemy {
 
         if (this.health > 0) {
             this.health -= amount;
+            if (!bulletDirection) {
+                console.log('TOUCHE');
+            }
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;
             }
         }
 
-        // Ajouter un effet de recul
-        const knockbackFactor = 0.25; // Ajustez cette valeur pour augmenter ou diminuer l'effet de recul
-        this.knockbackSpeed.x += direction.x * amount * knockbackFactor;
-        this.knockbackSpeed.y += direction.y * amount * knockbackFactor;
     }
 
     // Méthode pour générer une pièce lorsque l'ennemi meurt
@@ -321,6 +328,14 @@ export class Ghost extends Enemy {
         super(player, mapWidth, mapHeight, 35, 10, 20);
         this.enemyColor = 'white';
         this.speed = 2;
+    }
+}
+
+export class Tank extends Enemy {
+    constructor(player, mapWidth, mapHeight) {
+        super(player, mapWidth, mapHeight, 100, 10, 20);
+        this.enemyColor = 'red';
+        this.speed = 0;
     }
 }
 
