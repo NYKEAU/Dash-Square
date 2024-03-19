@@ -79,13 +79,12 @@ export class Item {
             const specialItemRandomNumber = Math.random();
 
             // Si le nombre aléatoire est inférieur à 0.01 (ce qui correspond à une chance de 1%), générer un item spécial
-            if (specialItemRandomNumber < 3) {
+            if (specialItemRandomNumber < 0.03) {
                 const specialItemName = specialItems[Math.floor(Math.random() * specialItems.length)];
                 switch (specialItemName) {
                     case 'Shuriken':
                         selectedItems.push(new Shuriken(player, this.enemies, canvas));
                         break;
-                    // Ajoutez d'autres cas ici pour d'autres types d'items spéciaux
                 }
             } else {
                 // Sinon, générer un item normal
