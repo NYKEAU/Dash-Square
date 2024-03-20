@@ -3,7 +3,7 @@ import { HitEffect } from './hitEffect.js';
 import { Particle } from './particle.js';
 import { Coin } from './coin.js';
 
-class Enemy {
+export class Enemy {
     constructor(player, mapWidth, mapHeight, baseHealth, damage, xpGived) {
         // Dimensions
         this.width = 20;
@@ -145,9 +145,9 @@ class Enemy {
             return;
         }
 
-        // Calculer la distance et la direction entre l'ennemi et le joueur
-        const dx = player.x - this.x;
-        const dy = player.y - this.y;
+        // Calculer la distance et la direction entre le centre de l'ennemi et le joueur
+        const dx = player.x + player.width / 2 - (this.x + this.width / 2);
+        const dy = player.y + player.height / 2 - (this.y + this.height / 2);
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         // Si la distance est supérieure à zéro, déplacer l'ennemi vers le joueur
@@ -188,13 +188,15 @@ class Enemy {
 
     // Méthode pour vérifier si l'ennemi est en collision avec le joueur
     isCollidingWithPlayer(player) {
-        // Vérifier si le coin supérieur gauche, le coin supérieur droit, le coin inférieur gauche ou le coin inférieur droit de l'ennemi est à l'intérieur du joueur
-        return (
-            this.isPointInsidePlayer(player, this.x, this.y) ||
-            this.isPointInsidePlayer(player, this.x + this.width, this.y) ||
-            this.isPointInsidePlayer(player, this.x, this.y + this.height) ||
-            this.isPointInsidePlayer(player, this.x + this.width, this.y + this.height)
-        );
+        const playerRight = player.x + player.width;
+        const playerBottom = player.y + player.height;
+        const enemyRight = this.x + this.width;
+        const enemyBottom = this.y + this.height;
+
+        return this.x < playerRight &&
+            enemyRight > player.x &&
+            this.y < playerBottom &&
+            enemyBottom > player.y;
     }
 
     // Méthode pour vérifier si un point est à l'intérieur du joueur
@@ -225,7 +227,7 @@ class Enemy {
                     x: direction.x + (Math.random() - 0.5) * 0.5,
                     y: direction.y + (Math.random() - 0.5) * 0.5
                 };
-                this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1));
+                this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1, this.width));
             }
 
             // Ajouter un effet de recul
@@ -270,21 +272,21 @@ class Enemy {
 
 
     // Méthode pour générer une position aléatoire de l'ennemi par rapport au joueur
-    generateRandomPosition(player, mapWidth, mapHeight) {
-        const minDistance = 400; // Distance minimale de l'ennemi par rapport au joueur
-        const maxDistance = 500; // Distance maximale de l'ennemi par rapport au joueur
+    generateRandomPosition(player, mapWidth, mapHeight, attempts = 10) {
+        if (attempts <= 0) {
+            // Si nous avons dépassé le nombre maximum d'essais, retourner une position par défaut
+            return { x: mapWidth / 2, y: mapHeight / 2 };
+        }
 
-        // Générer un angle aléatoire en radians
+        const minDistance = 400;
+        const maxDistance = 500;
+
         const angle = Math.random() * Math.PI * 2;
-
-        // Générer une distance aléatoire entre minDistance et maxDistance
         const distance = Math.random() * (maxDistance - minDistance) + minDistance;
 
-        // Calculer les coordonnées x et y de l'ennemi par rapport au joueur
         const enemyX = player.x + Math.cos(angle) * distance;
         const enemyY = player.y + Math.sin(angle) * distance;
 
-        // Vérifier si les coordonnées de l'ennemi sont à l'intérieur de la zone de jeu
         const insideMap = (
             enemyX >= 0 && enemyX <= mapWidth - this.width &&
             enemyY >= 0 && enemyY <= mapHeight - this.height
@@ -294,7 +296,7 @@ class Enemy {
             return { x: enemyX, y: enemyY };
         } else {
             // Si les coordonnées ne sont pas dans la zone de jeu, réessayer
-            return this.generateRandomPosition(player, mapWidth, mapHeight);
+            return this.generateRandomPosition(player, mapWidth, mapHeight, attempts - 1);
         }
     }
 
@@ -310,7 +312,7 @@ class Enemy {
                 // Ajouter la moitié de la largeur et de la hauteur de l'ennemi à la position x et y
                 const particleX = this.x + this.width / 2;
                 const particleY = this.y + this.height / 2;
-                this.particles.push(new Particle(particleX, particleY, this.enemyColor, direction, 3));
+                this.particles.push(new Particle(particleX, particleY, this.enemyColor, direction, 3, this.width));
             }
         }, 850);
     }

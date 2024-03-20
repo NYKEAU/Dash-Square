@@ -67,7 +67,6 @@ export class EnemyProjectile extends Projectile {
     }
 
     calculateDirection(playerX, playerY) {
-        // Calculate the direction based on the position of the player
         const dx = playerX - this.x;
         const dy = playerY - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);

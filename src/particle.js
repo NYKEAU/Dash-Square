@@ -1,9 +1,9 @@
 export class Particle {
-    constructor(x, y, color, direction, speed) {
+    constructor(x, y, color, direction, speed, size) {
         this.x = x;
         this.y = y;
-        this.color = color;
-        this.size = Math.random() * 5 + 1;
+        this.color = Math.random() < 0.5 ? 'white' : color;
+        this.size = Math.random() * (5 + (size / 20)) + 1;
 
         // Nouvelles propriétés pour la direction
         this.direction = direction;
@@ -18,15 +18,17 @@ export class Particle {
 
     // Méthode pour dessiner la particule
     draw(context, enemySize, mapStartX, mapStartY) {
-        if (this.duration > 0) {
-            context.fillStyle = 'white';
-            this.duration--;
-        } else {
-            context.fillStyle = this.color;
-        }
+        // if (this.duration > 0) {
+        //     context.fillStyle = 'white';
+        //     this.duration--;
+        // } else {
+        //     context.fillStyle = this.color;
+        // }
+        context.fillStyle = this.color;
         context.beginPath();
         context.arc(this.x + enemySize / 2 + mapStartX, this.y + enemySize / 2 + mapStartY, this.size, 0, Math.PI * 2);
         context.fill();
+        this.duration--;
     }
 
     // Méthode pour mettre à jour la position de la particule

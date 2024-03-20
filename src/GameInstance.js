@@ -1,5 +1,6 @@
 import { Player } from './player.js';
 import { Slime, Ghost, Shooter, Tank } from './enemy.js';
+import { FireBoss, IceBoss } from './bosses.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { Shuriken } from './specialItems.js';
@@ -90,9 +91,12 @@ export class gameInstance {
 
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
-            if (this.enemies.length < 10) {
-                let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
-                this.addEnemy(enemyType);
+            // if (this.enemies.length < 10) {
+            //     let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
+            //     this.addEnemy(enemyType);
+            // }
+            if (this.enemies.length < 1) {
+                this.addEnemy('iceBoss');
             }
         }, this.spawnFrequency);
     }
@@ -356,6 +360,12 @@ export class gameInstance {
                 enemy = new Shooter(this.player, this.mapWidth, this.mapHeight);
                 enemy.startShooting();
                 break;
+            case 'fireBoss':
+                enemy = new FireBoss(this.player, this.mapWidth, this.mapHeight);
+                break;
+            case 'iceBoss':
+                enemy = new IceBoss(this.player, this.mapWidth, this.mapHeight);
+                break;
             default:
                 console.error(`Unknown enemy type: ${enemyType}`);
                 return;
@@ -445,8 +455,6 @@ export class gameInstance {
                             // Collision détectée, réduire la santé de l'ennemi
                             this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, projectile.speed);
 
-                            this.player.increaseExperience(enemy.xpGived);
-
                             // Si le projectile n'est pas un projectile de Sniper, le supprimer
                             if (!(projectile instanceof SniperProjectile)) {
                                 this.player.projectiles.splice(i, 1);
@@ -460,7 +468,6 @@ export class gameInstance {
             // Mettez à jour chaque item spécial
             for (let i = 0; i < this.specialItems.length; i++) {
                 this.specialItems[i].update();
-                this.specialItems[i].drawCollisionBox(this.context);
 
                 // Vérifiez les collisions avec chaque ennemi
                 for (let j = 0; j < this.enemies.length; j++) {

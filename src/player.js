@@ -11,7 +11,7 @@ export class Player {
         this.height = 30; // La hauteur du joueur
         this.items = []; // Les items du joueur
 
-        // Armes et Projets
+        // Armes et Projectiles
         this.weapon = new SMG(this); // Ajouter l'arme de base du joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
 
@@ -179,12 +179,16 @@ export class Player {
 
     // Méthode pour gérer la collision avec un ennemi
     isCollidingWithEnemy(object) {
-        // Si l'ennemi est mort, ne pas gérer la collision
         if (!object.isDead) {
-            return this.x < object.x + object.width &&
-                this.x + this.width > object.x &&
-                this.y < object.y + object.height &&
-                this.y + this.height > object.y;
+            const playerRight = this.x + this.width;
+            const playerBottom = this.y + this.height;
+            const objectRight = object.x + object.width;
+            const objectBottom = object.y + object.height;
+
+            return this.x < objectRight &&
+                playerRight > object.x &&
+                this.y < objectBottom &&
+                playerBottom > object.y;
         } else {
             return;
         }

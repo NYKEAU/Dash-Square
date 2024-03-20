@@ -58,19 +58,6 @@ export class Shuriken extends SpecialItem {
         context.stroke();
     }
 
-    drawCollisionBox(context) {
-        context.beginPath();
-        context.rect(
-            this.position.x - 5 - 2.5, // x position
-            this.position.y - 5 - 2.5, // y position
-            this.radius * 2 + 10, // width
-            this.radius * 2 + 10 // height
-        );
-        context.lineWidth = 2;
-        context.strokeStyle = 'red';
-        context.stroke();
-    }
-
     collidesWith(enemy) {
         const mapStartX = this.canvas.width / 2 - this.player.x - this.player.width / 2;
         const mapStartY = this.canvas.height / 2 - this.player.y - this.player.height / 2;

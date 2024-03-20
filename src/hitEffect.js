@@ -17,7 +17,7 @@ export class HitEffect {
         if (this.duration > 0) {
             const textWidth = context.measureText(this.damage).width;
             const textX = mapStartX + this.x + this.target.width / 2 - textWidth / 2;
-            const textY = mapStartY + this.y - this.fontSize - this.verticalOffset; // Décalage vertical
+            const textY = mapStartY + this.y - this.fontSize - this.verticalOffset;
 
             // Calculer l'opacité en fonction du temps restant
             const normalizedDuration = this.duration / 60; // Normaliser la durée entre 0 et 1

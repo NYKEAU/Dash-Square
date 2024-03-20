@@ -18,12 +18,11 @@ class Weapon {
         }
 
         this.timeoutId = setTimeout(() => {
-            // If closestEnemy is dead, get the next closest enemy
             const closestEnemy = this.player.gameInstance.getClosestEnemy();
 
             if (closestEnemy && !closestEnemy.isDead) {
-                const dx = closestEnemy.x - this.player.x;
-                const dy = closestEnemy.y - this.player.y;
+                const dx = (closestEnemy.x + closestEnemy.width / 2) - this.player.x;
+                const dy = (closestEnemy.y + closestEnemy.height / 2) - this.player.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance > 0) {
                     const direction = { x: dx / distance, y: dy / distance };
@@ -31,9 +30,8 @@ class Weapon {
                 }
             }
 
-            // Appeler startShooting à nouveau après le délai
             this.startShooting();
-        }, 1000 / this.fireRate); // Le délai est inversément proportionnel à la cadence de tir
+        }, 1000 / this.fireRate);
     }
 
     stopShooting() {
@@ -103,7 +101,7 @@ export class SMG extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 5; // Initialiser this.speed ici pour la classe SMG
         this.fireRate = 10; // Initialiser this.fireRate ici pour la classe SMG
-        this.damage = 20; // Initialiser this.damage ici pour la classe SMG
+        this.damage = 2; // Initialiser this.damage ici pour la classe SMG
     }
 
     shoot(direction) {
