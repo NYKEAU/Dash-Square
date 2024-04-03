@@ -13,20 +13,27 @@
         style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; text-align: center;">
         <h1>Rogue-lite</h1>
         <p>Appuyez sur le bouton pour commencer</p>
-        <button id="startButton">Start</button>
+        <button id="startButton">Commencer</button>
     </div>
     <div id="pauseMenu"
         style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; text-align: center;">
         <h1>Pause</h1>
-        <button id="resumeButton">Resume</button>
+        <button id="resumeButton">Reprendre</button>
         <!-- <button id="restartButton">Restart</button> ---- Fonction restart non fonctionnelle pour le moment -->
-        <button id="quitButton">Quit</button>
+        <button id="quitButton">Quitter</button>
     </div>
     <canvas id="gameCanvas" style="display: none;"></canvas>
     <div id="shop" style="display: none;">
         <h1>Shop</h1>
         <ul id="shopItems"></ul>
-        <button id="shopClose">Close</button>
+        <button id="shopClose">Fermer</button>
+    </div>
+    <div id="gameOverMenu" style="display: none;">
+        <h1>Game Over</h1>
+        <p>Score: <span id="score"></span></p>
+        <p>Timer: <span id="timerScore"></span></p>
+        <h3>Score final: <span id="finalScore"></span></h3>
+        <button id="restartButton">Quitter</button>
     </div>
     <script type="module" src="index.js"></script>
 </body>

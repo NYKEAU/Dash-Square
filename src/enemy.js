@@ -214,6 +214,7 @@ export class Enemy {
         this.hitFlashDuration = 10; // L'ennemi deviendra blanc pendant 5 frames
 
         if (bulletDirection) {
+
             // Utiliser la même direction que le projectile pour la direction des particules
             const direction = {
                 x: bulletDirection.x,
@@ -314,7 +315,7 @@ export class Enemy {
                 const particleY = this.y + this.height / 2;
                 this.particles.push(new Particle(particleX, particleY, this.enemyColor, direction, 3, this.width));
             }
-        }, 850);
+        }, 10);
     }
 }
 

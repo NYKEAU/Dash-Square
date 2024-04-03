@@ -10,6 +10,11 @@ export class Player {
         this.width = 30; // La largeur du joueur
         this.height = 30; // La hauteur du joueur
         this.items = []; // Les items du joueur
+        this.score = 0; // Le score du joueur
+        this.scorePopupText = ''; // Le texte à afficher au-dessus du score
+        this.scorePopupTime = 0; // Le temps restant avant que le texte ne disparaisse
+        this.scorePopupY = 0; // La position y du texte à afficher au-dessus du score
+        this.levelPopupScale = 1; // L'échelle du texte du niveau
 
         // Armes et Projectiles
         this.weapon = new SMG(this); // Ajouter l'arme de base du joueur
@@ -72,7 +77,7 @@ export class Player {
 
         // Dessiner le nombre de points de vie dans la barre de vie
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = '16px Arial'; // Taille et police du texte
+        context.font = '16px Roboto'; // Taille et police du texte
         context.fillText(healthText, barX + 5, barY + 17.5); // Position du texte
     }
 
@@ -99,12 +104,29 @@ export class Player {
 
         // Dessiner l'expérience du joueur dans la barre d'expérience
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = '10px Arial'; // Taille et police du texte
+        context.font = '10px Roboto'; // Taille et police du texte
         context.textAlign = 'right'; // Aligner le texte à droite
         context.fillText(experienceText, barX + this.maxHealth - 5, barY + barHeight / 2 + 4); // Position du texte
 
         // Restaurer l'état du contexte
         context.restore();
+    }
+
+    // Méthode pour dessiner le niveau du joueur
+    drawLevel(context) {
+        // Préparer le texte
+        const levelText = 'Niveau ' + this.level;
+
+        // Dessiner le niveau du joueur en haut de l'écran
+        context.fillStyle = 'black'; // Couleur du texte
+        context.font = `${30 * this.levelPopupScale}px Roboto`; // Taille et police du texte
+        const textWidth = context.measureText(levelText).width;
+        context.fillText(levelText, (this.gameInstance.canvas.width - textWidth) / 2, 50);
+
+        // Réduire l'échelle
+        if (this.levelPopupScale > 1) {
+            this.levelPopupScale -= 0.01; // Supposer que cette méthode est appelée 60 fois par seconde
+        }
     }
 
     // Méthode pour dessiner l'argent du joueur
@@ -114,8 +136,32 @@ export class Player {
 
         // Dessiner l'argent du joueur en haut de l'écran
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = '16px Arial'; // Taille et police du texte
+        context.font = '16px Roboto'; // Taille et police du texte
         context.fillText(moneyText, 10, 70); // Position du texte
+    }
+
+    // Méthode pour dessiner le score du joueur
+    drawScore(context) {
+        // Préparer le texte
+        const scoreText = 'Score: ' + this.score;
+
+        // Dessiner le score du joueur en haut de l'écran
+        context.fillStyle = 'black'; // Couleur du texte
+        context.font = '20px Roboto'; // Taille et police du texte
+
+        const textWidth = context.measureText(scoreText).width;
+        context.fillText(scoreText, (this.gameInstance.canvas.width - textWidth) / 2, this.gameInstance.canvas.height - 50);
+
+        // Dessiner le texte au-dessus du score si le temps restant est supérieur à 0
+        if (this.scorePopupTime > 0) {
+            context.fillStyle = `rgba(0, 0, 0, ${this.scorePopupTime / 2})`; // Couleur du texte (avec opacité)
+            context.font = '20px Roboto'; // Taille et police du texte
+            context.fillText(this.scorePopupText, (this.gameInstance.canvas.width) / 2, this.scorePopupY); // Position du texte
+
+            // Réduire le temps restant et la position y
+            this.scorePopupTime -= 1 / 60; // Supposer que cette méthode est appelée 60 fois par seconde
+            this.scorePopupY -= 1; // Faire monter le texte de 1 pixel par frame
+        }
     }
 
     // Méthode pour ajouter un item et mettre à jour les statistiques du joueur
@@ -126,6 +172,18 @@ export class Player {
             this.items.push(item);
         }
         this.updateStats(item.stats);
+    }
+
+    // Méthode pour augmenter le score du joueur
+    increaseScore(points) {
+        this.score += points;
+
+        // Mettre à jour le texte à afficher et le temps restant
+        if (points >= 10) {
+            this.scorePopupText = '+' + points;
+            this.scorePopupTime = 2; // Le texte sera affiché pendant 2 secondes
+            this.scorePopupY = this.gameInstance.canvas.height - 50;
+        }
     }
 
     // Méthode pour mettre à jour les statistiques du joueur
@@ -218,6 +276,15 @@ export class Player {
         // Afficher le nombre de dégâts subis
         this.hitEffects.push(new HitEffect(this, amount, 'player'));
 
+        // Vérifier si le joueur est mort
+        if (this.health <= 0) {
+            // Arrêter la génération des ennemis
+            this.gameInstance.stopEnemyGeneration();
+
+            // Afficher l'écran de fin de partie
+            this.gameInstance.destroy();
+        }
+
         // Jouer le son de dégâts
         // const hitSound = new Audio('../sounds/playerHitSound.mp3');
         // hitSound.play();
@@ -226,13 +293,18 @@ export class Player {
     // Méthode pour augmenter le niveau d'expérience du joueur
     levelUp() {
         // Augmenter le niveau du joueur
-        // this.level++;
         this.level += 1;
         let healthPercent = this.health / this.maxHealth;
+
+        // Mettre à jour l'échelle du texte
+        this.levelPopupScale = 1.2; // Le texte sera grossi de 20%
 
         // Augmenter la vie max du joueur en fonction de sa vie max actuelle
         let increment = 10 ** Math.floor(Math.log10(this.maxHealth));
         this.maxHealth += increment / 10;
+
+        // Augmenter le score du joueur
+        this.score += this.level * 10;
 
         if (this.level % 10 === 0) {
             this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
@@ -247,6 +319,12 @@ export class Player {
         if (this.level % 5 === 0) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.displayShop();
+        }
+
+        // Faire spawn un boss tous les 15 niveaux
+        if (this.level % 15 === 0) {
+            this.gameInstance.stopEnemyGeneration();
+            this.gameInstance.isBossLevel = true;
         }
 
         // Réinitialiser l'expérience du joueur

@@ -24,7 +24,7 @@ document.getElementById('startButton').addEventListener('click', function () {
     // Ajouter des gestionnaires d'événements pour les boutons du menu de pause si ceux-ci sont existants
     document.getElementById('shopClose').addEventListener('click', () => game.resumeGame());
     document.getElementById('resumeButton').addEventListener('click', () => game.resumeGame());
-    // document.getElementById('restartButton').addEventListener('click', () => game.restartGame()); ---- Fonction restart non fonctionnelle pour le moment
+    document.getElementById('restartButton').addEventListener('click', () => game.quitGame());
     document.getElementById('quitButton').addEventListener('click', () => game.quitGame());
 
     // Lancer le jeu

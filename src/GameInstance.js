@@ -30,6 +30,8 @@ export class gameInstance {
         this.isPaused = false;
         this.pausedTime = 0;
         this.specialItems = []; // Les items spéciaux du joueur
+        this.isBossLevel = false;
+        this.timerScore = 0;
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -38,7 +40,7 @@ export class gameInstance {
             this.keys[event.key] = true;
 
             // Si la touche Echap est enfoncée, basculer la pause
-            if (event.key === 'Escape') {
+            if (event.key === 'Escape' && this.player.health > 0) {
                 this.togglePause();
             }
         });
@@ -91,12 +93,13 @@ export class gameInstance {
 
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
-            // if (this.enemies.length < 10) {
-            //     let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
-            //     this.addEnemy(enemyType);
-            // }
-            if (this.enemies.length < 1) {
-                this.addEnemy('iceBoss');
+            console.log(this.isBossLevel);
+            if (this.enemies.length < 10 && this.isBossLevel === false) {
+                // let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
+                this.addEnemy('ghost');
+            } else if (this.enemies.length < 1 && this.isBossLevel === true) {
+                let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
+                this.addEnemy(enemyType);
             }
         }, this.spawnFrequency);
     }
@@ -239,37 +242,21 @@ export class gameInstance {
         }
     }
 
-    // Méthode pour redémarrer le jeu ------ Non fonctionnelle pour le moment
-    restartGame() {
-        // // Réinitialiser les propriétés de l'instance de jeu
-        // this.startTime = Date.now();
-        // this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
-        // this.enemies = []; // Le tableau des ennemis
-        // this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
-        // this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
-        // this.spawnFrequency = 250;
-        // this.coins = []; // Le tableau des pièces
-        // this.enemiesWithGeneratedCoins = new Set();
-        // this.isPaused = false;
-        // this.pausedTime = 0;
+    destroy() {
+        // Mettre le jeu en pause
+        this.pauseGame();
 
-        // // Arrêter le tir du joueur
-        // this.player.weapon.stopShooting();
+        // Afficher le menu de fin de jeu
+        document.getElementById('gameOverMenu').style.display = 'flex';
 
-        // // Arrêter l'ajout d'ennemis
-        // clearInterval(this.addEnemyInterval);
-        // this.addEnemyInterval = null;
-
-        // // Cacher le menu de pause
-        // document.getElementById('pauseMenu').style.display = 'none';
-
-        // // Redémarrer le jeu
-        // this.start();
+        // Mettre à jour le score final
+        document.getElementById('score').textContent = this.player.score - this.timerScore;
+        document.getElementById('timerScore').textContent = this.getElapsedTime() + ' (+' + this.timerScore + ')';
+        document.getElementById('finalScore').textContent = this.player.score;
     }
 
     // Méthode pour mettre en pause le jeu
     pauseGame() {
-
         // Mettre le jeu en pause
         this.isPaused = true;
 
@@ -335,6 +322,7 @@ export class gameInstance {
     quitGame() {
         // Cacher le menu de pause
         document.getElementById('pauseMenu').style.display = 'none';
+        document.getElementById('gameOverMenu').style.display = 'none';
 
         // Afficher le menu de démarrage
         document.getElementById('startMenu').style.display = 'block';
@@ -394,6 +382,11 @@ export class gameInstance {
             const totalSeconds = Math.floor((Date.now() - this.startTime) / 1000);
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
+            if (totalSeconds % 10 === 0 && totalSeconds !== this.timerScore) {
+                this.player.increaseScore(100);
+                console.log('Score increased by 100');
+                this.timerScore = totalSeconds;
+            }
             return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
         } else {
             const totalSeconds = Math.floor(this.pausedTime / 1000);
@@ -454,6 +447,7 @@ export class gameInstance {
                         if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
                             // Collision détectée, réduire la santé de l'ennemi
                             this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, projectile.speed);
+                            this.player.increaseScore(1);
 
                             // Si le projectile n'est pas un projectile de Sniper, le supprimer
                             if (!(projectile instanceof SniperProjectile)) {
@@ -476,6 +470,7 @@ export class gameInstance {
                         let currentTime = new Date().getTime();
                         if (!this.enemies[j].lastCollisionTime || currentTime - this.enemies[j].lastCollisionTime > 500) {
                             this.enemies[j].decreaseHealth(this.specialItems[i].damage);
+                            this.player.increaseScore(1);
                             this.enemies[j].lastCollisionTime = currentTime; // Enregistrez le moment de la collision
                             if (this.enemies[j].isDead) {
                                 this.enemies.splice(j, 1); // Supprimez l'ennemi s'il n'a plus de santé
@@ -545,6 +540,13 @@ export class gameInstance {
                     if (coin) {
                         this.coins.push(coin);
                         enemy.coinGenerated = true;
+                    }
+
+                    // Si le nom de l'ennemi contient "Boss"
+                    if (enemy.constructor.name.includes('Boss')) {
+                        // Attendre 5 secondes avant de continuer à générer des ennemis
+                        this.isBossLevel = false;
+                        this.player.increaseScore(1000);
                     }
 
                     // Créer un effet de mort pour l'ennemi
@@ -634,14 +636,16 @@ export class gameInstance {
         // Dessiner l'ATH
         this.player.drawHealthBar(this.context);
         this.player.drawExperienceBar(this.context);
+        this.player.drawLevel(this.context);
         this.player.drawMoney(this.context);
+        this.player.drawScore(this.context);
 
         // Supprimer les effets de hit qui ont expiré
         this.player.hitEffects = this.player.hitEffects.filter(hitEffect => hitEffect.duration > 0);
 
         // Timer
         this.context.fillStyle = 'black';
-        this.context.font = '30px Arial';
+        this.context.font = '30px Roboto';
         const timerText = this.getElapsedTime();
         const textWidth = this.context.measureText(timerText).width;
         this.context.fillText(timerText, (this.canvas.width - textWidth) / 2, this.canvas.height - 10);
