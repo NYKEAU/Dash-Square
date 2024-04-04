@@ -78,7 +78,7 @@ export class Item {
             // Générez un autre nombre aléatoire pour déterminer si un item spécial doit être généré
             const specialItemRandomNumber = Math.random();
 
-            // Si le nombre aléatoire est inférieur à 0.01 (ce qui correspond à une chance de 1%), générer un item spécial
+            // Si le nombre aléatoire est inférieur à 0.03 (ce qui correspond à une chance de 3%), générer un item spécial
             if (specialItemRandomNumber < 0.03) {
                 const specialItemName = specialItems[Math.floor(Math.random() * specialItems.length)];
                 switch (specialItemName) {
@@ -86,6 +86,7 @@ export class Item {
                         selectedItems.push(new Shuriken(player, this.enemies, canvas));
                         break;
                 }
+                this.gameInstance.bossItem = false;
             } else {
                 // Sinon, générer un item normal
                 if (randomNumber >= 0 && randomNumber < rareProb) {

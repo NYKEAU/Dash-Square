@@ -31,6 +31,7 @@ export class gameInstance {
         this.pausedTime = 0;
         this.specialItems = []; // Les items spéciaux du joueur
         this.isBossLevel = false;
+        this.bossItem = false;
         this.timerScore = 0;
     }
 
@@ -96,7 +97,7 @@ export class gameInstance {
             console.log(this.isBossLevel);
             if (this.enemies.length < 10 && this.isBossLevel === false) {
                 // let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
-                this.addEnemy('ghost');
+                this.addEnemy('slime');
             } else if (this.enemies.length < 1 && this.isBossLevel === true) {
                 let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
                 this.addEnemy(enemyType);
@@ -544,9 +545,12 @@ export class gameInstance {
 
                     // Si le nom de l'ennemi contient "Boss"
                     if (enemy.constructor.name.includes('Boss')) {
-                        // Attendre 5 secondes avant de continuer à générer des ennemis
                         this.isBossLevel = false;
                         this.player.increaseScore(1000);
+                        if (enemy.health <= 0) {
+                            this.bossItem = true;
+                            this.displayShop();
+                        }
                     }
 
                     // Créer un effet de mort pour l'ennemi

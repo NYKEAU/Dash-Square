@@ -1,3 +1,7 @@
+// Importer les fonctions d'authentification et de score
+import { signUp, signIn, signOut } from './src/bdd/auth.js';
+import { saveScore } from './src/bdd/scores.js';
+
 // Importer la classe GameInstance depuis le fichier GameInstance.js (avec la casse correcte)
 import { gameInstance } from './src/gameInstance.js';
 

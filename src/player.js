@@ -322,7 +322,7 @@ export class Player {
         }
 
         // Faire spawn un boss tous les 15 niveaux
-        if (this.level % 15 === 0) {
+        if (this.level % 3 === 0) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.isBossLevel = true;
         }
