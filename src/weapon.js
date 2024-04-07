@@ -3,6 +3,8 @@ import { Projectile, SniperProjectile } from './projectile.js';
 class Weapon {
     constructor(player) {
         this.player = player;
+        this.x = 0;
+        this.y = 0;
         this.fireRate = 1; // Vitesse de tir en balles par seconde
         this.speed = 1; // Vitesse des balles par défaut
         this.range = 1000; // Portée par défaut
@@ -40,6 +42,13 @@ class Weapon {
             this.timeoutId = null;
         }
     }
+
+    // Méthode pour dessiner l'arme
+    draw(context, mapStartX, mapStartY) {
+        if (this.image) {
+            context.drawImage(this.image, this.x + mapStartX, this.y + mapStartY, this.width, this.height);
+        }
+    }
 }
 
 export class Pistol extends Weapon {
@@ -48,6 +57,10 @@ export class Pistol extends Weapon {
         this.speed = 10; // Initialiser this.speed ici pour la classe Pistol
         this.fireRate = 1; // Initialiser this.fireRate ici pour la classe Pistol
         this.damage = 10; // Initialiser this.damage ici pour la classe Pistol
+        this.x = 0; // Initialiser this.x ici pour la classe Pistol
+        this.y = 0; // Initialiser this.y ici pour la classe Pistol
+        this.image = new Image();
+        this.image.src = '../assets/Weapons/Pistol-1.png';
     }
 
     shoot(direction) {
@@ -72,6 +85,10 @@ export class Shotgun extends Weapon {
         this.speed = 3; // Initialiser this.speed ici pour la classe Shotgun
         this.fireRate = 0.5; // Initialiser this.fireRate ici pour la classe Shotgun
         this.damage = 5; // Initialiser this.damage ici pour la classe Shotgun
+        this.x = 0; // Initialiser this.x ici pour la classe Shotgun
+        this.y = 0; // Initialiser this.y ici pour la classe Shotgun
+        this.image = new Image();
+        this.image.src = '../assets/Weapons/Shotgun-1.png';
     }
 
     shoot(direction) {
@@ -101,7 +118,11 @@ export class SMG extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 5; // Initialiser this.speed ici pour la classe SMG
         this.fireRate = 10; // Initialiser this.fireRate ici pour la classe SMG
-        this.damage = 2; // Initialiser this.damage ici pour la classe SMG
+        this.damage = 10; // Initialiser this.damage ici pour la classe SMG
+        this.x = 0; // Initialiser this.x ici pour la classe SMG
+        this.y = 0; // Initialiser this.y ici pour la classe SMG
+        this.image = new Image();
+        this.image.src = '../assets/Weapons/SMG-2.png';
     }
 
     shoot(direction) {
@@ -129,6 +150,10 @@ export class Famas extends Weapon {
         this.burstCount = 4; // Nombre de tirs dans une rafale
         this.isReloading = false; // Indicateur pour savoir si le Famas est en train de recharger
         this.burstDelay = 50; // Délai entre chaque balle d'une même rafale
+        this.x = 0;
+        this.y = 0;
+        this.image = new Image();
+        this.image.src = '../assets/Weapons/SMG-4.png';
     }
 
     shoot(direction) {
@@ -161,6 +186,10 @@ export class Sniper extends Weapon {
         this.fireRate = 0.5;
         this.damage = 25;
         this.range = 1000;
+        this.x = 0;
+        this.y = 0;
+        this.image = new Image();
+        this.image.src = '../assets/Weapons/Sniper-rifle-1-scoped.png';
     }
 
     shoot(direction) {

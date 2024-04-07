@@ -76,3 +76,35 @@ export class EnemyProjectile extends Projectile {
         }
     }
 }
+
+export class BulletHellProjectile extends Projectile {
+    constructor(x, y, speed, damage, direction, size, color) {
+        super(x, y, speed, damage);
+        this.direction = direction;
+        this.size = size;
+        this.color = color;
+    }
+
+    draw(context, offsetX, offsetY) {
+        const borderSize = 3; // Largeur de la bordure
+        const isColor = (color) => {
+            const s = new Option().style;
+            s.color = 'light' + color;
+            return s.color !== '';
+        }
+
+        context.fillStyle = isColor(this.color) ? 'light' + this.color : 'black'; // Couleur de la bordure
+        context.strokeStyle = this.color; // Couleur de remplissage
+        context.lineWidth = borderSize;
+
+        // Dessiner le remplissage
+        context.beginPath();
+        context.arc(this.x + offsetX, this.y + offsetY, this.size - borderSize / 2, 0, Math.PI * 2);
+        context.fill();
+
+        // Dessiner la bordure
+        context.beginPath();
+        context.arc(this.x + offsetX, this.y + offsetY, this.size - borderSize / 2, 0, Math.PI * 2);
+        context.stroke();
+    }
+}

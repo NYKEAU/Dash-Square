@@ -1,4 +1,5 @@
 import { Shuriken } from './specialItems.js';
+import { gameInstance } from './GameInstance.js';
 
 export class Item {
     constructor(id, nom, stats, rarete, prix, type) {
@@ -86,7 +87,6 @@ export class Item {
                         selectedItems.push(new Shuriken(player, this.enemies, canvas));
                         break;
                 }
-                this.gameInstance.bossItem = false;
             } else {
                 // Sinon, générer un item normal
                 if (randomNumber >= 0 && randomNumber < rareProb) {

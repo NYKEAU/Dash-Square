@@ -17,7 +17,9 @@ export class Player {
         this.levelPopupScale = 1; // L'échelle du texte du niveau
 
         // Armes et Projectiles
-        this.weapon = new SMG(this); // Ajouter l'arme de base du joueur
+        this.weapon = new SMG(this); // Initialiser l'arme de base du joueur
+        this.weapons = [new SMG(this)]; // Initialiser l'arsenal du joueur
+        this.currentWeaponIndex = 0; // L'arme actuellement équipée par le joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
 
         // Mouvement
@@ -42,6 +44,18 @@ export class Player {
         this.hitFlash = false; // Si le joueur subit des dégâts
     }
 
+    // Méthode pour ajouter une arme
+    addWeapon(weapon) {
+        this.weapons.push(weapon);
+        console.log('Weapon added:', weapon);
+        console.log('Weapons:', this.weapons);
+    }
+
+    // Méthode pour vérifier si le joueur possède déjà une arme
+    hasWeapon(weaponClass, weaponCount) {
+        return this.weapons.some(weapon => weapon instanceof weaponClass) ? false : this.weapons.length >= weaponCount ? null : true;
+    }
+
     // Méthode pour dessiner le joueur
     draw(context, x, y, mapStartX, mapStartY) {
         // Dessiner les effets de coup avant de vérifier si le joueur est mort
@@ -51,6 +65,36 @@ export class Player {
 
         context.fillStyle = this.hitFlash ? 'white' : 'red';
         context.fillRect(x, y, this.width, this.height);
+    }
+
+    // Méthode pour dessiner les armes du joueur
+    drawWeapons(context) {
+        const startY = context.canvas.height - 100; // Ajustez ces valeurs en fonction de la taille de vos images d'armes
+        const startX = context.canvas.width - 100;
+        const spacing = 50; // Largeur fixe pour l'espacement entre les images d'armes
+        const scale = 1.5; // Échelle de taille pour les images d'armes
+
+        this.weapons.forEach((weapon, index) => {
+            const y = startY;
+            const x = startX - index * spacing * scale - weapon.image.naturalWidth / 2 * scale; // Ajustez l'espacement en fonction de l'échelle de taille et de la largeur de l'image
+
+            context.save(); // Sauvegarde l'état actuel du contexte
+            context.translate(x + weapon.image.naturalWidth / 2 * scale, y + weapon.image.naturalHeight / 2 * scale); // Déplace le point d'origine au centre de l'image
+            context.rotate(-Math.PI / 2); // Fait pivoter le contexte de 90 degrés vers la gauche
+            context.drawImage(weapon.image, -weapon.image.naturalWidth / 2 * scale, -weapon.image.naturalHeight / 2 * scale, weapon.image.naturalWidth * scale, weapon.image.naturalHeight * scale); // Dessine l'image centrée sur le point d'origine à l'échelle spécifiée
+
+            if (index === this.currentWeaponIndex) {
+                context.strokeStyle = 'red';
+                context.lineWidth = 2;
+                context.strokeRect(-weapon.image.naturalWidth / 2 * scale, -weapon.image.naturalHeight / 2 * scale, weapon.image.naturalWidth * scale, weapon.image.naturalHeight * scale);
+            } else {
+                context.strokeStyle = 'black';
+                context.lineWidth = 2;
+                context.strokeRect(-weapon.image.naturalWidth / 2 * scale, -weapon.image.naturalHeight / 2 * scale, weapon.image.naturalWidth * scale, weapon.image.naturalHeight * scale);
+            }
+
+            context.restore(); // Restaure l'état précédent du contexte
+        });
     }
 
     // Méthode pour dessiner la barre de vie du joueur
@@ -322,7 +366,7 @@ export class Player {
         }
 
         // Faire spawn un boss tous les 15 niveaux
-        if (this.level % 3 === 0) {
+        if (this.level % 15 === 0) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.isBossLevel = true;
         }

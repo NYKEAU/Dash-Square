@@ -11,6 +11,7 @@ export class gameInstance {
     constructor(canvas) {
         // Initialiser les propriétés de l'instance de jeu
         this.startTime = Date.now();
+        this.isStarted = false;
         this.canvas = canvas; // L'objet canvas
         this.context = canvas.getContext('2d'); // Le contexte de dessin du canvas
         this.screenWidth = window.innerWidth; // La largeur de l'écran du navigateur
@@ -31,8 +32,16 @@ export class gameInstance {
         this.pausedTime = 0;
         this.specialItems = []; // Les items spéciaux du joueur
         this.isBossLevel = false;
-        this.bossItem = false;
         this.timerScore = 0;
+        this.lastScoreIncreaseTime = null;
+    }
+
+    wait(ms) {
+        var start = new Date().getTime();
+        var end = start;
+        while (end < start + ms) {
+            end = new Date().getTime();
+        }
     }
 
     // Méthode pour ajouter les écouteurs d'événements
@@ -41,7 +50,7 @@ export class gameInstance {
             this.keys[event.key] = true;
 
             // Si la touche Echap est enfoncée, basculer la pause
-            if (event.key === 'Escape' && this.player.health > 0) {
+            if (event.key === 'Escape' && this.player.health > 0 && this.isStarted) {
                 this.togglePause();
             }
         });
@@ -65,9 +74,9 @@ export class gameInstance {
             const shop = document.getElementById('shop');
             const pause = document.getElementById('pauseMenu');
 
-            if (shop.style.display === 'block' && pause.style.display === 'block') {
+            if (shop.style.display === 'flex' && pause.style.display === 'flex') {
                 shop.style.display = 'none';
-            } else if (shop.style.display === 'block' && pause.style.display === 'none') {
+            } else if (shop.style.display === 'flex' && pause.style.display === 'none') {
                 shop.style.display = 'none';
                 this.resumeGame();
             } else {
@@ -76,7 +85,7 @@ export class gameInstance {
             }
         } else {
             this.pauseGame();
-            document.getElementById('pauseMenu').style.display = 'block';
+            document.getElementById('pauseMenu').style.display = 'flex';
         }
     }
 
@@ -94,10 +103,9 @@ export class gameInstance {
 
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
-            console.log(this.isBossLevel);
-            if (this.enemies.length < 10 && this.isBossLevel === false) {
+            if (this.enemies.length < 1 && this.isBossLevel === false) {
                 // let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
-                this.addEnemy('slime');
+                this.addEnemy('fireBoss');
             } else if (this.enemies.length < 1 && this.isBossLevel === true) {
                 let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
                 this.addEnemy(enemyType);
@@ -117,7 +125,7 @@ export class gameInstance {
         this.pauseGame();
 
         // Afficher le magasin
-        document.getElementById('shop').style.display = 'block';
+        document.getElementById('shop').style.display = 'flex';
 
         // Créez trois options d'amélioration (via la méthode generateItems de la classe item.js)
         let items = Item.generateItems(this.player, this.enemies, this.canvas);
@@ -246,6 +254,7 @@ export class gameInstance {
     destroy() {
         // Mettre le jeu en pause
         this.pauseGame();
+        this.isStarted = false;
 
         // Afficher le menu de fin de jeu
         document.getElementById('gameOverMenu').style.display = 'flex';
@@ -282,14 +291,16 @@ export class gameInstance {
                 enemy.stopShooting();
             }
         }
+
+        this.pauseStartTime = Date.now();
     }
 
     resumeGame() {
         const shop = document.getElementById('shop');
         const pause = document.getElementById('pauseMenu');
-        if (shop.style.display === 'block') {
+        if (shop.style.display === 'flex') {
             shop.style.display = 'none';
-        } else if (pause.style.display === 'block') {
+        } else if (pause.style.display === 'flex') {
             pause.style.display = 'none';
         }
 
@@ -317,6 +328,11 @@ export class gameInstance {
                 enemy.startShooting();
             }
         }
+
+        if (this.pauseStartTime !== null) {
+            this.totalPausedTime += Date.now() - this.pauseStartTime;
+            this.pauseStartTime = null;
+        }
     }
 
     // Méthode pour quitter le jeu
@@ -326,7 +342,8 @@ export class gameInstance {
         document.getElementById('gameOverMenu').style.display = 'none';
 
         // Afficher le menu de démarrage
-        document.getElementById('startMenu').style.display = 'block';
+        document.getElementById('startMenu').style.display = 'flex';
+        this.isStarted = false;
 
         // Cacher le jeu
         this.canvas.style.display = 'none';
@@ -371,7 +388,7 @@ export class gameInstance {
         this.update();
 
         this.startEnemyGeneration(this.player.level);
-        console.log("STARTED");
+        this.isStarted = true;
 
         // Commencer à tirer le joueur
         this.player.weapon.startShooting();
@@ -380,13 +397,16 @@ export class gameInstance {
     // Méthode pour obtenir le temps écoulé depuis le début du jeu en format "00:00"
     getElapsedTime() {
         if (!this.isPaused) {
-            const totalSeconds = Math.floor((Date.now() - this.startTime) / 1000);
+            const now = Date.now();
+            const totalSeconds = Math.floor((now - this.startTime) / 1000);
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
-            if (totalSeconds % 10 === 0 && totalSeconds !== this.timerScore) {
+            if (this.lastScoreIncreaseTime === null) {
+                this.lastScoreIncreaseTime = now;
+            } else if (now - this.lastScoreIncreaseTime >= 10000) {
                 this.player.increaseScore(100);
                 console.log('Score increased by 100');
-                this.timerScore = totalSeconds;
+                this.lastScoreIncreaseTime = now;
             }
             return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
         } else {
@@ -518,6 +538,11 @@ export class gameInstance {
             // Mettre à jour la position et la santé de chaque ennemi
             for (let i = this.enemies.length - 1; i >= 0; i--) {
                 const enemy = this.enemies[i];
+                let currentTime = new Date().getTime();
+
+                if (enemy.constructor.name.includes('Boss') && !enemy.isDead) {
+                    enemy.useSpecialAbility(currentTime); // Activer la capacité spéciale du boss
+                }
 
                 // Mettre à jour les particules de chaque ennemi
                 for (let j = enemy.particles.length - 1; j >= 0; j--) {
@@ -543,18 +568,18 @@ export class gameInstance {
                         enemy.coinGenerated = true;
                     }
 
+                    // Créer un effet de mort pour l'ennemi
+                    enemy.createDeathEffect(enemy);
+
                     // Si le nom de l'ennemi contient "Boss"
                     if (enemy.constructor.name.includes('Boss')) {
-                        this.isBossLevel = false;
-                        this.player.increaseScore(1000);
                         if (enemy.health <= 0) {
-                            this.bossItem = true;
-                            this.displayShop();
+                            let weaponDropped = enemy.dropWeapon();
+                            weaponDropped !== null ? this.player.addWeapon(weaponDropped) : null;
+                            // this.isBossLevel = false;
                         }
                     }
 
-                    // Créer un effet de mort pour l'ennemi
-                    enemy.createDeathEffect(enemy);
                     this.player.increaseExperience(enemy.xpGived);
                     i--;
                 }
@@ -595,7 +620,7 @@ export class gameInstance {
         const mapStartY = this.canvas.height / 2 - this.player.y - this.player.height / 2;
 
         // Dessiner le décor (arrière-plan) centré sur le joueur
-        this.context.fillStyle = 'lightblue'; // Couleur de la carte
+        this.context.fillStyle = 'skyblue'; // Couleur de la carte
         this.context.fillRect(mapStartX, mapStartY, this.mapWidth, this.mapHeight);
 
         // Dessiner toutes les pièces et vérifier la collision avec le joueur
@@ -653,6 +678,9 @@ export class gameInstance {
         const timerText = this.getElapsedTime();
         const textWidth = this.context.measureText(timerText).width;
         this.context.fillText(timerText, (this.canvas.width - textWidth) / 2, this.canvas.height - 10);
+
+        // Dessiner toutes les armes que le joueur possède
+        this.player.drawWeapons(this.context);
 
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.draw());
