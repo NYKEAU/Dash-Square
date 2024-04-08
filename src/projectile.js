@@ -40,12 +40,12 @@ export class Projectile {
     draw(context, offsetX, offsetY, shooter) {
         // Dessiner le projectile en fonction du tireur
         if (shooter === 'player') {
-            context.fillStyle = '#FF4500';
+            context.fillStyle = '#FFF';
             context.beginPath();
             context.arc(this.x + offsetX, this.y + offsetY, this.size, 0, Math.PI * 2);
             context.fill();
         } else {
-            context.fillStyle = '#FF0000';
+            context.fillStyle = '#000';
             context.beginPath();
             context.arc(this.x + offsetX, this.y + offsetY, this.size, 0, Math.PI * 2);
             context.fill();

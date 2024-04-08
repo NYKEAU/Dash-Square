@@ -1,6 +1,6 @@
 import { Player } from './player.js';
 import { Slime, Ghost, Shooter, Tank } from './enemy.js';
-import { FireBoss, IceBoss } from './bosses.js';
+import { FireBoss, IceBoss, VoidBoss } from './bosses.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { Shuriken } from './specialItems.js';
@@ -104,8 +104,8 @@ export class gameInstance {
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
             if (this.enemies.length < 1 && this.isBossLevel === false) {
-                // let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
-                this.addEnemy('fireBoss');
+                let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
+                this.addEnemy(('voidBoss'));
             } else if (this.enemies.length < 1 && this.isBossLevel === true) {
                 let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
                 this.addEnemy(enemyType);
@@ -366,11 +366,14 @@ export class gameInstance {
                 enemy = new Shooter(this.player, this.mapWidth, this.mapHeight);
                 enemy.startShooting();
                 break;
+            case 'iceBoss':
+                enemy = new IceBoss(this.player, this.mapWidth, this.mapHeight);
+                break;
             case 'fireBoss':
                 enemy = new FireBoss(this.player, this.mapWidth, this.mapHeight);
                 break;
-            case 'iceBoss':
-                enemy = new IceBoss(this.player, this.mapWidth, this.mapHeight);
+            case 'voidBoss':
+                enemy = new VoidBoss(this.player, this.mapWidth, this.mapHeight);
                 break;
             default:
                 console.error(`Unknown enemy type: ${enemyType}`);
@@ -405,6 +408,7 @@ export class gameInstance {
                 this.lastScoreIncreaseTime = now;
             } else if (now - this.lastScoreIncreaseTime >= 10000) {
                 this.player.increaseScore(100);
+                this.timerScore += 100;
                 console.log('Score increased by 100');
                 this.lastScoreIncreaseTime = now;
             }
@@ -576,7 +580,7 @@ export class gameInstance {
                         if (enemy.health <= 0) {
                             let weaponDropped = enemy.dropWeapon();
                             weaponDropped !== null ? this.player.addWeapon(weaponDropped) : null;
-                            // this.isBossLevel = false;
+                            this.isBossLevel = false;
                         }
                     }
 
@@ -644,7 +648,13 @@ export class gameInstance {
         // Dessiner tous les projectiles des ennemis
         for (let enemy of this.enemies) {
             for (let projectile of enemy.projectiles) {
-                projectile.draw(this.context, mapStartX, mapStartY, 'enemy');
+                // Vérifier si le projectile est à l'intérieur de l'écran
+                if (projectile.x >= this.player.x - this.canvas.width / 2 + this.player.width / 2 &&
+                    projectile.x <= this.player.x + this.canvas.width / 2 + this.player.width / 2 &&
+                    projectile.y >= this.player.y - this.canvas.height / 2 + this.player.height / 2 &&
+                    projectile.y <= this.player.y + this.canvas.height / 2 + this.player.height / 2) {
+                    projectile.draw(this.context, mapStartX, mapStartY, 'enemy');
+                }
             }
         }
 

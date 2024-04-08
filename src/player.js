@@ -69,31 +69,35 @@ export class Player {
 
     // Méthode pour dessiner les armes du joueur
     drawWeapons(context) {
-        const startY = context.canvas.height - 100; // Ajustez ces valeurs en fonction de la taille de vos images d'armes
-        const startX = context.canvas.width - 100;
-        const spacing = 50; // Largeur fixe pour l'espacement entre les images d'armes
+        const startY = context.canvas.height - 50; // Ajustez ces valeurs en fonction de la taille de vos images d'armes
         const scale = 1.5; // Échelle de taille pour les images d'armes
+        const selectedScale = 2; // Échelle de taille pour l'arme sélectionnée
+        const spacing = 75; // Espacement fixe entre chaque arme
+
+        let x = context.canvas.width - 100; // Position de départ pour la première arme
 
         this.weapons.forEach((weapon, index) => {
             const y = startY;
-            const x = startX - index * spacing * scale - weapon.image.naturalWidth / 2 * scale; // Ajustez l'espacement en fonction de l'échelle de taille et de la largeur de l'image
+            const currentScale = (index === this.currentWeaponIndex) ? selectedScale : scale; // Utilisez une échelle plus grande pour l'arme sélectionnée
 
             context.save(); // Sauvegarde l'état actuel du contexte
-            context.translate(x + weapon.image.naturalWidth / 2 * scale, y + weapon.image.naturalHeight / 2 * scale); // Déplace le point d'origine au centre de l'image
+            context.translate(x, y); // Déplace le point d'origine au coin supérieur gauche de l'image
             context.rotate(-Math.PI / 2); // Fait pivoter le contexte de 90 degrés vers la gauche
-            context.drawImage(weapon.image, -weapon.image.naturalWidth / 2 * scale, -weapon.image.naturalHeight / 2 * scale, weapon.image.naturalWidth * scale, weapon.image.naturalHeight * scale); // Dessine l'image centrée sur le point d'origine à l'échelle spécifiée
+            context.drawImage(weapon.image, 0, 0, weapon.image.naturalWidth * currentScale, weapon.image.naturalHeight * currentScale); // Dessine l'image à partir du point d'origine
 
             if (index === this.currentWeaponIndex) {
                 context.strokeStyle = 'red';
                 context.lineWidth = 2;
-                context.strokeRect(-weapon.image.naturalWidth / 2 * scale, -weapon.image.naturalHeight / 2 * scale, weapon.image.naturalWidth * scale, weapon.image.naturalHeight * scale);
+                context.strokeRect(0, 0, weapon.image.naturalWidth * currentScale, weapon.image.naturalHeight * currentScale);
             } else {
                 context.strokeStyle = 'black';
                 context.lineWidth = 2;
-                context.strokeRect(-weapon.image.naturalWidth / 2 * scale, -weapon.image.naturalHeight / 2 * scale, weapon.image.naturalWidth * scale, weapon.image.naturalHeight * scale);
+                context.strokeRect(0, 0, weapon.image.naturalWidth * currentScale, weapon.image.naturalHeight * currentScale);
             }
 
             context.restore(); // Restaure l'état précédent du contexte
+
+            x -= spacing; // Déplace la position de départ pour la prochaine arme
         });
     }
 

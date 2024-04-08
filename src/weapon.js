@@ -118,7 +118,7 @@ export class SMG extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 5; // Initialiser this.speed ici pour la classe SMG
         this.fireRate = 10; // Initialiser this.fireRate ici pour la classe SMG
-        this.damage = 10; // Initialiser this.damage ici pour la classe SMG
+        this.damage = 2; // Initialiser this.damage ici pour la classe SMG
         this.x = 0; // Initialiser this.x ici pour la classe SMG
         this.y = 0; // Initialiser this.y ici pour la classe SMG
         this.image = new Image();
