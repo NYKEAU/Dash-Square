@@ -5,6 +5,9 @@ import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { Shuriken } from './specialItems.js';
 
+let lastTime = 0;
+const fpsInterval = 1000 / 60; // 60 FPS
+
 // Définir la classe GameInstance
 export class gameInstance {
     // Définir le constructeur de la classe
@@ -422,7 +425,15 @@ export class gameInstance {
     }
 
     // Méthode pour mettre à jour le jeu
-    update() {
+    update(timestamp) {
+        let elapsedTime = timestamp - lastTime;
+
+        if (elapsedTime > fpsInterval) {
+            lastTime = timestamp - (elapsedTime % fpsInterval);
+
+            // Mettez votre code d'update et de draw ici
+        }
+
         if (!this.isPaused) {
             // Appeler la méthode de déplacement du joueur
             this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
@@ -615,7 +626,15 @@ export class gameInstance {
     }
 
     // Méthode pour dessiner le jeu
-    draw() {
+    draw(timestamp) {
+        let elapsedTime = timestamp - lastTime;
+
+        if (elapsedTime > fpsInterval) {
+            lastTime = timestamp - (elapsedTime % fpsInterval);
+
+            // Mettez votre code d'update et de draw ici
+        }
+
         // Effacer le canvas
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
