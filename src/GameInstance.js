@@ -663,13 +663,8 @@ export class gameInstance {
 
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
-            if (enemy.x >= this.player.x - 175 - (this.canvas.width / 2) + this.player.width / 2 &&
-                enemy.x <= this.player.x + (this.canvas.width / 2) + this.player.width / 2 &&
-                enemy.y >= this.player.y - 175 - (this.canvas.height / 2) + this.player.height / 2 &&
-                enemy.y <= this.player.y + (this.canvas.height / 2) + this.player.height / 2) {
-                enemy.draw(this.context, mapStartX, mapStartY);
-                enemy.drawHealthBar(this.context, mapStartX, mapStartY);
-            }
+            enemy.draw(this.context, mapStartX, mapStartY);
+            enemy.drawHealthBar(this.context, mapStartX, mapStartY);
         }
 
         // Dessinez les items spéciaux

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rogue-lite</title>
+    <link rel="stylesheet" href="index.css">
+    <!-- <script src="./src/supabaseClient.js" type="module"></script> -->
+</head>
+
+<body>
+    <!-- <div id="connexion"
+        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; text-align: center;">
+        <h1>Rogue-lite</h1>
+        <div id="choiceBtns">
+            <button id="signInButton">Se connecter</button>
+            <button id="signUpButton" style="border-bottom: 2px solid rgba(0, 0, 0, 0);">S'inscrire</button>
+        </div>
+        <div id="signIn">
+            <input type="text" id="pseudoIn" placeholder="Pseudo">
+            <input type="password" id="passwordIn" placeholder="Mot de passe">
+            <button id="connexionButton">Connexion</button>
+        </div>
+        <div id="signUp" style="display: none;">
+            <input type="text" id="pseudoUp" placeholder="Pseudo">
+            <input type="password" id="passwordUp" placeholder="Mot de passe">
+            <button id="inscriptionButton">S'inscrire</button>
+        </div>
+    </div> -->
+    <div class="menu" id="startMenu">
+        <h1>Rogue-lite</h1>
+        <p>Appuyez sur le bouton pour commencer</p>
+        <button id="startButton">Commencer</button>
+    </div>
+    <div class="menu" id="pauseMenu" style="display: none;">
+        <h1>Pause</h1>
+        <button id="resumeButton">Reprendre</button>
+        <button id="quitButton">Quitter</button>
+    </div>
+    <canvas id="gameCanvas" style="display: none;"></canvas>
+    <div class="menu" id="shop" style="display: none;">
+        <h1>Magasin</h1>
+        <ul id="shopItems"></ul>
+        <button id="shopClose">Fermer</button>
+    </div>
+    <div class="menu" id="gameOverMenu" style="display: none;">
+        <h1>Game Over</h1>
+        <p>Score: <span id="score"></span></p>
+        <p>Timer: <span id="timerScore"></span></p>
+        <h3>Score final: <span id="finalScore"></span></h3>
+        <button id="restartButton">Quitter</button>
+    </div>
+    <script type="module" src="index.js"></script>
+</body>
+
+<!-- <script type="module">
+    const signInButton = document.getElementById('signInButton');
+    const signUpButton = document.getElementById('signUpButton');
+    const signIn = document.getElementById('signIn');
+    const signUp = document.getElementById('signUp');
+
+    signInButton.addEventListener('click', () => {
+        signIn.style.display = 'flex';
+        signUp.style.display = 'none';
+        signInButton.style.borderBottom = '2px solid white';
+        signUpButton.style.borderBottom = '2px solid rgba(0, 0, 0, 0)';
+    });
+
+    signUpButton.addEventListener('click', () => {
+        signIn.style.display = 'none';
+        signUp.style.display = 'flex';
+        signInButton.style.borderBottom = '2px solid rgba(0, 0, 0, 0)';
+        signUpButton.style.borderBottom = '2px solid white';
+    });
+</script> -->
+
+</html>
