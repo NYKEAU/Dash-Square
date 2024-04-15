@@ -338,7 +338,7 @@ export class Tank extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 100, 10, 20);
         this.enemyColor = 'red';
-        this.speed = 0;
+        this.speed = 0.2;
     }
 }
 
