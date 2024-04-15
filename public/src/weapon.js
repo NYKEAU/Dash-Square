@@ -60,7 +60,7 @@ export class Pistol extends Weapon {
         this.x = 0; // Initialiser this.x ici pour la classe Pistol
         this.y = 0; // Initialiser this.y ici pour la classe Pistol
         this.image = new Image();
-        this.image.src = '../assets/Weapons/Pistol-1.png';
+        this.image.src = '../Public/assets/Weapons/Pistol-1.png';
     }
 
     shoot(direction) {
@@ -88,7 +88,7 @@ export class Shotgun extends Weapon {
         this.x = 0; // Initialiser this.x ici pour la classe Shotgun
         this.y = 0; // Initialiser this.y ici pour la classe Shotgun
         this.image = new Image();
-        this.image.src = '../assets/Weapons/Shotgun-1.png';
+        this.image.src = '../Public/assets/Weapons/Shotgun-1.png';
     }
 
     shoot(direction) {
@@ -122,7 +122,7 @@ export class SMG extends Weapon {
         this.x = 0; // Initialiser this.x ici pour la classe SMG
         this.y = 0; // Initialiser this.y ici pour la classe SMG
         this.image = new Image();
-        this.image.src = '../assets/Weapons/SMG-2.png';
+        this.image.src = '../Public/assets/Weapons/SMG-2.png';
     }
 
     shoot(direction) {
@@ -153,7 +153,7 @@ export class Famas extends Weapon {
         this.x = 0;
         this.y = 0;
         this.image = new Image();
-        this.image.src = '../assets/Weapons/SMG-4.png';
+        this.image.src = '../Public/assets/Weapons/SMG-4.png';
     }
 
     shoot(direction) {
@@ -189,7 +189,7 @@ export class Sniper extends Weapon {
         this.x = 0;
         this.y = 0;
         this.image = new Image();
-        this.image.src = '../assets/Weapons/Sniper-rifle-1-scoped.png';
+        this.image.src = '../Public/assets/Weapons/Sniper-rifle-1-scoped.png';
     }
 
     shoot(direction) {
