@@ -5,6 +5,9 @@ import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { Shuriken } from './specialItems.js';
 
+let lastTime = 0;
+const fpsInterval = 1000 / 60; // 60 FPS
+
 // Définir la classe GameInstance
 export class gameInstance {
     // Définir le constructeur de la classe
@@ -20,6 +23,7 @@ export class gameInstance {
         this.mapHeight = this.screenHeight * 1.5; // La hauteur de la carte (1.5 fois la hauteur de l'écran)
         this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
         this.enemies = []; // Le tableau des ennemis
+        this.enemyTypes = ['slime', 'ghost', 'tank', 'shooter']; // Les types d'ennemis
         this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
         this.addEventListeners(); // Ajouter les écouteurs d'événements
         // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
@@ -103,9 +107,9 @@ export class gameInstance {
 
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
-            if (this.enemies.length < 1 && this.isBossLevel === false) {
-                let enemyType = Math.random() < 0.65 ? 'shooter' : 'ghost';
-                this.addEnemy(('voidBoss'));
+            if (this.enemies.length < 10 && this.isBossLevel === false) {
+                let enemyType = Math.floor(Math.random() * this.enemyTypes.length);
+                this.addEnemy(this.enemyTypes[enemyType]);
             } else if (this.enemies.length < 1 && this.isBossLevel === true) {
                 let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
                 this.addEnemy(enemyType);
@@ -422,7 +426,15 @@ export class gameInstance {
     }
 
     // Méthode pour mettre à jour le jeu
-    update() {
+    update(timestamp) {
+        let elapsedTime = timestamp - lastTime;
+
+        if (elapsedTime > fpsInterval) {
+            lastTime = timestamp - (elapsedTime % fpsInterval);
+
+            // Mettez votre code d'update et de draw ici
+        }
+
         if (!this.isPaused) {
             // Appeler la méthode de déplacement du joueur
             this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
@@ -615,7 +627,15 @@ export class gameInstance {
     }
 
     // Méthode pour dessiner le jeu
-    draw() {
+    draw(timestamp) {
+        let elapsedTime = timestamp - lastTime;
+
+        if (elapsedTime > fpsInterval) {
+            lastTime = timestamp - (elapsedTime % fpsInterval);
+
+            // Mettez votre code d'update et de draw ici
+        }
+
         // Effacer le canvas
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -663,8 +683,13 @@ export class gameInstance {
 
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
-            enemy.draw(this.context, mapStartX, mapStartY);
-            enemy.drawHealthBar(this.context, mapStartX, mapStartY);
+            if (enemy.x >= this.player.x - 175 - (this.canvas.width / 2) + this.player.width / 2 &&
+                enemy.x <= this.player.x + (this.canvas.width / 2) + this.player.width / 2 &&
+                enemy.y >= this.player.y - 175 - (this.canvas.height / 2) + this.player.height / 2 &&
+                enemy.y <= this.player.y + (this.canvas.height / 2) + this.player.height / 2) {
+                enemy.draw(this.context, mapStartX, mapStartY);
+                enemy.drawHealthBar(this.context, mapStartX, mapStartY);
+            }
         }
 
         // Dessinez les items spéciaux
