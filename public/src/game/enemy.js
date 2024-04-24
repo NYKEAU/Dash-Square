@@ -5,6 +5,10 @@ import { Coin } from './coin.js';
 
 export class Enemy {
     constructor(player, mapWidth, mapHeight, baseHealth, damage, xpGived) {
+        // Autre
+        this.player = player;
+        this.timeoutId = null;
+
         // Dimensions
         this.width = 20;
         this.height = 20;
@@ -27,9 +31,9 @@ export class Enemy {
         this.hitFlashDuration = 0;
 
         // Combat
-        this.health = baseHealth;
-        this.baseHealth = baseHealth;
-        this.damage = damage;
+        this.health = this.calculateHealth(baseHealth, this.player.level);;
+        this.baseHealth = this.health;
+        this.damage = this.calculateDamage(damage, this.player.level);
         this.lastDamageTime = 0;
         this.lastCollisionTime = 0;
         this.lastAttackTime = 0;
@@ -38,10 +42,18 @@ export class Enemy {
         // Récompenses
         this.xpGived = xpGived;
         this.coinGenerated = false;
+    }
 
-        // Autre
-        this.player = player;
-        this.timeoutId = null;
+    // Méthode pour calculer la santé de l'ennemi en fonction du niveau du joueur
+    calculateHealth(baseHealth, playerLevel) {
+        const health = baseHealth * Math.log(playerLevel + 1);
+        return Math.round(health); // Arrondit à l'entier le plus proche
+    }
+
+    // Méthode pour calculer les dégâts de l'ennemi en fonction du niveau du joueur
+    calculateDamage(baseDamage, playerLevel) {
+        const damage = baseDamage * Math.log(playerLevel + 1);
+        return Math.round(damage); // Arrondit à l'entier le plus proche
     }
 
     // Méthode pour dessiner l'ennemi
@@ -321,14 +333,14 @@ export class Enemy {
 
 export class Slime extends Enemy {
     constructor(player, mapWidth, mapHeight) {
-        super(player, mapWidth, mapHeight, 50, 5, 10);
+        super(player, mapWidth, mapHeight, 25, 5, 10);
         this.enemyColor = 'green';
     }
 }
 
 export class Ghost extends Enemy {
     constructor(player, mapWidth, mapHeight) {
-        super(player, mapWidth, mapHeight, 35, 10, 20);
+        super(player, mapWidth, mapHeight, 20, 10, 20);
         this.enemyColor = 'white';
         this.speed = 2;
     }
@@ -336,7 +348,7 @@ export class Ghost extends Enemy {
 
 export class Tank extends Enemy {
     constructor(player, mapWidth, mapHeight) {
-        super(player, mapWidth, mapHeight, 100, 10, 20);
+        super(player, mapWidth, mapHeight, 50, 10, 20);
         this.enemyColor = 'red';
         this.speed = 0.2;
     }
@@ -345,7 +357,7 @@ export class Tank extends Enemy {
 // Enemy class that inherits from the Enemy class, shooting projectiles at the player
 export class Shooter extends Enemy {
     constructor(player, mapWidth, mapHeight) {
-        super(player, mapWidth, mapHeight, 100, 5, 15);
+        super(player, mapWidth, mapHeight, 50, 5, 15);
         this.enemyColor = 'purple';
         this.speed = 1.5;
         this.lastProjectileTime = 0;
