@@ -1,6 +1,5 @@
-// models/firebaseModel.js
-const { initializeApp } = require('firebase/app');
-const { getFirestore } = require('firebase/firestore');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyARQrBTmekSsmXuoo-evcEoTUbeaR7yM5o",
@@ -13,7 +12,5 @@ const firebaseConfig = {
     measurementId: "G-8D2P7DBQHP"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
-module.exports = db;
+export const firebaseApp = initializeApp(firebaseConfig);
+export const db = getFirestore(firebaseApp);

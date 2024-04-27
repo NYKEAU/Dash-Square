@@ -23,9 +23,22 @@ class Weapon {
             const closestEnemy = this.player.gameInstance.getClosestEnemy();
 
             if (closestEnemy && !closestEnemy.isDead) {
-                const dx = (closestEnemy.x + closestEnemy.width / 2) - this.player.x;
-                const dy = (closestEnemy.y + closestEnemy.height / 2) - this.player.y;
+                // Coordonnées du centre de l'ennemi
+                const enemyCenterX = closestEnemy.x + closestEnemy.width / 2;
+                const enemyCenterY = closestEnemy.y + closestEnemy.height / 2;
+
+                // Coordonnées du centre du joueur
+                const playerCenterX = this.player.x + this.player.width / 2;
+                const playerCenterY = this.player.y + this.player.height / 2;
+
+                // Vecteur de direction du joueur vers l'ennemi
+                const dx = enemyCenterX - playerCenterX;
+                const dy = enemyCenterY - playerCenterY;
+
+                // Longueur du vecteur direction
                 const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Normalisation du vecteur direction
                 if (distance > 0) {
                     const direction = { x: dx / distance, y: dy / distance };
                     this.shoot(direction);
@@ -35,6 +48,7 @@ class Weapon {
             this.startShooting();
         }, 1000 / this.fireRate);
     }
+
 
     stopShooting() {
         if (this.timeoutId !== null) {
@@ -118,7 +132,7 @@ export class SMG extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 5; // Initialiser this.speed ici pour la classe SMG
         this.fireRate = 10; // Initialiser this.fireRate ici pour la classe SMG
-        this.damage = 2; // Initialiser this.damage ici pour la classe SMG
+        this.damage = 20; // Initialiser this.damage ici pour la classe SMG
         this.x = 0; // Initialiser this.x ici pour la classe SMG
         this.y = 0; // Initialiser this.y ici pour la classe SMG
         this.image = new Image();

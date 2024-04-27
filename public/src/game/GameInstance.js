@@ -4,6 +4,7 @@ import { FireBoss, IceBoss, VoidBoss } from './bosses.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { Shuriken } from './specialItems.js';
+import { updateScore } from '../score/updatescore.js';
 
 let lastTime = 0;
 const fpsInterval = 1000 / 60; // 60 FPS
@@ -38,6 +39,8 @@ export class gameInstance {
         this.isBossLevel = false;
         this.timerScore = 0;
         this.lastScoreIncreaseTime = null;
+        this.lastTime = 0;
+        this.fpsInterval = 1000 / 60; // 16.67 ms pour 60 FPS
     }
 
     wait(ms) {
@@ -56,6 +59,14 @@ export class gameInstance {
             // Si la touche Echap est enfoncée, basculer la pause
             if (event.key === 'Escape' && this.player.health > 0 && this.isStarted) {
                 this.togglePause();
+            }
+
+            if (event.key === 'e') {
+                this.player.changeWeapon('next');
+            }
+
+            if (event.key === 'a') {
+                this.player.changeWeapon('previous');
             }
         });
 
@@ -107,9 +118,10 @@ export class gameInstance {
 
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
-            if (this.enemies.length < 10 && this.isBossLevel === false) {
+            if (this.enemies.length < 1 && this.isBossLevel === false) {
                 let enemyType = Math.floor(Math.random() * this.enemyTypes.length);
-                this.addEnemy(this.enemyTypes[enemyType]);
+                // this.addEnemy(this.enemyTypes[enemyType]);
+                this.addEnemy('fireBoss');
             } else if (this.enemies.length < 1 && this.isBossLevel === true) {
                 let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
                 this.addEnemy(enemyType);
@@ -267,6 +279,9 @@ export class gameInstance {
         document.getElementById('score').textContent = this.player.score - this.timerScore;
         document.getElementById('timerScore').textContent = this.getElapsedTime() + ' (+' + this.timerScore + ')';
         document.getElementById('finalScore').textContent = this.player.score;
+
+        // Mettre à jour le score dans la bdd
+        updateScore(this.player);
     }
 
     // Méthode pour mettre en pause le jeu
@@ -345,9 +360,15 @@ export class gameInstance {
         document.getElementById('pauseMenu').style.display = 'none';
         document.getElementById('gameOverMenu').style.display = 'none';
 
+        // Supprimer les items que le joueur possède et réinitialiser leur affichage
+        this.player.removeItems();
+
         // Afficher le menu de démarrage
         document.getElementById('startMenu').style.display = 'flex';
         this.isStarted = false;
+
+        // Effacer le joystick
+        document.getElementById('wrapper').style.display = 'none';
 
         // Cacher le jeu
         this.canvas.style.display = 'none';

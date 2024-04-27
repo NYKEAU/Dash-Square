@@ -1,27 +1,20 @@
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
+import { firebaseApp } from "../../../models/firebaseModel.js";
+
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
 async function logout() {
-    const currentURL = window.location.origin;
-    const apiUrl = currentURL + '/api/logout';
+    const auth = getAuth(firebaseApp);
 
     try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include'
-        });
+        await auth.signOut();
 
-        if (response.ok) {
-            alert('Déonnexion réussie');
-            console.log('Utilisateur déconnecté:');
-            window.location.href = 'login.html';
-        } else {
-            alert('Échec de la déconnexion');
-            console.error('Erreur lors de la déconnexion:');
-        }
+        alert('Déconnexion réussie');
+        console.log('Utilisateur déconnecté :');
+        window.location.href = '/public/index.html';
 
     } catch (error) {
-        console.error('Erreur lors de la déconnexion utilisateur', error);
-        alert('Échec de la déconnexion: ' + error.message);
+        console.error('Erreur lors de la déconnexion utilisateur :', error);
+        alert('Échec de la déconnexion : ' + error.message);
     }
 }

@@ -1,25 +1,20 @@
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
+import { firebaseApp } from "../../../models/firebaseModel.js";
+
+const auth = getAuth(firebaseApp);
+
+document.getElementById('loginBtn').addEventListener('click', login);
+
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    const currentURL = window.location.origin;
-    const apiUrl = currentURL + '/api/login';
     try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include'
-        });
+        const response = await signInWithEmailAndPassword(auth, email, password);
 
-        const data = await response.json();
-
-        if (response.ok) {
-            alert('Connexion réussie');
-            console.log('Utilisateur connecté:', data);
-            window.location.href = 'index.html';
+        if (response.user) {
+            sessionStorage.setItem('connexion_reussie', true);
+            window.location.href = '/public/index.html';
         } else {
             displayError(data.error || 'Échec de la connexion');
         }
