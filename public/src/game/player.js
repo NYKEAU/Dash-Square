@@ -1,5 +1,6 @@
 import { HitEffect } from './hitEffect.js';
 import { Pistol, Shotgun, SMG, Famas, Sniper } from './weapon.js';
+import { getJoystick } from './joystick.js';
 
 export class Player {
     // Définir le constructeur de la classe
@@ -26,7 +27,7 @@ export class Player {
         this.speed = 5; // La vitesse de déplacement du joueur
 
         // Santé et Niveau
-        this.health = 100; // La santé du joueur
+        this.health = 100000; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
         this.level = 1; // Niveau du joueur au début du jeu
         this.experience = 0; // Expérience du joueur au début du jeu
@@ -212,6 +213,39 @@ export class Player {
         }
     }
 
+    // Méthode pour changer d'arme
+    changeWeapon(direction) {
+        if (direction === 'previous') {
+            this.currentWeaponIndex = (this.currentWeaponIndex + 1) % this.weapons.length;
+        } else if (direction === 'next') {
+            this.currentWeaponIndex = (this.currentWeaponIndex - 1 + this.weapons.length) % this.weapons.length;
+        }
+
+        console.log('Weapons:', this.weapons);
+        console.log('Current weapon index:', this.currentWeaponIndex);
+        console.log('Selected weapon:', this.weapons[this.currentWeaponIndex]);
+
+        switch (this.weapons[this.currentWeaponIndex]) {
+            case Pistol:
+                this.weapon = new Pistol(this);
+                break;
+            case Shotgun:
+                this.weapon = new Shotgun(this);
+                break;
+            case SMG:
+                this.weapon = new SMG(this);
+                break;
+            case Famas:
+                this.weapon = new Famas(this);
+                break;
+            case Sniper:
+                this.weapon = new Sniper(this);
+                break;
+        }
+
+        console.log('Current weapon:', this.weapon);
+    }
+
     // Méthode pour ajouter un item et mettre à jour les statistiques du joueur
     addItem(item) {
         if (item.rarete === 'special') {
@@ -220,6 +254,12 @@ export class Player {
             this.items.push(item);
         }
         this.updateStats(item.stats);
+    }
+
+    // Supprimer tous les items du joueur
+    removeItems() {
+        this.items = [];
+        this.updateStats({ Vie: -this.health, VieMax: -this.maxHealth, Exp: -this.maxExperience, Argent: -this.money, DégâtsJoueur: -this.damage, Défense: -this.defense, CadenceJoueur: -this.rof, CadenceTir: -this.speed, Vitesse: -this.speed, Portée: -this.range, DégâtsArmes: -this.damage });
     }
 
     // Méthode pour augmenter le score du joueur
@@ -269,14 +309,34 @@ export class Player {
 
     // Méthode pour déplacer le joueur
     move(keys, mapWidth, mapHeight, enemies) {
-        // Calculer la nouvelle position du joueur
         let newX = this.x;
         let newY = this.y;
 
-        if (keys['ArrowUp'] || keys['z']) newY -= this.speed;
-        if (keys['ArrowDown'] || keys['s']) newY += this.speed;
-        if (keys['ArrowLeft'] || keys['q']) newX -= this.speed;
-        if (keys['ArrowRight'] || keys['d']) newX += this.speed;
+        if (document.getElementById('mobileMode').checked) {
+            // Récupérer le joystick
+            const joystick = getJoystick();
+
+            // Vérifier si le joystick est utilisé
+            const joystickPos = joystick ? joystick.getPosition() : { x: 0, y: 0 };
+
+            // Vérifier si le joystick est utilisé et traiter les entrées du joystick en premier
+            if (joystickPos.x !== 0 || joystickPos.y !== 0) {
+                // Normaliser les coordonnées du joystick pour qu'elles soient comprises entre -1 et 1
+                const maxJoystickPos = 100; // Remplacez par la valeur maximale que peut renvoyer votre joystick
+                const normalizedX = joystickPos.x / maxJoystickPos;
+                const normalizedY = joystickPos.y / maxJoystickPos;
+
+                // Calculer la nouvelle position du joueur en fonction des coordonnées normalisées du joystick
+                newX += normalizedX * this.speed;
+                newY += normalizedY * this.speed;
+            }
+        } else {
+            if (keys['ArrowUp'] || keys['z']) newY -= this.speed;
+            if (keys['ArrowDown'] || keys['s']) newY += this.speed;
+            if (keys['ArrowLeft'] || keys['q']) newX -= this.speed;
+            if (keys['ArrowRight'] || keys['d']) newX += this.speed;
+        }
+
 
         // Vérifier si le joueur est à l'intérieur de la zone de jeu
         this.x = Math.max(0, Math.min(mapWidth - this.width, newX));

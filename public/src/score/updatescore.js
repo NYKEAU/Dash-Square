@@ -1,32 +1,54 @@
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
+import { Firestore, getDoc, getDocs, collection, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore.js";
+import { firebaseApp, db } from "../../../models/firebaseModel.js";
 
-async function updateScore() {
-    const currentURL = window.location.origin;
-    const apiUrl = currentURL + '/api/update-score';
-
+export async function updateScore(player) {
     try {
-        const response = await fetch(apiUrl, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include'
+        const auth = getAuth(firebaseApp);
+        const currentUser = auth.currentUser;
+        console.log('Auth :', auth);
+        console.log('currentUser :', currentUser);
+
+        if (!currentUser) {
+            throw new Error("Aucun utilisateur connecté");
+        }
+
+        const currentUid = currentUser.uid;
+        console.log('currentUid :', currentUid);
+
+        // Recherche du document avec l'UID correspondant à l'utilisateur connecté
+        const querySnapshot = await getDocs(collection(db, "scores"));
+        let documentRef;
+        querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            if (userData.uid === currentUid) {
+                documentRef = doc.ref;
+            }
         });
 
-        const data = await response.json();
+        if (!documentRef) {
+            throw new Error('Document non trouvé pour l\'utilisateur actuel.');
+        }
 
-        if (response.ok) {
-            alert('Score mis à jour avec succès');
-            console.log('Nouveau score:', data);
+        const documentSnapshot = await getDoc(documentRef);
+
+        if (documentSnapshot.exists()) {
+            console.log("Document data:", documentSnapshot.data());
+            const userData = documentSnapshot.data();
+            const oldScore = userData.scoreMax;
+            const newScore = player.score;
+
+            if (newScore > oldScore) {
+                await updateDoc(documentRef, { scoreMax: newScore });
+                console.log('Score mis à jour avec succès');
+            } else {
+                console.log('Nouveau score inférieur ou égal à l\'ancien score');
+            }
         } else {
-            displayError(data.error || 'Échec de la mise à jour du score');
+            console.log("No document found for the current user.");
         }
 
     } catch (error) {
-        displayError('Échec de la mise à jour du score: ' + error.message);
+        console.error("Erreur lors de la mise à jour du score :", error);
     }
-}
-
-function displayError(errorMessage) {
-    const errorSection = document.getElementById('errorSection');
-    errorSection.textContent = errorMessage;
 }

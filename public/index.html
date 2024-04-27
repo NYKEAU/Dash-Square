@@ -14,7 +14,7 @@
         <div id="connectDiv">
             <h3>OU</h3>
             <p>Connectez-vous pour enregistrer votre score !</p>
-            <a class="button" href="login.html">Se connecter</a>
+            <a class="button" href="./pages/login.html">Se connecter</a>
         </div>
         <div id="userDiv" style="display: none;">
             <div id="leaderboardPlace">
@@ -22,11 +22,17 @@
                 <p id="userName"></p>
                 <p id="userScore"></p>
             </div>
-            <a class="button" id="logoutButton">Se déconnecter</a>
+            <a class="button" id="logoutBtn">Se déconnecter</a>
         </div>
-        <p>Connectez-vous pour enregistrer votre score !</p>
-        <a class="button" href="login.html">Se connecter</a>
+        <div style="margin-top: 10px;">
+            <label for="mobileMode">Mode mobile</label>
+            <label class="switch">
+                <input id="mobileMode" type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
+    <div id="wrapper" style="display: none;">
     </div>
     <div class="menu" id="pauseMenu" style="display: none;">
         <h1>Pause</h1>
@@ -47,10 +53,9 @@
         <button id="restartButton">Quitter</button>
     </div>
     <script type="module" src="index.js"></script>
+    <script type="module" src="./src/auth/logout.js"></script>
 </body>
 
-<script type="text/javascript">
-    // 
-</script>
+<script type="module" src="/models/firebaseModel.js"></script>
 
 </html>

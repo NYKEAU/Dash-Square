@@ -1,46 +1,27 @@
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
+import { Firestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore.js";
+import { firebaseApp, db } from "../../../models/firebaseModel.js";
+
+document.getElementById('registerBtn').addEventListener('click', register);
+
 async function register() {
+    const auth = getAuth(firebaseApp);
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
     const pseudo = document.getElementById('pseudo').value;
 
-    if (password.length < 4) {
-        displayError('Le mot de passe doit avoir au moins 4 caractères.');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        displayError('Les mots de passe ne correspondent pas.');
-        return;
-    }
-
-    const currentURL = window.location.origin;
-    const apiUrl = currentURL + '/api/register';
-
     try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password, pseudo }),
-        });
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log('Utilisateur enregistré : ', userCredential.user);
 
-        const data = await response.json();
+        const uid = userCredential.user.uid;
+        await addDoc(collection(db, "scores"), { uid, pseaudo: pseudo, scoreMax: 0 });
 
-        if (response.ok) {
-            alert('Inscription réussie. Vous pouvez maintenant vous connecter.');
-            window.location.href = 'index.html';
-        } else {
-            displayError(data.error || 'Échec de l\'inscription');
-        }
+        alert('Inscription réussie !');
+        window.location.href = '/public/index.html';
+
     } catch (error) {
-        displayError('Échec de l\'inscription: ' + error.message);
+        console.error('Erreur lors de l\'inscription :', error);
+        alert('Échec de l\'inscription : ' + error.message);
     }
-}
-
-function displayError(errorMessage) {
-    const errorSection = document.getElementById('errorSection');
-    errorSection.textContent = errorMessage;
-    errorSection.classList.remove('hidden');
 }
