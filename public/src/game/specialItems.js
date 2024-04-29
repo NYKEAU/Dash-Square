@@ -24,7 +24,7 @@ export class Shuriken extends SpecialItem {
         this.range = 50;
         this.player = player;
         this.enemies = enemies;
-        this.prix = 10;
+        this.prix = 150;
         this.rarete = 'special';
         this.angle = 0;
         this.center = { x: window.innerWidth / 2, y: window.innerHeight / 2 }; // Initialiser le centre avec les coordonnées du joueur

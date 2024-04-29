@@ -39,8 +39,7 @@ export class gameInstance {
         this.isBossLevel = false;
         this.timerScore = 0;
         this.lastScoreIncreaseTime = null;
-        this.lastTime = 0;
-        this.fpsInterval = 1000 / 60; // 16.67 ms pour 60 FPS
+        this.itemsCount = 0;
     }
 
     wait(ms) {
@@ -118,10 +117,9 @@ export class gameInstance {
 
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
         this.addEnemyInterval = setInterval(() => {
-            if (this.enemies.length < 1 && this.isBossLevel === false) {
+            if (this.enemies.length < 10 && this.isBossLevel === false) {
                 let enemyType = Math.floor(Math.random() * this.enemyTypes.length);
-                // this.addEnemy(this.enemyTypes[enemyType]);
-                this.addEnemy('fireBoss');
+                this.addEnemy(this.enemyTypes[enemyType]);
             } else if (this.enemies.length < 1 && this.isBossLevel === true) {
                 let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
                 this.addEnemy(enemyType);
@@ -225,16 +223,19 @@ export class gameInstance {
                     if (this.player.money >= items[i].prix) {
                         this.player.money -= items[i].prix;
                         this.player.addItem(items[i]);
+                        this.itemsCount++;
                         console.log(this.player.items);
 
                         // Créer un nouvel élément div pour représenter l'item récupéré
                         let itemDiv = document.createElement('div');
+                        itemDiv.className = 'itemDiv';
                         itemDiv.style.width = '20px';
                         itemDiv.style.height = '20px';
                         itemDiv.style.backgroundColor = rarete.style.color;
                         itemDiv.style.position = 'absolute';
                         itemDiv.style.bottom = '0';
-                        itemDiv.style.left = `${25 * this.player.items.length}px`; // Positionner les carrés côte à côte
+                        console.log(this.itemsCount);
+                        itemDiv.style.left = `${25 * this.itemsCount}px`;
                         itemDiv.style.border = '1px solid black';
                         itemDiv.style.margin = '5px';
                         if (items[i].rarete === 3 || items[i].rarete === 4) {
@@ -370,6 +371,12 @@ export class gameInstance {
         // Effacer le joystick
         document.getElementById('wrapper').style.display = 'none';
 
+        // Effacer les items
+        let itemDivs = document.getElementsByClassName('itemDiv');
+        for (let i = 0; i < itemDivs.length; i++) {
+            itemDivs[i].remove();
+        }
+
         // Cacher le jeu
         this.canvas.style.display = 'none';
     }
@@ -447,15 +454,7 @@ export class gameInstance {
     }
 
     // Méthode pour mettre à jour le jeu
-    update(timestamp) {
-        let elapsedTime = timestamp - lastTime;
-
-        if (elapsedTime > fpsInterval) {
-            lastTime = timestamp - (elapsedTime % fpsInterval);
-
-            // Mettez votre code d'update et de draw ici
-        }
-
+    update() {
         if (!this.isPaused) {
             // Appeler la méthode de déplacement du joueur
             this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
@@ -504,7 +503,7 @@ export class gameInstance {
 
                         if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
                             // Collision détectée, réduire la santé de l'ennemi
-                            this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, projectile.speed);
+                            this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, this.isBossLevel);
                             this.player.increaseScore(1);
 
                             // Si le projectile n'est pas un projectile de Sniper, le supprimer
@@ -648,15 +647,7 @@ export class gameInstance {
     }
 
     // Méthode pour dessiner le jeu
-    draw(timestamp) {
-        let elapsedTime = timestamp - lastTime;
-
-        if (elapsedTime > fpsInterval) {
-            lastTime = timestamp - (elapsedTime % fpsInterval);
-
-            // Mettez votre code d'update et de draw ici
-        }
-
+    draw() {
         // Effacer le canvas
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 

@@ -46,13 +46,14 @@ export class Enemy {
 
     // Méthode pour calculer la santé de l'ennemi en fonction du niveau du joueur
     calculateHealth(baseHealth, playerLevel) {
-        const health = baseHealth * Math.log(playerLevel + 1);
+        // Augmenter la santé de l'ennemi tous les 10 niveaux
+        const health = baseHealth * Math.log(playerLevel + 1) * (1 + playerLevel / 10);
         return Math.round(health); // Arrondit à l'entier le plus proche
     }
 
     // Méthode pour calculer les dégâts de l'ennemi en fonction du niveau du joueur
     calculateDamage(baseDamage, playerLevel) {
-        const damage = baseDamage * Math.log(playerLevel + 1);
+        const damage = baseDamage * Math.log(playerLevel + 1) * (1 + playerLevel / 10);
         return Math.round(damage); // Arrondit à l'entier le plus proche
     }
 
@@ -222,7 +223,7 @@ export class Enemy {
     }
 
     // Méthode pour réduire la santé de l'ennemi
-    decreaseHealth(amount, bulletDirection) {
+    decreaseHealth(amount, bulletDirection, isBossLevel) {
         this.hitFlashDuration = 10; // L'ennemi deviendra blanc pendant 5 frames
 
         if (bulletDirection) {
@@ -243,10 +244,13 @@ export class Enemy {
                 this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1, this.width));
             }
 
-            // Ajouter un effet de recul
-            const knockbackFactor = 0.1; // Ajustez cette valeur pour augmenter ou diminuer l'effet de recul
-            this.knockbackSpeed.x += direction.x * amount * knockbackFactor;
-            this.knockbackSpeed.y += direction.y * amount * knockbackFactor;
+            if (!isBossLevel) {
+                // Ajouter un effet de recul
+                const knockbackFactor = 0.1; // Ajustez cette valeur pour augmenter ou diminuer l'effet de recul
+                this.knockbackSpeed.x += direction.x * amount * knockbackFactor;
+                this.knockbackSpeed.y += direction.y * amount * knockbackFactor;
+                console.log('KNOCKBACK');
+            }
         }
 
         // Afficher sur l'ennemi le nombre de dégâts subis
