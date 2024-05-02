@@ -1,6 +1,6 @@
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
 import { Firestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore.js";
-import { firebaseApp, db } from "./models/firebaseModel.js";
+import { firebaseApp, db } from "../../../models/firebaseModel.js";
 
 document.getElementById('registerBtn').addEventListener('click', register);
 
