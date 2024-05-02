@@ -46,14 +46,13 @@ export class Enemy {
 
     // Méthode pour calculer la santé de l'ennemi en fonction du niveau du joueur
     calculateHealth(baseHealth, playerLevel) {
-        // Augmenter la santé de l'ennemi tous les 10 niveaux
-        const health = baseHealth * Math.log(playerLevel + 1) * (1 + playerLevel / 10);
+        const health = baseHealth + 2 * Math.exp(playerLevel * 0.075);
         return Math.round(health); // Arrondit à l'entier le plus proche
     }
 
     // Méthode pour calculer les dégâts de l'ennemi en fonction du niveau du joueur
     calculateDamage(baseDamage, playerLevel) {
-        const damage = baseDamage * Math.log(playerLevel + 1) * (1 + playerLevel / 10);
+        const damage = baseDamage + 2 * Math.exp(playerLevel * 0.075);
         return Math.round(damage); // Arrondit à l'entier le plus proche
     }
 
@@ -246,10 +245,9 @@ export class Enemy {
 
             if (!isBossLevel) {
                 // Ajouter un effet de recul
-                const knockbackFactor = 0.1; // Ajustez cette valeur pour augmenter ou diminuer l'effet de recul
+                const knockbackFactor = 0.1;
                 this.knockbackSpeed.x += direction.x * amount * knockbackFactor;
                 this.knockbackSpeed.y += direction.y * amount * knockbackFactor;
-                console.log('KNOCKBACK');
             }
         }
 

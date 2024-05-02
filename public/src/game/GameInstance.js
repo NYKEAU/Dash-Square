@@ -3,43 +3,43 @@ import { Slime, Ghost, Shooter, Tank } from './enemy.js';
 import { FireBoss, IceBoss, VoidBoss } from './bosses.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
-import { Shuriken } from './specialItems.js';
 import { updateScore } from '../score/updatescore.js';
 
-let lastTime = 0;
-const fpsInterval = 1000 / 60; // 60 FPS
-
-// Définir la classe GameInstance
 export class gameInstance {
-    // Définir le constructeur de la classe
     constructor(canvas) {
-        // Initialiser les propriétés de l'instance de jeu
+        // Initialisation du jeu
         this.startTime = Date.now();
         this.isStarted = false;
-        this.canvas = canvas; // L'objet canvas
-        this.context = canvas.getContext('2d'); // Le contexte de dessin du canvas
-        this.screenWidth = window.innerWidth; // La largeur de l'écran du navigateur
-        this.screenHeight = window.innerHeight; // La hauteur de l'écran du navigateur
-        this.mapWidth = this.screenWidth * 1.5; // La largeur de la carte (1.5 fois la largeur de l'écran)
-        this.mapHeight = this.screenHeight * 1.5; // La hauteur de la carte (1.5 fois la hauteur de l'écran)
-        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
-        this.enemies = []; // Le tableau des ennemis
-        this.enemyTypes = ['slime', 'ghost', 'tank', 'shooter']; // Les types d'ennemis
-        this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
-        this.addEventListeners(); // Ajouter les écouteurs d'événements
-        // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
-        this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
         this.spawnFrequency = 200;
-        this.coins = []; // Le tableau des pièces
-        this.enemiesWithGeneratedCoins = [];
-        this.enemiesWithGeneratedCoins = new Set();
-        this.isPaused = false;
-        this.pausedTime = 0;
-        this.specialItems = []; // Les items spéciaux du joueur
-        this.isBossLevel = false;
-        this.timerScore = 0;
         this.lastScoreIncreaseTime = null;
         this.itemsCount = 0;
+
+        // Affichage et carte
+        this.canvas = canvas;
+        this.context = canvas.getContext('2d');
+        this.screenWidth = window.innerWidth;
+        this.screenHeight = window.innerHeight;
+        this.mapWidth = this.screenWidth * 1.5;
+        this.mapHeight = this.screenHeight * 1.5;
+
+        // Contrôles et pause
+        this.keys = {};
+        this.isPaused = false;
+        this.pausedTime = 0;
+
+        // Eléments de jeu
+        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this);
+        this.enemies = [];
+        this.enemyTypes = ['slime', 'ghost', 'tank', 'shooter'];
+        this.coins = [];
+        this.enemiesWithGeneratedCoins = new Set();
+        this.specialItems = [];
+
+        // Evénements
+        this.addEnemyInterval = null;
+        this.isBossLevel = false;
+        this.timerScore = 0;
+        this.addEventListeners();
     }
 
     wait(ms) {
@@ -425,7 +425,8 @@ export class gameInstance {
         this.startEnemyGeneration(this.player.level);
         this.isStarted = true;
 
-        // Commencer à tirer le joueur
+        this.player.drawWeapons();
+
         this.player.weapon.startShooting();
     }
 
@@ -725,9 +726,6 @@ export class gameInstance {
         const timerText = this.getElapsedTime();
         const textWidth = this.context.measureText(timerText).width;
         this.context.fillText(timerText, (this.canvas.width - textWidth) / 2, this.canvas.height - 10);
-
-        // Dessiner toutes les armes que le joueur possède
-        this.player.drawWeapons(this.context);
 
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.draw());

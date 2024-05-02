@@ -22,12 +22,13 @@ export class Player {
         this.weapons = [new SMG(this)]; // Initialiser l'arsenal du joueur
         this.currentWeaponIndex = 0; // L'arme actuellement équipée par le joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
+        this.previousWeapon = null; // L'arme précédente du joueur
 
         // Mouvement
         this.speed = 5; // La vitesse de déplacement du joueur
 
         // Santé et Niveau
-        this.health = 100000; // La santé du joueur
+        this.health = 100; // La santé du joueur
         this.maxHealth = this.health; // La santé maximale du joueur
         this.level = 1; // Niveau du joueur au début du jeu
         this.experience = 0; // Expérience du joueur au début du jeu
@@ -48,6 +49,7 @@ export class Player {
     // Méthode pour ajouter une arme
     addWeapon(weapon) {
         this.weapons.push(weapon);
+        this.drawWeapons();
         console.log('Weapon added:', weapon);
         console.log('Weapons:', this.weapons);
     }
@@ -69,36 +71,53 @@ export class Player {
     }
 
     // Méthode pour dessiner les armes du joueur
-    drawWeapons(context) {
-        const startY = context.canvas.height - 50; // Ajustez ces valeurs en fonction de la taille de vos images d'armes
-        const scale = 1.5; // Échelle de taille pour les images d'armes
-        const selectedScale = 2; // Échelle de taille pour l'arme sélectionnée
-        const spacing = 75; // Espacement fixe entre chaque arme
+    drawWeapons() {
+        // Récupérer le conteneur d'armes dans le DOM
+        const weaponsContainer = document.getElementById('weaponsContainer');
 
-        let x = context.canvas.width - 100; // Position de départ pour la première arme
+        // Effacer le contenu précédent du conteneur d'armes
+        weaponsContainer.innerHTML = '';
 
+        // Initialiser this.previousWeapon avec l'élément de l'arme de base
+        this.previousWeapon = null;
+
+        // Parcourir les armes et générer les éléments HTML correspondants
         this.weapons.forEach((weapon, index) => {
-            const y = startY;
-            const currentScale = (index === this.currentWeaponIndex) ? selectedScale : scale; // Utilisez une échelle plus grande pour l'arme sélectionnée
+            weapon.name = weapon.image.src.replace(/^.*[\\/]/, '').slice(0, -4);
+            const weaponElement = document.createElement('div');
+            weaponElement.id = weapon.name;
+            weaponElement.classList.add('weapon');
 
-            context.save(); // Sauvegarde l'état actuel du contexte
-            context.translate(x, y); // Déplace le point d'origine au coin supérieur gauche de l'image
-            context.rotate(-Math.PI / 2); // Fait pivoter le contexte de 90 degrés vers la gauche
-            context.drawImage(weapon.image, 0, 0, weapon.image.naturalWidth * currentScale, weapon.image.naturalHeight * currentScale); // Dessine l'image à partir du point d'origine
+            const weaponImage = document.createElement('img');
+            weaponImage.src = weapon.image.src;
+            weaponImage.alt = weapon.name;
 
+            // Événement onclick pour la sélection de l'arme
+            weaponElement.onclick = () => {
+                // Désélectionner l'arme précédente si elle existe
+                if (this.previousWeapon) {
+                    this.previousWeapon.classList.remove('selected');
+                }
+
+                // Sélectionner l'arme actuelle
+                weaponElement.classList.add('selected');
+
+                // Mettre à jour l'arme précédente
+                this.previousWeapon = weaponElement;
+
+                // Mettre à jour l'index de l'arme actuelle
+                this.currentWeaponIndex = index;
+            };
+
+            // Si c'est l'arme de base, la sélectionner
             if (index === this.currentWeaponIndex) {
-                context.strokeStyle = 'red';
-                context.lineWidth = 2;
-                context.strokeRect(0, 0, weapon.image.naturalWidth * currentScale, weapon.image.naturalHeight * currentScale);
-            } else {
-                context.strokeStyle = 'black';
-                context.lineWidth = 2;
-                context.strokeRect(0, 0, weapon.image.naturalWidth * currentScale, weapon.image.naturalHeight * currentScale);
+                weaponElement.classList.add('selected');
+                this.previousWeapon = weaponElement;
             }
 
-            context.restore(); // Restaure l'état précédent du contexte
-
-            x -= spacing; // Déplace la position de départ pour la prochaine arme
+            // Ajouter l'élément d'arme au conteneur d'armes
+            weaponElement.appendChild(weaponImage);
+            weaponsContainer.appendChild(weaponElement);
         });
     }
 
@@ -430,7 +449,7 @@ export class Player {
         }
 
         // Faire spawn un boss tous les 15 niveaux
-        if (this.level % 15 === 0) {
+        if (this.level % 10 === 0) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.isBossLevel = true;
         }

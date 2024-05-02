@@ -57,11 +57,35 @@ class Weapon {
         }
     }
 
-    // Méthode pour dessiner l'arme
     draw(context, mapStartX, mapStartY) {
         if (this.image) {
-            context.drawImage(this.image, this.x + mapStartX, this.y + mapStartY, this.width, this.height);
+            const weaponX = this.x + mapStartX;
+            const weaponY = this.y + mapStartY;
+            const weaponWidth = this.width;
+            const weaponHeight = this.height;
+
+            context.drawImage(this.image, weaponX, weaponY, weaponWidth, weaponHeight);
+
+            // Ajout du gestionnaire d'événements de clic pour rendre l'image de l'arme cliquable
+            this.player.canvas.addEventListener('click', (event) => {
+                const rect = this.player.canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+
+                if (mouseX >= weaponX && mouseX <= weaponX + weaponWidth &&
+                    mouseY >= weaponY && mouseY <= weaponY + weaponHeight) {
+                    // Le clic est à l'intérieur de la zone de l'image de l'arme
+                    // Déclenchez une action appropriée, comme la sélection de cette arme
+                    console.log('Weapon clicked:', this.constructor.name);
+                    this.selectWeapon();
+                }
+            });
         }
+    }
+
+    selectWeapon() {
+        this.player.selectedWeapon = this;
+        console.log('Weapon selected:', this.constructor.name);
     }
 }
 
@@ -132,7 +156,7 @@ export class SMG extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 5; // Initialiser this.speed ici pour la classe SMG
         this.fireRate = 10; // Initialiser this.fireRate ici pour la classe SMG
-        this.damage = 20; // Initialiser this.damage ici pour la classe SMG
+        this.damage = 2; // Initialiser this.damage ici pour la classe SMG
         this.x = 0; // Initialiser this.x ici pour la classe SMG
         this.y = 0; // Initialiser this.y ici pour la classe SMG
         this.image = new Image();
