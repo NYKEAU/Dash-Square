@@ -1,5 +1,5 @@
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
-import { firebaseApp } from "./models/firebaseModel.js";
+import { firebaseApp } from "../../../models/firebaseModel.js";
 
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
