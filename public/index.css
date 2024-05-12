@@ -244,11 +244,11 @@ input:checked+.slider:before {
     transform: translateX(13px);
 }
 
-#userLoginError,
-#userRegisterError {
-    display: none;
-    color: red;
+#errorSection {
+    color: black;
+    font-weight: bolder;
     position: fixed;
+    opacity: 0;
     top: 15%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -291,7 +291,7 @@ input:checked+.slider:before {
     display: block;
     text-align: center;
     background-color: rgba(0, 0, 0, 0.8);
-    min-height: 50vh;
+    min-height: 30vh;
     padding: 20px;
     right: 0;
     top: 50%;
@@ -325,6 +325,14 @@ input:checked+.slider:before {
     padding-left: 0;
 }
 
+#pauseBtn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 100;
+}
+
 #pauseMenu h1,
 #shop h1 {
     margin-top: 0;
@@ -348,7 +356,7 @@ input:checked+.slider:before {
     text-align: center;
     min-width: 25%;
     padding: 20px 10px;
-    margin: 20px;
+    margin: 20px 10px;
     cursor: pointer;
     background-color: white;
     transition: all 0.1s ease-in-out;
@@ -426,17 +434,16 @@ input:checked+.slider:before {
 }
 
 .weapon {
-    width: 104px;
-    height: 52px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20vh;
+    height: 10vh;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.1s ease-in-out;
     margin: 0 10px 10px 0;
     padding: 10px;
-}
-
-.weapon img {
-    height: 52px;
 }
 
 .selected {

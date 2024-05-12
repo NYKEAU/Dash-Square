@@ -18,10 +18,8 @@ export class gameInstance {
         // Affichage et carte
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
-        this.screenWidth = window.innerWidth;
-        this.screenHeight = window.innerHeight;
-        this.mapWidth = this.screenWidth * 1.5;
-        this.mapHeight = this.screenHeight * 1.5;
+        this.mapWidth = 2000;
+        this.mapHeight = 1500;
 
         // Contrôles et pause
         this.keys = {};
@@ -60,14 +58,6 @@ export class gameInstance {
             if (event.key === 'Escape' && this.player.health > 0 && this.isStarted) {
                 this.togglePause();
             }
-
-            if (event.key === 'e') {
-                this.player.changeWeapon('next');
-            }
-
-            if (event.key === 'a') {
-                this.player.changeWeapon('previous');
-            }
         });
 
         document.addEventListener('keyup', (event) => {
@@ -81,27 +71,39 @@ export class gameInstance {
                 this.togglePause();
             }
         });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            this.togglePause();
+        });
     }
 
     // Méthode pour basculer la pause
     togglePause() {
-        if (this.isPaused) {
-            const shop = document.getElementById('shop');
-            const pause = document.getElementById('pauseMenu');
+        const shop = document.getElementById('shop');
+        const pause = document.getElementById('pauseMenu');
+        const stats = document.getElementById('statsMenu');
+        const pauseBtn = document.getElementById('pauseBtn');
 
+        if (this.isPaused) {
             if (shop.style.display === 'flex' && pause.style.display === 'flex') {
                 shop.style.display = 'none';
             } else if (shop.style.display === 'flex' && pause.style.display === 'none') {
                 shop.style.display = 'none';
                 this.resumeGame();
+            } else if (document.getElementById('constantStats').checked) {
+                pause.style.display = 'none';
+                stats.style.display = 'block';
+                this.resumeGame();
             } else {
                 pause.style.display = 'none';
+                stats.style.display = 'none';
                 this.resumeGame();
             }
         } else {
             this.pauseGame();
-            document.getElementById('pauseMenu').style.display = 'flex';
-            document.getElementById('statsMenu').style.display = 'block';
+            pause.style.display = 'flex';
+            stats.style.display = 'block';
+            pauseBtn.style.display = 'none';
         }
     }
 
@@ -142,6 +144,9 @@ export class gameInstance {
 
         // Afficher le magasin
         document.getElementById('shop').style.display = 'flex';
+
+        // Cacher le bouton de pause
+        document.getElementById('pauseBtn').style.display = 'none';
 
         // Créez trois options d'amélioration (via la méthode generateItems de la classe item.js)
         let items = Item.generateItems(this.player, this.enemies, this.canvas);
@@ -311,6 +316,9 @@ export class gameInstance {
         // Arrêtez de tirer
         this.player.weapon.stopShooting();
 
+        // Afficher le menu de stats
+        document.getElementById('statsMenu').style.display = 'block';
+
         // Arrêtez de tirer les ennemis
         for (let enemy of this.enemies) {
             if (enemy instanceof Shooter) {
@@ -324,11 +332,20 @@ export class gameInstance {
     resumeGame() {
         const shop = document.getElementById('shop');
         const pause = document.getElementById('pauseMenu');
+        const stats = document.getElementById('statsMenu');
+        const pauseBtn = document.getElementById('pauseBtn');
+
         if (shop.style.display === 'flex') {
             shop.style.display = 'none';
         } else if (pause.style.display === 'flex') {
             pause.style.display = 'none';
         }
+
+        if (stats.style.display === 'block' && !document.getElementById('constantStats').checked) {
+            stats.style.display = 'none';
+        }
+
+        pauseBtn.style.display = 'block';
 
         // Une fois que le joueur a fait son choix, reprenez le jeu
         this.isPaused = false;
@@ -366,12 +383,14 @@ export class gameInstance {
         // Cacher le menu de pause
         document.getElementById('pauseMenu').style.display = 'none';
         document.getElementById('gameOverMenu').style.display = 'none';
+        document.getElementById('statsMenu').style.display = 'none';
 
         // Supprimer les items que le joueur possède et réinitialiser leur affichage
         this.player.removeItems();
 
         // Afficher le menu de démarrage
         document.getElementById('startMenu').style.display = 'flex';
+        document.getElementById('leaderboardMenu').style.display = 'flex';
         this.isStarted = false;
 
         // Effacer le joystick
@@ -466,6 +485,8 @@ export class gameInstance {
             // Appeler la méthode de déplacement du joueur
             this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
 
+            // Mettre à jour les stats du joueur
+            this.player.updateStatsDisplay();
 
             // Mettre à jour la position de chaque projectile de l'ennemi
             for (let enemy of this.enemies) {
