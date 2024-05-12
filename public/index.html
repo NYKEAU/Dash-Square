@@ -5,39 +5,115 @@
     <meta charset="UTF-8">
     <title>Rogue-lite</title>
     <link rel="stylesheet" href="index.css">
+    <script type="module" src="main.js"></script>
+    <script type="module" src="./scripts/data/index.js"></script>
 </head>
 
 <body>
-    <div class="menu" id="startMenu">
-        <h1>Rogue-lite</h1>
-        <button id="startButton">Commencer</button>
-        <div id="connectDiv">
-            <h3>OU</h3>
-            <p>Connectez-vous pour enregistrer votre score !</p>
-            <a class="button" href="./pages/login.html">Se connecter</a>
-        </div>
-        <div id="userDiv" style="display: none;">
-            <div id="leaderboardPlace">
-                <p id="userPlace"></p>
-                <p id="userName"></p>
-                <p id="userScore"></p>
+    <div id="userLoginError" style="opacity: 0;">
+        <p>Erreur de connexion</p>
+    </div>
+    <div id="userRegisterError" style="opacity: 0;">
+        <p>Erreur d'inscription</p>
+    </div>
+    <div id="baseMenu">
+        <div class="startMenu" id="startMenu">
+            <h1 style="margin-top: 0;">Rogue-lite</h1>
+            <button id="startButton">Commencer</button>
+            <div id="connectDiv">
+                <h3>OU</h3>
+                <p>Connectez-vous pour enregistrer votre score !</p>
+                <a id="loginButton" class="button">Se connecter</a>
             </div>
-            <a class="button" id="logoutBtn">Se déconnecter</a>
+            <div id="userDiv" style="display: none;">
+                <div id="leaderboardPlace"></div>
+                <a class="button" id="logoutBtn">Se déconnecter</a>
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="mobileMode">Mode mobile</label>
+                <label class="switch">
+                    <input id="mobileMode" type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
-        <div style="margin-top: 10px;">
-            <label for="mobileMode">Mode mobile</label>
-            <label class="switch">
-                <input id="mobileMode" type="checkbox">
-                <span class="slider"></span>
-            </label>
+        <div class="startMenu" id="leaderboardMenu">
+            <h1>Classement</h1>
+            <ul id="leaderboard"></ul>
         </div>
     </div>
+
+    <div class="menu" id="loginRegisterMenu" style="display: none;">
+        <div id="backArrow" style="display: flex;">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+                <path d="M0 0h24v24H0V0z" fill="none" />
+                <path fill="white" d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+            </svg>
+        </div>
+        <div id="tabs">
+            <button id="connectTab" class="tab activeTab">Connexion</button>
+            <button id="registerTab" class="tab">Inscription</button>
+        </div>
+        <div id="loginForm">
+            <form id="login-form">
+                <label for="login">Pseudo</label>
+                <input type="text" id="login-text" name="login" required>
+                <label for="password">Mot de passe</label>
+                <input type="password" id="login-password" name="passwordLogin" required>
+                <button id="connexionButton" type="submit">Se connecter</button>
+            </form>
+        </div>
+        <div id="registerForm" style="display: none;">
+            <form id="register-form">
+                <label for="login">Pseudo</label>
+                <input type="text" id="text" name="login" required>
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+                <label for="password2">Confirmer le mot de passe</label>
+                <input type="password" id="password2" name="password2" required>
+                <button id="registerButton" type="submit">S'inscrire</button>
+            </form>
+        </div>
+    </div>
+
     <div id="wrapper" style="display: none;"></div>
     <div id="weaponsContainer"></div>
     <div class="menu" id="pauseMenu" style="display: none;">
         <h1>Pause</h1>
         <button id="resumeButton">Reprendre</button>
         <button id="quitButton">Quitter</button>
+    </div>
+    <div id="statsMenu" style="display: none;">
+        <h1>Statistiques</h1>
+        <ul id="statsList">
+            <li id="healthStats">
+                <br>
+                <ul id="healthStatsList">
+                    <li>Vie: <span id="health"></span></li>
+                    <li>Vie max: <span id="maxHealth"></span></li>
+                    <li>Vitesse: <span id="speed"></span></li>
+                    <li>Expérience: <span id="exp"></span></li>
+                    <li>Argent: <span id="money"></span></li>
+                </ul>
+                <br>
+            <li id="damageStats">
+                <br>
+                <ul id="damageStatsList">
+                    <li>Dégâts: <span id="damage"></span></li>
+                    <li>Défense: <span id="defense"></span></li>
+                    <li>Cadence: <span id="cadence"></span></li>
+                </ul>
+                <br>
+            </li>
+            <li id="weaponStats">
+                <br>
+                <ul id="weaponStatsList">
+                    <li>Cadence de tir: <span id="cadenceTir"></span></li>
+                    <li>Portée: <span id="range"></span></li>
+                    <li>Dégâts: <span id="weaponDamage"></span></li>
+                </ul>
+            </li>
+        </ul>
     </div>
     <canvas id="gameCanvas" style="display: none;"></canvas>
     <div class="menu" id="shop" style="display: none;">
@@ -52,10 +128,38 @@
         <h3>Score final: <span id="finalScore"></span></h3>
         <button id="restartButton">Quitter</button>
     </div>
-    <script type="module" src="index.js"></script>
-    <script type="module" src="./src/auth/logout.js"></script>
 </body>
 
-<script type="module" src="../models/firebaseModel.js"></script>
+<script type="text/javascript">
+    const loginButton = document.getElementById('loginButton');
+    const loginMenu = document.getElementById('loginRegisterMenu');
+    const startMenu = document.getElementById('startMenu');
+    const leaderboardMenu = document.getElementById('leaderboardMenu');
+
+    loginButton.addEventListener('click', () => {
+        loginMenu.style.display = 'block';
+        startMenu.style.display = 'none';
+        leaderboardMenu.style.display = 'none';
+    });
+
+    const connectTab = document.getElementById('connectTab');
+    const registerTab = document.getElementById('registerTab');
+    const connectForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    connectTab.addEventListener('click', () => {
+        connectTab.classList.add('activeTab');
+        registerTab.classList.remove('activeTab');
+        connectForm.style.display = 'block';
+        registerForm.style.display = 'none';
+    });
+
+    registerTab.addEventListener('click', () => {
+        connectTab.classList.remove('activeTab');
+        registerTab.classList.add('activeTab');
+        connectForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    });
+</script>
 
 </html>
