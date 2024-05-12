@@ -1,16 +1,19 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore.js";
+require('dotenv').config();
+const { initializeApp } = require('firebase/app');
+const { getFirestore } = require('firebase/firestore');
 
 const firebaseConfig = {
-    apiKey: "AIzaSyARQrBTmekSsmXuoo-evcEoTUbeaR7yM5o",
-    authDomain: "rogue-lite.firebaseapp.com",
-    databaseURL: "https://rogue-lite-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "rogue-lite",
-    storageBucket: "rogue-lite.appspot.com",
-    messagingSenderId: "1091853759584",
-    appId: "1:1091853759584:web:6f811c7407ed000acd7f05",
-    measurementId: "G-8D2P7DBQHP"
+    apiKey: process.env.API_KEY,
+    authDomain: process.env.AUTH_DOMAIN,
+    projectId: process.env.PROJECT_ID,
+    storageBucket: process.env.STORAGE_BUCKET,
+    messagingSenderId: process.env.MESSAGING_SENDER_ID,
+    appId: process.env.APP_ID,
+    measurementId: process.env.MEASUREMENT_ID
 };
 
-export const firebaseApp = initializeApp(firebaseConfig);
-export const db = getFirestore(firebaseApp);
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+module.exports = firebaseApp;
+module.exports = db;

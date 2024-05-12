@@ -4,6 +4,7 @@ import { FireBoss, IceBoss, VoidBoss } from './bosses.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { updateScore } from '../score/updatescore.js';
+import { getScores, setScore } from '../data/index.js';
 
 export class gameInstance {
     constructor(canvas) {
@@ -100,6 +101,7 @@ export class gameInstance {
         } else {
             this.pauseGame();
             document.getElementById('pauseMenu').style.display = 'flex';
+            document.getElementById('statsMenu').style.display = 'block';
         }
     }
 
@@ -234,7 +236,6 @@ export class gameInstance {
                         itemDiv.style.backgroundColor = rarete.style.color;
                         itemDiv.style.position = 'absolute';
                         itemDiv.style.bottom = '0';
-                        console.log(this.itemsCount);
                         itemDiv.style.left = `${25 * this.itemsCount}px`;
                         itemDiv.style.border = '1px solid black';
                         itemDiv.style.margin = '5px';
@@ -276,13 +277,18 @@ export class gameInstance {
         // Afficher le menu de fin de jeu
         document.getElementById('gameOverMenu').style.display = 'flex';
 
-        // Mettre à jour le score final
-        document.getElementById('score').textContent = this.player.score - this.timerScore;
+        // Mettre à jour le score final (sans le score de temps)
+        document.getElementById('score').textContent = this.player.score;
+
+        // Calculer le score de temps
+        this.timerScore = Math.floor(Math.floor((Date.now() - this.startTime) / 1000) / 10) * 100;
+
         document.getElementById('timerScore').textContent = this.getElapsedTime() + ' (+' + this.timerScore + ')';
+        this.player.score += this.timerScore;
         document.getElementById('finalScore').textContent = this.player.score;
 
         // Mettre à jour le score dans la bdd
-        updateScore(this.player);
+        setScore(this.player.score);
     }
 
     // Méthode pour mettre en pause le jeu
@@ -377,8 +383,14 @@ export class gameInstance {
             itemDivs[i].remove();
         }
 
+        // Effacer les armes (supprimer les divs des armes)
+        document.getElementById('weaponsContainer').innerHTML = '';
+
         // Cacher le jeu
         this.canvas.style.display = 'none';
+
+        // Mettre à jour le leaderboard
+        getScores();
     }
 
     // Méthode pour ajouter un nouvel ennemi
@@ -425,6 +437,8 @@ export class gameInstance {
         this.startEnemyGeneration(this.player.level);
         this.isStarted = true;
 
+        this.player.initStats();
+
         this.player.drawWeapons();
 
         this.player.weapon.startShooting();
@@ -437,14 +451,6 @@ export class gameInstance {
             const totalSeconds = Math.floor((now - this.startTime) / 1000);
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
-            if (this.lastScoreIncreaseTime === null) {
-                this.lastScoreIncreaseTime = now;
-            } else if (now - this.lastScoreIncreaseTime >= 10000) {
-                this.player.increaseScore(100);
-                this.timerScore += 100;
-                console.log('Score increased by 100');
-                this.lastScoreIncreaseTime = now;
-            }
             return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
         } else {
             const totalSeconds = Math.floor(this.pausedTime / 1000);

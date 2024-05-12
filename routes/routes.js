@@ -1,19 +1,19 @@
-// routes/routes.js
 const express = require('express');
 const router = express.Router();
-const dataController = require('../controllers/dataController');
+const userController = require('../controllers/userController');
+const scoreController = require('../controllers/scoreController');
 const middleware = require('../middlewares');
 
 router.get('/', (req, res) => {
     res.send('Bienvenue sur votre API !');
 });
 
-router.post('/login', dataController.login);
-router.post('/register', dataController.register);
-router.post('/logout', dataController.logout);
-router.get('/user', middleware.jwtMiddleware, dataController.getUserInfo);
-router.get('/leaderboard', dataController.leaderboard);
-router.put('/update-score', middleware.jwtMiddleware, dataController.updateScore);
-router.delete('/delete', middleware.jwtMiddleware, dataController.deleteAccount);
+router.get('/user', middleware.verifyToken, userController.getUser);
+router.post('/login', userController.login);
+router.post('/register', userController.register);
+router.post('/logout', userController.logout);
+
+router.get('/scores', scoreController.getScores);
+router.put('/score', middleware.verifyToken, scoreController.setScore);
 
 module.exports = router;

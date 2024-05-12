@@ -1,3 +1,3 @@
-const jwtMiddleware = require('./middlewares/jwtMiddleware');
+const verifyToken = require('./middlewares/verifyToken');
 
-module.exports = { jwtMiddleware };
+module.exports = { verifyToken };

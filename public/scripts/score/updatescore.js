@@ -1,6 +1,5 @@
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
 import { Firestore, getDoc, getDocs, collection, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore.js";
-import { firebaseApp, db } from "../../../models/firebaseModel.js";
 
 export async function updateScore(player) {
     try {
@@ -17,7 +16,7 @@ export async function updateScore(player) {
         console.log('currentUid :', currentUid);
 
         // Recherche du document avec l'UID correspondant à l'utilisateur connecté
-        const querySnapshot = await getDocs(collection(db, "scores"));
+        const querySnapshot = await getDocs(collection(db, "users"));
         let documentRef;
         querySnapshot.forEach((doc) => {
             const userData = doc.data();
@@ -35,11 +34,11 @@ export async function updateScore(player) {
         if (documentSnapshot.exists()) {
             console.log("Document data:", documentSnapshot.data());
             const userData = documentSnapshot.data();
-            const oldScore = userData.scoreMax;
+            const oldScore = userData.bestscore;
             const newScore = player.score;
 
             if (newScore > oldScore) {
-                await updateDoc(documentRef, { scoreMax: newScore });
+                await updateDoc(documentRef, { bestscore: newScore });
                 console.log('Score mis à jour avec succès');
             } else {
                 console.log('Nouveau score inférieur ou égal à l\'ancien score');

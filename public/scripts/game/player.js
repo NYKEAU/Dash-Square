@@ -293,38 +293,61 @@ export class Player {
         }
     }
 
+    // Méthode pour initialiser les statistiques du joueur dans le tableau de stats
+    initStats() {
+        document.getElementById('health').innerText = this.health;
+        document.getElementById('maxHealth').innerText = this.maxHealth;
+        document.getElementById('maxExperience').innerText = this.maxExperience;
+        document.getElementById('money').innerText = this.money;
+        document.getElementById('damage').innerText = this.damage;
+        document.getElementById('defense').innerText = this.defense;
+        document.getElementById('rof').innerText = this.rof;
+        document.getElementById('speed').innerText = this.weapon.speed;
+        document.getElementById('range').innerText = this.weapon.range;
+        document.getElementById('weaponDamage').innerText = this.weapon.damage;
+    }
+
     // Méthode pour mettre à jour les statistiques du joueur
     updateStats(stats) {
         // Mettre à jour les statistiques du joueur en fonction de l'item
         for (let stat in stats) {
             if (stat === 'Vie') {
                 this.health = this.health + Math.ceil(this.health * stats[stat] / 1000);
+                document.getElementById('health').innerText = this.health;
                 if (this.health > this.maxHealth) this.health = this.maxHealth;
             } else if (stat === 'VieMax') {
                 this.maxHealth = this.maxHealth + Math.ceil(this.maxHealth * stats[stat] / 1000);
+                document.getElementById('maxHealth').innerText = this.maxHealth;
             } else if (stat === 'Exp') {
                 this.maxExperience = this.maxExperience + Math.ceil(this.maxExperience * stats[stat] / 1000);
+                document.getElementById('maxExperience').innerText = this.maxExperience;
             } else if (stat === 'Argent') {
                 this.money = this.money + Math.ceil(this.money * stats[stat] / 1000);
+                document.getElementById('money').innerText = this.money;
             } else if (stat === 'DégâtsJoueur') {
                 this.damage = this.damage + Math.ceil(this.damage * stats[stat] / 1000);
+                document.getElementById('damage').innerText = this.damage;
             } else if (stat === 'Défense') {
                 this.defense = this.defense + Math.ceil(this.defense * stats[stat] / 1000);
+                document.getElementById('defense').innerText = this.defense;
             } else if (stat === 'CadenceJoueur') {
                 this.rof = this.rof + Math.ceil(this.rof * stats[stat] / 1000);
+                document.getElementById('rof').innerText = this.rof;
             } else if (stat === 'CadenceTir') {
                 this.speed = this.weapon.speed + Math.ceil(this.speed * stats[stat] / 1000);
+                document.getElementById('speed').innerText = this.weapon.speed;
             } else if (stat === 'Vitesse') {
                 this.speed = this.speed + Math.ceil(this.speed * stats[stat] / 1000);
+                document.getElementById('speed').innerText = this.speed;
             } else if (stat === 'Portée') {
                 this.range = this.range + Math.ceil(this.range * stats[stat] / 1000);
+                document.getElementById('range').innerText = this.weapon.range;
             } else if (stat === 'DégâtsArmes') {
                 this.damage = this.weapon.damage + Math.ceil(this.damage * stats[stat] / 1000);
+                document.getElementById('weaponDamage').innerText = this.weapon.damage;
             }
         }
     }
-
-    // VieMax', 'Exp', 'Argent', 'Dégâts', 'Défense', 'CadenceTir', 'CadenceTir', 'Vitesse', 'Portée', 'Dégâts'
 
     // Méthode pour déplacer le joueur
     move(keys, mapWidth, mapHeight, enemies) {
