@@ -2,25 +2,20 @@ import { user } from "./user.js";
 import { score } from "./score.js";
 
 let currentUser = null;
+let isLoggedIn = false;
 
-function displayRegisterUserError(errorMessage) {
-    const errorSection = document.getElementById('userRegisterError');
+document.addEventListener("DOMContentLoaded", async (event) => {
+    initUser();
+    isLogged();
+    getScores();
+});
+
+function displayError(errorMessage) {
+    const errorSection = document.getElementById('errorSection');
     errorSection.textContent = errorMessage;
     errorSection.style.opacity = 1;
-    errorSection.style.display = 'block';
     setTimeout(() => {
         errorSection.style.opacity = 0;
-        errorSection.style.display = 'none';
-    }, 5000);
-}
-function displayLoginUserError(errorMessage) {
-    const errorSection = document.getElementById('userLoginError');
-    errorSection.textContent = errorMessage;
-    errorSection.style.opacity = 1;
-    errorSection.style.display = 'block';
-    setTimeout(() => {
-        errorSection.style.opacity = 0;
-        errorSection.style.display = 'none';
     }, 5000);
 }
 
@@ -30,128 +25,6 @@ backArrow.addEventListener("click", (event) => {
     document.getElementById('loginRegisterMenu').style.display = 'none';
     document.getElementById('startMenu').style.display = 'flex';
     document.getElementById('leaderboardMenu').style.display = 'flex';
-});
-
-const registerForm = document.getElementById("register-form");
-registerForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const pseudoInput = document.getElementById("text");
-    const passwordInput = document.getElementById("password");
-    const passwordConfirmInput = document.getElementById("password2");
-
-    if (pseudoInput.value.trim() === '' || passwordInput.value.trim() === '') {
-        displayRegisterUserError("Veuillez remplir tous les champs.");
-        return;
-    }
-
-    if (passwordInput.value !== passwordConfirmInput.value) {
-        displayRegisterUserError("Les mots de passe ne correspondent pas.");
-        return;
-    }
-
-    if (passwordInput.value.length < 6) {
-        displayRegisterUserError("Le mot de passe doit contenir au moins 6 caractères.");
-        return;
-    }
-
-    try {
-        const response = await user.auth.register(pseudoInput.value, passwordInput.value);
-        if (response.error) {
-            displayRegisterUserError(response.error);
-        } else {
-            console.log("Inscription réussie:", response);
-            document.getElementById('loginRegisterMenu').style.display = 'none';
-            document.getElementById('startMenu').style.display = 'flex';
-            document.getElementById('leaderboardMenu').style.display = 'flex';
-        }
-    } catch (error) {
-        console.error("Registration error:", error);
-        displayRegisterUserError(error.message);
-    }
-});
-
-const loginForm = document.getElementById("login-form");
-loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const pseudoInput = document.getElementById("login-text");
-    const passwordInput = document.getElementById("login-password");
-
-    if (pseudoInput.value.trim() === '' || passwordInput.value.trim() === '') {
-        displayLoginUserError("Veuillez remplir tous les champs.");
-        return;
-    }
-
-    try {
-        const data = await user.auth.login(pseudoInput.value, passwordInput.value);
-        if (data.error) {
-            console.error('Login error:', data.error);
-            displayLoginUserError('Échec de la connexion: ' + data.error);
-            document.getElementById('connectDiv').style.display = 'flex';
-            document.getElementById('userDiv').style.display = 'none';
-        } else {
-            console.log('Connexion réussie');
-            console.log('Utilisateur connecté:', data);
-            initUser();
-            document.getElementById('loginRegisterMenu').style.display = 'none';
-            document.getElementById('connectDiv').style.display = 'none';
-            document.getElementById('userDiv').style.display = 'flex';
-            document.getElementById('leaderboardMenu').style.display = 'flex';
-            document.getElementById('startMenu').style.display = 'flex';
-        }
-    } catch (error) {
-        console.error('Erreur lors de la connexion utilisateur', error);
-        document.getElementById('connectDiv').style.display = 'flex';
-        document.getElementById('userDiv').style.display = 'none';
-        displayLoginUserError('Échec de la connexion: ' + error.message);
-    }
-});
-
-function isLogged() {
-    user.auth.getUser().then((data) => {
-        if (data) {
-            console.log('Utilisateur connecté:', data);
-            document.getElementById('connectDiv').style.display = 'none';
-            document.getElementById('userDiv').style.display = 'flex';
-        } else {
-            console.log('Utilisateur non connecté');
-            document.getElementById('connectDiv').style.display = 'flex';
-            document.getElementById('userDiv').style.display = 'none';
-        }
-    }).catch((error) => {
-        console.error('Erreur lors de la vérification de la connexion utilisateur', error);
-        document.getElementById('connectDiv').style.display = 'flex';
-        document.getElementById('userDiv').style.display = 'none';
-    });
-}
-
-const logout = document.getElementById("logoutBtn");
-logout.addEventListener("click", async (event) => {
-    event.preventDefault();
-    try {
-        const data = await user.auth.logout();
-        if (data.error) {
-            console.error('Logout error:', data.error);
-            document.getElementById('connectDiv').style.display = 'none';
-            document.getElementById('userDiv').style.display = 'flex';
-        } else {
-            console.log('Déconnexion réussie');
-            console.log('Utilisateur déconnecté:', data);
-            document.getElementById('connectDiv').style.display = 'flex';
-            document.getElementById('userDiv').style.display = 'none';
-            initUser();
-        }
-    } catch (error) {
-        console.error('Erreur lors de la déconnexion utilisateur', error);
-        document.getElementById('connectDiv').style.display = 'none';
-        document.getElementById('userDiv').style.display = 'flex';
-    }
-});
-
-document.addEventListener("DOMContentLoaded", async (event) => {
-    initUser();
-    isLogged();
-    getScores();
 });
 
 async function initUser() {
@@ -169,7 +42,27 @@ async function initUser() {
     currentUser = await user.auth.getUser();
     getScores();
 }
-initUser();
+
+function isLogged() {
+    user.auth.getUser().then((data) => {
+        if (data) {
+            console.log('Utilisateur connecté:', data);
+            document.getElementById('connectDiv').style.display = 'none';
+            document.getElementById('userDiv').style.display = 'flex';
+            isLoggedIn = true;
+        } else {
+            console.log('Utilisateur non connecté');
+            document.getElementById('connectDiv').style.display = 'flex';
+            document.getElementById('userDiv').style.display = 'none';
+            isLoggedIn = false;
+        }
+    }).catch((error) => {
+        console.error('Erreur lors de la vérification de la connexion utilisateur', error);
+        document.getElementById('connectDiv').style.display = 'flex';
+        document.getElementById('userDiv').style.display = 'none';
+        isLoggedIn = false;
+    });
+}
 
 export async function setScore(newScore) {
     try {
@@ -225,3 +118,92 @@ export async function getScores() {
         console.error('Erreur lors de la récupération des scores', error);
     }
 }
+
+const registerForm = document.getElementById("register-form");
+registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const pseudoInput = document.getElementById("text");
+    const passwordInput = document.getElementById("password");
+    const passwordConfirmInput = document.getElementById("password2");
+
+    if (pseudoInput.value.trim() === '' || passwordInput.value.trim() === '') {
+        displayError("Veuillez remplir tous les champs.");
+        return;
+    }
+
+    if (passwordInput.value !== passwordConfirmInput.value) {
+        displayError("Les mots de passe ne correspondent pas.");
+        return;
+    }
+
+    if (passwordInput.value.length < 6) {
+        displayError("Le mot de passe doit contenir au moins 6 caractères.");
+        return;
+    }
+
+    try {
+        const response = await user.auth.register(pseudoInput.value, passwordInput.value);
+        if (response.error) {
+            displayError(response.error);
+        } else {
+            console.log("Inscription réussie:", response);
+            document.getElementById('loginRegisterMenu').style.display = 'none';
+            document.getElementById('startMenu').style.display = 'flex';
+            document.getElementById('leaderboardMenu').style.display = 'flex';
+        }
+    } catch (error) {
+        console.error("Registration error:", error);
+        displayError(error.message);
+    }
+});
+
+const loginForm = document.getElementById("login-form");
+loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const pseudoInput = document.getElementById("login-text");
+    const passwordInput = document.getElementById("login-password");
+
+    if (pseudoInput.value.trim() === '' || passwordInput.value.trim() === '') {
+        displayError("Veuillez remplir tous les champs.");
+        return;
+    }
+
+    try {
+        const data = await user.auth.login(pseudoInput.value, passwordInput.value);
+        if (data.error) {
+            console.error('Login error:', data.error);
+            displayError('Échec de la connexion: ' + data.error);
+            document.getElementById('connectDiv').style.display = 'flex';
+            document.getElementById('userDiv').style.display = 'none';
+        } else {
+            console.log('Connexion réussie');
+            console.log('Utilisateur connecté:', data);
+            initUser();
+            document.getElementById('loginRegisterMenu').style.display = 'none';
+            document.getElementById('connectDiv').style.display = 'none';
+            document.getElementById('userDiv').style.display = 'flex';
+            document.getElementById('leaderboardMenu').style.display = 'flex';
+            document.getElementById('startMenu').style.display = 'flex';
+        }
+    } catch (error) {
+        console.error('Erreur lors de la connexion utilisateur', error);
+        document.getElementById('connectDiv').style.display = 'flex';
+        document.getElementById('userDiv').style.display = 'none';
+        displayError('Échec de la connexion: ' + error.message);
+    }
+});
+
+const logout = document.getElementById("logoutBtn");
+logout.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await user.auth.logout();
+        initUser();
+        isLogged();
+    } catch (error) {
+        console.error('Erreur lors de la déconnexion utilisateur', error);
+        document.getElementById('connectDiv').style.display = 'none';
+        document.getElementById('userDiv').style.display = 'flex';
+    }
+});

@@ -34,7 +34,7 @@ export function createJoystick(parent) {
 
     function handleMouseMove(event) {
         if (dragStart === null) return;
-        event.preventDefault();
+
         if (event.changedTouches) {
             event.clientX = event.changedTouches[0].clientX;
             event.clientY = event.changedTouches[0].clientY;

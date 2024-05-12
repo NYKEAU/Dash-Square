@@ -7,14 +7,12 @@
     <link rel="stylesheet" href="index.css">
     <script type="module" src="main.js"></script>
     <script type="module" src="./scripts/data/index.js"></script>
+    <script type="module" src="./scripts/game/pleaseRotate.js"></script>
 </head>
 
 <body>
-    <div id="userLoginError" style="opacity: 0;">
+    <div id="errorSection" style="opacity: 0;">
         <p>Erreur de connexion</p>
-    </div>
-    <div id="userRegisterError" style="opacity: 0;">
-        <p>Erreur d'inscription</p>
     </div>
     <div id="baseMenu">
         <div class="startMenu" id="startMenu">
@@ -76,12 +74,25 @@
         </div>
     </div>
 
+    <div id="pauseBtn" style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 0 48 48" width="48">
+            <path d="M0 0h48v48H0V0z" fill="none" />
+            <path fill="black" d="M12 38h8V10h-8v28zm16-28v28h8V10h-8z" />
+        </svg>
+    </div>
     <div id="wrapper" style="display: none;"></div>
     <div id="weaponsContainer"></div>
     <div class="menu" id="pauseMenu" style="display: none;">
         <h1>Pause</h1>
         <button id="resumeButton">Reprendre</button>
         <button id="quitButton">Quitter</button>
+        <div id="statsSwitch" style="margin-top: 10px;">
+            <label for="constantStats">Affichage constant des statistiques</label>
+            <label class="switch">
+                <input id="constantStats" type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
     <div id="statsMenu" style="display: none;">
         <h1>Statistiques</h1>

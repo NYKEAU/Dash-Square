@@ -1,5 +1,5 @@
 const { collection, addDoc, query, where, getDocs } = require('firebase/firestore');
-const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } = require('firebase/auth');
+const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = require('firebase/auth');
 const db = require('../models/firebaseModel');
 
 const login = async (req, res) => {

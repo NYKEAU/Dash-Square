@@ -30,10 +30,17 @@ document.getElementById('startButton').addEventListener('click', function () {
     if (document.getElementById('mobileMode').checked) {
         console.log('Mode mobile activé');
         parent.style.display = 'block';
+        document.getElementById('statsSwitch').style.display = 'none';
+        document.getElementById('pauseBtn').style.display = 'block';
         if (alreadyCreatedJoystick === false) {
             createJoystick(parent);
             alreadyCreatedJoystick = true;
         }
+    } else {
+        console.log('Mode mobile désactivé');
+        parent.style.display = 'none';
+        document.getElementById('statsSwitch').style.display = 'block';
+        document.getElementById('pauseBtn').style.display = 'none';
     }
 
     // Ajouter des gestionnaires d'événements pour les boutons du menu de pause si ceux-ci sont existants
