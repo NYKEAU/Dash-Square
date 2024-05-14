@@ -28,7 +28,6 @@ document.getElementById('startButton').addEventListener('click', function () {
 
     // Vérifier si le mode mobile est activé
     if (document.getElementById('mobileMode').checked) {
-        console.log('Mode mobile activé');
         parent.style.display = 'block';
         document.getElementById('statsSwitch').style.display = 'none';
         document.getElementById('pauseBtn').style.display = 'block';
@@ -37,7 +36,6 @@ document.getElementById('startButton').addEventListener('click', function () {
             alreadyCreatedJoystick = true;
         }
     } else {
-        console.log('Mode mobile désactivé');
         parent.style.display = 'none';
         document.getElementById('statsSwitch').style.display = 'block';
         document.getElementById('pauseBtn').style.display = 'none';

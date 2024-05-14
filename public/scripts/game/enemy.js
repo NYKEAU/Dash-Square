@@ -58,24 +58,33 @@ export class Enemy {
 
     // Méthode pour dessiner l'ennemi
     draw(context, mapStartX, mapStartY) {
+        context.shadowColor = this.enemyColor;
         // Dessiner les particules
         for (let particle of this.particles) {
+            context.shadowBlur = 1;
             particle.draw(context, this.width, mapStartX, mapStartY);
         }
 
         // Dessiner les effets de coup avant de vérifier si l'ennemi est mort
         for (let hitEffect of this.hitEffects) {
+            context.shadowBlur = 2;
             hitEffect.draw(context, mapStartX - 10, mapStartY);
         }
 
         // Remplir un rectangle de couleur à la position x et y
+
         if (this.hitFlashDuration > 0) {
             context.fillStyle = 'white';
+            context.shadowColor = 'white';
             this.hitFlashDuration--;
         } else {
             context.fillStyle = this.enemyColor;
+            context.shadowColor = this.enemyColor;
         }
+        this.constructor.name.includes('Boss') ? context.shadowBlur = 100 : 10;
+
         context.fillRect(mapStartX + this.x, mapStartY + this.y, this.width, this.height);
+        context.shadowBlur = 0;
     }
 
     shoot(direction) { }
@@ -256,9 +265,6 @@ export class Enemy {
 
         if (this.health > 0) {
             this.health -= amount;
-            if (!bulletDirection) {
-                console.log('TOUCHE');
-            }
             if (this.health <= 0) {
                 this.health = 0;
                 this.isDead = true;
@@ -343,7 +349,7 @@ export class Slime extends Enemy {
 export class Ghost extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 20, 10, 20);
-        this.enemyColor = 'white';
+        this.enemyColor = 'purple';
         this.speed = 2;
     }
 }
@@ -351,7 +357,7 @@ export class Ghost extends Enemy {
 export class Tank extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 50, 10, 20);
-        this.enemyColor = 'red';
+        this.enemyColor = 'grey';
         this.speed = 0.2;
     }
 }
@@ -360,14 +366,13 @@ export class Tank extends Enemy {
 export class Shooter extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 50, 5, 15);
-        this.enemyColor = 'purple';
+        this.enemyColor = 'red';
         this.speed = 1.5;
         this.lastProjectileTime = 0;
         this.fireRate = 1; // Temps de pause de 1 seconde
     }
 
     shoot(direction) {
-        // console.log('Shooting projectile' + this.projectiles.length);
         // Calculer la position initiale du projectile
         const x = this.x + this.width / 2;
         const y = this.y + this.height / 2;

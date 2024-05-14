@@ -1,5 +1,5 @@
 import { HitEffect } from './hitEffect.js';
-import { Pistol, Shotgun, SMG, Famas, Sniper } from './weapon.js';
+import { Weapon, Pistol, Shotgun, SMG, Famas, Sniper } from './weapon.js';
 import { getJoystick } from './joystick.js';
 
 export class Player {
@@ -18,8 +18,8 @@ export class Player {
         this.levelPopupScale = 1; // L'échelle du texte du niveau
 
         // Armes et Projectiles
-        this.weapon = new SMG(this); // Initialiser l'arme de base du joueur
-        this.weapons = [new SMG(this), new Pistol(this)]; // Initialiser l'arsenal du joueur
+        this.weapon = new Pistol(this); // Initialiser l'arme de base du joueur
+        this.weapons = [new Pistol(this)]; // Initialiser l'arsenal du joueur
         this.currentWeaponIndex = 0; // L'arme actuellement équipée par le joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
         this.previousWeapon = null; // L'arme précédente du joueur
@@ -39,20 +39,29 @@ export class Player {
         // Dégâts et Attaque
         this.damage = this.weapon.damage; // Les dégâts du joueur
         this.defense = 0; // La défense du joueur
-        this.rof = 0; // La cadence de tir du joueur
+        this.rof = this.weapon.fireRate; // La cadence de tir du joueur
 
         // Effets Visuels
         this.hitEffects = []; // Tableau des hitmarkers
         this.duration = 100; // La durée de l'effet de flash quand le joueur subit des dégâts
         this.hitFlash = false; // Si le joueur subit des dégâts
+
+        this.permanentStats = {
+            Vie: 0,
+            VieMax: 0,
+            Exp: 0,
+            Argent: 0,
+            Dégâts: 0,
+            Défense: 0,
+            Cadence: 0,
+            Vitesse: 0
+        };
     }
 
     // Méthode pour ajouter une arme
     addWeapon(weapon) {
         this.weapons.push(weapon);
         this.drawWeapons();
-        console.log('Weapon added:', weapon);
-        console.log('Weapons:', this.weapons);
     }
 
     // Méthode pour vérifier si le joueur possède déjà une arme
@@ -61,36 +70,19 @@ export class Player {
     }
 
     // Méthode pour changer d'arme
-    changeWeapon(direction) {
-        if (direction === 'previous') {
-            this.currentWeaponIndex = (this.currentWeaponIndex + 1) % this.weapons.length;
-        } else if (direction === 'next') {
-            this.currentWeaponIndex = (this.currentWeaponIndex - 1 + this.weapons.length) % this.weapons.length;
+    changeWeapon(newWeapon) {
+        if (newWeapon instanceof Weapon) {
+            this.weapon.stopShooting();
+            this.weapon = newWeapon; // Mettre à jour l'arme actuellement utilisée
+            this.weapon.startShooting();
+            this.damage = this.weapon.damage; // Mettre à jour les dégâts du joueur
+            this.rof = this.weapon.fireRate; // Mettre à jour la cadence de tir du joueur
+
+            this.damage = this.damage + Math.ceil(this.damage * this.permanentStats.Dégâts / 1000);
+            this.rof = this.rof + Math.ceil(this.rof * this.permanentStats.Cadence / 1000);
+        } else {
+            console.error('Invalid weapon type');
         }
-
-        console.log('Weapons:', this.weapons);
-        console.log('Current weapon index:', this.currentWeaponIndex);
-        console.log('Selected weapon:', this.weapons[this.currentWeaponIndex]);
-
-        switch (this.weapons[this.currentWeaponIndex].constructor) {
-            case Pistol:
-                this.weapon = new Pistol(this);
-                break;
-            case Shotgun:
-                this.weapon = new Shotgun(this);
-                break;
-            case SMG:
-                this.weapon = new SMG(this);
-                break;
-            case Famas:
-                this.weapon = new Famas(this);
-                break;
-            case Sniper:
-                this.weapon = new Sniper(this);
-                break;
-        }
-
-        console.log('Current weapon:', this.weapon);
     }
 
     // Méthode pour dessiner le joueur
@@ -100,8 +92,13 @@ export class Player {
             hitEffect.draw(context, mapStartX - 10, mapStartY);
         }
 
-        context.fillStyle = this.hitFlash ? 'white' : 'red';
+        context.shadowColor = 'blue';
+        context.shadowBlur = 10;
+
+        context.fillStyle = this.hitFlash ? 'white' : 'blue';
         context.fillRect(x, y, this.width, this.height);
+
+        context.shadowBlur = 0;
     }
 
     // Méthode pour dessiner les armes du joueur
@@ -141,6 +138,8 @@ export class Player {
 
                 // Mettre à jour l'index de l'arme actuelle
                 this.currentWeaponIndex = index;
+
+                this.changeWeapon(weapon);
             };
 
             // Si c'est l'arme de base, la sélectionner
@@ -279,7 +278,7 @@ export class Player {
     // Supprimer tous les items du joueur
     removeItems() {
         this.items = [];
-        this.updateStats({ Vie: -this.health, VieMax: -this.maxHealth, Exp: -this.maxExperience, Argent: -this.money, DégâtsJoueur: -this.damage, Défense: -this.defense, CadenceJoueur: -this.rof, CadenceTir: -this.speed, Vitesse: -this.speed, Portée: -this.range, DégâtsArmes: -this.damage });
+        this.updateStats({ Vie: -this.health, VieMax: -this.maxHealth, Exp: -this.maxExperience, Argent: -this.money, Dégâts: -this.damage, Défense: -this.defense, Cadence: -this.rof, Vitesse: -this.speed });
     }
 
     // Méthode pour augmenter le score du joueur
@@ -296,63 +295,52 @@ export class Player {
 
     // Méthode pour initialiser les statistiques du joueur dans le tableau de stats
     initStats() {
-        document.getElementById('health').innerText = this.health;
-        document.getElementById('maxHealth').innerText = this.maxHealth;
+        document.getElementById('health').innerText = this.health + '/' + this.maxHealth;
         document.getElementById('speed').innerText = this.speed;
         document.getElementById('exp').innerText = this.experience;
         document.getElementById('money').innerText = this.money;
-        document.getElementById('damage').innerText = this.damage;
         document.getElementById('defense').innerText = this.defense;
+        document.getElementById('damage').innerText = this.damage;
         document.getElementById('cadence').innerText = this.rof;
-        document.getElementById('cadenceTir').innerText = this.weapon.speed;
-        document.getElementById('range').innerText = this.weapon.range;
-        document.getElementById('weaponDamage').innerText = this.weapon.damage;
     }
 
     // Méthode pour mettre à jour les statistiques du joueur
     updateStats(stats) {
-        // Mettre à jour les statistiques du joueur en fonction de l'item
         for (let stat in stats) {
+            console.log(this.permanentStats);
+            this.permanentStats[stat] += stats[stat];
+
             if (stat === 'Vie') {
                 this.health = this.health + Math.ceil(this.health * stats[stat] / 1000);
                 if (this.health > this.maxHealth) this.health = this.maxHealth;
             } else if (stat === 'VieMax') {
                 this.maxHealth = this.maxHealth + Math.ceil(this.maxHealth * stats[stat] / 1000);
+            } else if (stat === 'Vitesse') {
+                console.log('this.speed' + this.speed + Math.ceil(this.speed * stats[stat] / 1000));
+                this.speed = this.speed + Math.ceil(this.speed * stats[stat] / 1000);
             } else if (stat === 'Exp') {
                 this.experience = this.experience + Math.ceil(this.experience * stats[stat] / 1000);
             } else if (stat === 'Argent') {
                 this.money = this.money + Math.ceil(this.money * stats[stat] / 1000);
-            } else if (stat === 'DégâtsJoueur') {
-                this.damage = this.damage + Math.ceil(this.damage * stats[stat] / 1000);
             } else if (stat === 'Défense') {
                 this.defense = this.defense + Math.ceil(this.defense * stats[stat] / 1000);
-            } else if (stat === 'CadenceJoueur') {
+            } else if (stat === 'Dégâts') {
+                this.damage = this.damage + Math.ceil(this.damage * stats[stat] / 1000);
+            } else if (stat === 'Cadence') {
                 this.rof = this.rof + Math.ceil(this.rof * stats[stat] / 1000);
-            } else if (stat === 'CadenceTir') {
-                this.speed = this.weapon.speed + Math.ceil(this.speed * stats[stat] / 1000);
-            } else if (stat === 'Vitesse') {
-                this.speed = this.speed + Math.ceil(this.speed * stats[stat] / 1000);
-            } else if (stat === 'Portée') {
-                this.range = this.range + Math.ceil(this.range * stats[stat] / 1000);
-            } else if (stat === 'DégâtsArmes') {
-                this.damage = this.weapon.damage + Math.ceil(this.damage * stats[stat] / 1000);
             }
         }
     }
 
     // Mettre à jour l'affichage des statistiques du joueur
     updateStatsDisplay() {
-        document.getElementById('health').innerText = this.health;
-        document.getElementById('maxHealth').innerText = this.maxHealth;
-        document.getElementById('speed').innerText = this.speed;
+        document.getElementById('health').innerText = this.health + '/' + this.maxHealth + ' PV';
+        document.getElementById('speed').innerText = this.speed + ' m/s';
         document.getElementById('exp').innerText = this.totalExp;
         document.getElementById('money').innerText = this.money;
-        document.getElementById('damage').innerText = this.damage;
         document.getElementById('defense').innerText = this.defense;
-        document.getElementById('cadence').innerText = this.rof;
-        // document.getElementById('cadenceTir').innerText = this.weapon.speed;
-        // document.getElementById('range').innerText = this.weapon.range;
-        // document.getElementById('weaponDamage').innerText = this.weapon.damage;
+        document.getElementById('damage').innerText = this.damage * this.rof + ' dgts/s';
+        document.getElementById('cadence').innerText = this.rof + ' tirs/s';
     }
 
     // Méthode pour déplacer le joueur
@@ -379,12 +367,11 @@ export class Player {
                 newY += normalizedY * this.speed;
             }
         } else {
-            if (keys['ArrowUp'] || keys['z']) newY -= this.speed;
-            if (keys['ArrowDown'] || keys['s']) newY += this.speed;
-            if (keys['ArrowLeft'] || keys['q']) newX -= this.speed;
-            if (keys['ArrowRight'] || keys['d']) newX += this.speed;
+            if (keys['ArrowUp'] || keys['z'] || keys['Z']) newY -= this.speed;
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) newY += this.speed;
+            if (keys['ArrowLeft'] || keys['q'] || keys['Q']) newX -= this.speed;
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) newX += this.speed;
         }
-
 
         // Vérifier si le joueur est à l'intérieur de la zone de jeu
         this.x = Math.max(0, Math.min(mapWidth - this.width, newX));
@@ -441,9 +428,15 @@ export class Player {
             this.gameInstance.destroy();
         }
 
-        // Jouer le son de dégâts
-        // const hitSound = new Audio('../sounds/playerHitSound.mp3');
-        // hitSound.play();
+        // Jouer l'animation de dégâts
+        document.getElementById('ath').style.animation = 'hit 0.25s';
+        document.getElementById('ath').style.top = '-50%';
+        document.body.style.backgroundColor = 'darkgrey';
+        setTimeout(() => {
+            document.getElementById('ath').style.animation = '';
+            document.body.style.backgroundColor = 'white';
+            document.getElementById('ath').style.top = '0';
+        }, 251);
     }
 
     // Méthode pour augmenter le niveau d'expérience du joueur
@@ -469,7 +462,9 @@ export class Player {
 
         // Augmenter les dégâts du joueur (sans décimales et arrondi au chiffre supérieur)
         this.damage = Math.floor(this.damage * 1.01);
+        this.permanentStats.Dégâts = Math.floor(this.permanentStats.Dégâts * 1.01);
         this.health = Math.floor(this.maxHealth * healthPercent / 10) * 10;
+        this.permanentStats.Vie = Math.floor(this.permanentStats.Vie * 1.01);
 
         // Modifier la génération des ennemis et afficher la boutique tous les 5 niveaux
         if (this.level % 5 === 0) {

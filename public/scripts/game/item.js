@@ -2,9 +2,10 @@ import { Shuriken } from './specialItems.js';
 import { gameInstance } from './GameInstance.js';
 
 export class Item {
-    constructor(id, nom, stats, rarete, prix, type) {
+    constructor(id, nom, icon, stats, rarete, prix, type) {
         this.id = id;
         this.nom = nom;
+        this.icon = icon;
         this.stats = stats;
         this.rarete = rarete;
         this.prix = prix;
@@ -112,37 +113,37 @@ export class Item {
 
 // Définir les stats possibles
 const healthStatsPossibles = ['Vie', 'VieMax', 'Exp', 'Argent'];
-const damageStatsPossibles = ['DégâtsJoueur', 'Défense', 'CadenceJoueur'];
-const weaponStatsPossibles = ['CadenceTir', 'Vitesse', 'Portée', 'DégâtsArmes'];
+const damageStatsPossibles = ['Dégâts', 'Défense', 'Cadence'];
+const weaponStatsPossibles = ['Vitesse', 'Dégâts',];
 
 let allItems = [];
 
 // Créer des items pour les stats de santé
-let potion1 = new Item(1, "Potion", { Vie: 0 }, 1, 0);
-let potion2 = new Item(2, "Potion", { Vie: 0 }, 2, 0);
-let potion3 = new Item(3, "Potion", { Vie: 0, [randomItem(healthStatsPossibles, "Vie")]: 0 }, 3, 0);
-let potion4 = new Item(4, "Potion", { Vie: 0, [randomItem(healthStatsPossibles, "Vie")]: 0 }, 4, 0);
+let potion1 = new Item(1, "Potion", "Soin1", { Vie: 0 }, 1, 0);
+let potion2 = new Item(2, "Potion", "Soin1", { Vie: 0 }, 2, 0);
+let potion3 = new Item(3, "Potion", "Soin1", { Vie: 0, [randomItem(healthStatsPossibles, "Vie")]: 0 }, 3, 0);
+let potion4 = new Item(4, "Potion", "Soin1", { Vie: 0, [randomItem(healthStatsPossibles, "Vie")]: 0 }, 4, 0);
 allItems.push(potion1, potion2, potion3, potion4);
 
 // Créer des items pour les stats de dégâts
-let bow1 = new Item(5, "Arc", { DégâtsJoueur: 0 }, 1, 0);
-let bow2 = new Item(6, "Arc", { DégâtsJoueur: 0 }, 2, 0);
-let bow3 = new Item(7, "Arc", { DégâtsJoueur: 0, [randomItem(damageStatsPossibles, "DégâtsJoueur")]: 0 }, 3, 0);
-let bow4 = new Item(8, "Arc", { DégâtsJoueur: 0, [randomItem(damageStatsPossibles, "DégâtsJoueur")]: 0 }, 4, 0);
+let bow1 = new Item(5, "Arc", "Pistolet", { Dégâts: 0 }, 1, 0);
+let bow2 = new Item(6, "Arc", "Pistolet", { Dégâts: 0 }, 2, 0);
+let bow3 = new Item(7, "Arc", "Pistolet", { Dégâts: 0, [randomItem(damageStatsPossibles, "Dégâts")]: 0 }, 3, 0);
+let bow4 = new Item(8, "Arc", "Pistolet", { Dégâts: 0, [randomItem(damageStatsPossibles, "Dégâts")]: 0 }, 4, 0);
 allItems.push(bow1, bow2, bow3, bow4);
 
 // Créer des items pour les armes
-let drumLoader1 = new Item(9, "Chargeur tambour", { CadenceTir: 0 }, 1, 0);
-let drumLoader2 = new Item(10, "Chargeur tambour", { CadenceTir: 0 }, 2, 0);
-let drumLoader3 = new Item(11, "Chargeur tambour", { CadenceTir: 0, [randomItem(weaponStatsPossibles, "CadenceTir")]: 0 }, 3, 0);
-let drumLoader4 = new Item(12, "Chargeur tambour", { CadenceTir: 0, [randomItem(weaponStatsPossibles, "CadenceTir")]: 0 }, 4, 0);
+let drumLoader1 = new Item(9, "Chargeur tambour", "Ammo1", { Cadence: 0 }, 1, 0);
+let drumLoader2 = new Item(10, "Chargeur tambour", "Ammo1", { Cadence: 0 }, 2, 0);
+let drumLoader3 = new Item(11, "Chargeur tambour", "Ammo1", { Cadence: 0, [randomItem(weaponStatsPossibles, "Cadence")]: 0 }, 3, 0);
+let drumLoader4 = new Item(12, "Chargeur tambour", "Ammo1", { Cadence: 0, [randomItem(weaponStatsPossibles, "Cadence")]: 0 }, 4, 0);
 allItems.push(drumLoader1, drumLoader2, drumLoader3, drumLoader4);
 
 // Créer des items pour les stats de vitesse
-let boots1 = new Item(13, "Bottes", { Vitesse: 0 }, 1, 0);
-let boots2 = new Item(14, "Bottes", { Vitesse: 0 }, 2, 0);
-let boots3 = new Item(15, "Bottes", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 3, 0);
-let boots4 = new Item(16, "Bottes", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 4, 0);
+let boots1 = new Item(13, "Bottes", "Speed", { Vitesse: 0 }, 1, 0);
+let boots2 = new Item(14, "Bottes", "Speed", { Vitesse: 0 }, 2, 0);
+let boots3 = new Item(15, "Bottes", "Speed", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 3, 0);
+let boots4 = new Item(16, "Bottes", "Speed", { Vitesse: 0, [randomItem(weaponStatsPossibles, "Vitesse")]: 0 }, 4, 0);
 allItems.push(boots1, boots2, boots3, boots4);
 
 function randomItem(statsPossibles, exclude) {

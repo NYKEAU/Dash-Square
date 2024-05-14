@@ -2,7 +2,7 @@ export class Coin {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.value = Math.floor(Math.random() * 10 + 1);
+        this.value = Math.floor(Math.random() * 6 + 1);
         this.width = 10; // Définir la largeur de la pièce
         this.height = 10; // Définir la hauteur de la pièce
         this.color = 'yellow'; // Définir la couleur de la pièce
