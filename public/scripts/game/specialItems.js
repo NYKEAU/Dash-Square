@@ -26,6 +26,7 @@ export class Shuriken extends SpecialItem {
         this.enemies = enemies;
         this.prix = 150;
         this.rarete = 'special';
+        this.icon = 'Couteau';
         this.angle = 0;
         this.center = { x: window.innerWidth / 2, y: window.innerHeight / 2 }; // Initialiser le centre avec les coordonnées du joueur
         this.position = { x: 0, y: 0 };

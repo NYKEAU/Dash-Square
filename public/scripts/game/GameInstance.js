@@ -173,6 +173,9 @@ export class gameInstance {
                 let price = document.createElement('div');
                 let error = document.createElement('p');
 
+                let itemDiv = document.createElement('div');
+                let img = document.createElement('img');
+
                 // Mettre à jour les éléments de l'item
                 title.textContent = items[i].nom;
                 error.textContent = 'Pas assez d\'argent!';
@@ -180,26 +183,32 @@ export class gameInstance {
                 switch (items[i].rarete) {
                     case 1:
                         rarete.textContent = 'Commun';
+                        img.src = 'assets/Icons/Commun/' + items[i].icon + '.png';
                         shopItem.style.border = '1px green solid';
                         rarete.style.color = 'green';
                         break;
                     case 2:
                         rarete.textContent = 'Rare'
+                        img.src = 'assets/Icons/Rare/' + items[i].icon + '.png';
+                        img.style.filter = 'hue-rotate(40deg) brightness(0.5)';
                         shopItem.style.border = '1px blue solid';
                         rarete.style.color = 'blue';
                         break;
                     case 3:
                         rarete.textContent = 'Épique';
+                        img.src = 'assets/Icons/Epique/' + items[i].icon + '.png';
                         shopItem.style.border = '1px purple solid';
                         rarete.style.color = 'purple';
                         break;
                     case 4:
                         rarete.textContent = 'Légendaire';
+                        img.src = 'assets/Icons/Légendaire/' + items[i].icon + '.png';
                         shopItem.style.border = '1px orange solid';
                         rarete.style.color = 'orange';
                         break;
                     case 'special':
                         rarete.textContent = 'Spécial';
+                        img.src = 'assets/Icons/Spécial/' + items[i].icon + '.png';
                         shopItem.style.border = '1px red solid';
                         rarete.style.color = 'red';
                         break;
@@ -229,32 +238,39 @@ export class gameInstance {
                 shopItem.addEventListener('click', () => {
                     if (this.player.money >= items[i].prix) {
                         this.player.money -= items[i].prix;
-                        this.player.addItem(items[i]);
-                        this.itemsCount++;
-                        console.log(this.player.items);
+                        if (items[i].icon !== '') {
+                            this.player.addItem(items[i]);
+                            this.itemsCount++;
 
-                        // Créer un nouvel élément div pour représenter l'item récupéré
-                        let itemDiv = document.createElement('div');
-                        itemDiv.className = 'itemDiv';
-                        itemDiv.style.width = '20px';
-                        itemDiv.style.height = '20px';
-                        itemDiv.style.backgroundColor = rarete.style.color;
-                        itemDiv.style.position = 'absolute';
-                        itemDiv.style.bottom = '0';
-                        itemDiv.style.left = `${25 * this.itemsCount}px`;
-                        itemDiv.style.border = '1px solid black';
-                        itemDiv.style.margin = '5px';
-                        if (items[i].rarete === 3 || items[i].rarete === 4) {
-                            itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '% \u000d' + Object.keys(items[i].stats)[1] + '+' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
-                        } else if (items[i].rarete === 2 || items[i].rarete === 1) {
-                            itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
-                        } else { // Si l'item est spécial
-                            itemDiv.title = items[i].nom;
+                            // Créer un nouvel élément div pour représenter l'item récupéré
+                            itemDiv.className = 'itemDiv';
+                            itemDiv.style.width = '30px';
+                            itemDiv.style.height = '30px';
+                            itemDiv.style.backgroundColor = 'white';
+                            itemDiv.style.position = 'absolute';
+                            itemDiv.style.bottom = `${Math.floor(this.itemsCount / 15) * 40}px`;
+                            itemDiv.style.left = `${((this.itemsCount % 15) * 35) + ((this.itemsCount >= 15 ? 1 : 0) * 35)}px`;
+                            itemDiv.style.border = '1px solid black';
+                            itemDiv.style.margin = '15px 5px';
+
+                            if (items[i].rarete === 3 || items[i].rarete === 4) {
+                                itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '% \u000d' + Object.keys(items[i].stats)[1] + '+' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
+                            } else if (items[i].rarete === 2 || items[i].rarete === 1) {
+                                itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
+                            } else {
+                                itemDiv.title = items[i].nom;
+                            }
+
+                            // Ajouter l'image de l'item en fonction de sa rareté
+                            img.style.width = '100%'; // Ajuster la taille de l'image pour qu'elle remplisse la div
+                            img.style.height = '100%';
+                            img.style.objectFit = 'contain'; // Ajuster l'image à la div
+
+                            itemDiv.appendChild(img);
+
+                            // Ajouter le nouvel élément div au body du document
+                            document.body.appendChild(itemDiv);
                         }
-                        // itemDiv.title = items[i].nom + ' (+' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%)';
-
-                        // Ajouter le nouvel élément div au body du document
-                        document.body.appendChild(itemDiv);
 
                         this.resumeGame();
                     } else {
@@ -337,7 +353,9 @@ export class gameInstance {
 
         if (shop.style.display === 'flex') {
             shop.style.display = 'none';
-        } else if (pause.style.display === 'flex') {
+        }
+
+        if (pause.style.display === 'flex') {
             pause.style.display = 'none';
         }
 
@@ -345,26 +363,18 @@ export class gameInstance {
             stats.style.display = 'none';
         }
 
-        pauseBtn.style.display = 'block';
+        if (document.getElementById('mobileMode').checked) {
+            pauseBtn.style.display = 'block';
+        }
 
-        // Une fois que le joueur a fait son choix, reprenez le jeu
+        // Reprise du jeu
         this.isPaused = false;
-
-        // Reprendre le temps de jeu à partir du moment où le jeu a été mis en pause
         this.startTime = Date.now() - this.pausedTime;
-
-        // Reprendre la génération d'ennemis
         this.stopEnemyGeneration();
         this.startEnemyGeneration(this.player.level);
-
-        // Afficher le timerText avec this.context.fillText
         this.showTimer = true;
-
-        // Reprendre le tir
         this.player.weapon.stopShooting();
         this.player.weapon.startShooting();
-
-        // Reprendre le tir des ennemis (unquement pour les ennemis de type Shooter)
         for (let enemy of this.enemies) {
             if (enemy instanceof Shooter) {
                 enemy.stopShooting();
@@ -372,6 +382,7 @@ export class gameInstance {
             }
         }
 
+        // Calcul du temps de pause total
         if (this.pauseStartTime !== null) {
             this.totalPausedTime += Date.now() - this.pauseStartTime;
             this.pauseStartTime = null;
@@ -482,11 +493,11 @@ export class gameInstance {
     // Méthode pour mettre à jour le jeu
     update() {
         if (!this.isPaused) {
-            // Appeler la méthode de déplacement du joueur
-            this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
-
             // Mettre à jour les stats du joueur
             this.player.updateStatsDisplay();
+
+            // Appeler la méthode de déplacement du joueur
+            this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
 
             // Mettre à jour la position de chaque projectile de l'ennemi
             for (let enemy of this.enemies) {
@@ -684,7 +695,7 @@ export class gameInstance {
         const mapStartY = this.canvas.height / 2 - this.player.y - this.player.height / 2;
 
         // Dessiner le décor (arrière-plan) centré sur le joueur
-        this.context.fillStyle = 'skyblue'; // Couleur de la carte
+        this.context.fillStyle = 'lightgrey'; // Couleur de la carte
         this.context.fillRect(mapStartX, mapStartY, this.mapWidth, this.mapHeight);
 
         // Dessiner toutes les pièces et vérifier la collision avec le joueur
@@ -723,12 +734,19 @@ export class gameInstance {
 
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
-            if (enemy.x >= this.player.x - 175 - (this.canvas.width / 2) + this.player.width / 2 &&
-                enemy.x <= this.player.x + (this.canvas.width / 2) + this.player.width / 2 &&
-                enemy.y >= this.player.y - 175 - (this.canvas.height / 2) + this.player.height / 2 &&
-                enemy.y <= this.player.y + (this.canvas.height / 2) + this.player.height / 2) {
-                enemy.draw(this.context, mapStartX, mapStartY);
-                enemy.drawHealthBar(this.context, mapStartX, mapStartY);
+            // Vérifier si l'ennemi est mort
+            if (enemy.isDead && enemy.allEffectsProcessed()) {
+                // Supprimer l'ennemi de la liste des ennemis
+                this.enemies = this.enemies.filter(e => e !== enemy);
+            } else {
+                // Si l'ennemi est dans la vue du joueur, le dessiner
+                if (enemy.x >= this.player.x - 175 - (this.canvas.width / 2) + this.player.width / 2 &&
+                    enemy.x <= this.player.x + (this.canvas.width / 2) + this.player.width / 2 &&
+                    enemy.y >= this.player.y - 175 - (this.canvas.height / 2) + this.player.height / 2 &&
+                    enemy.y <= this.player.y + (this.canvas.height / 2) + this.player.height / 2) {
+                    enemy.draw(this.context, mapStartX, mapStartY);
+                    enemy.drawHealthBar(this.context, mapStartX, mapStartY);
+                }
             }
         }
 

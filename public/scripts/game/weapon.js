@@ -1,6 +1,6 @@
 import { Projectile, SniperProjectile } from './projectile.js';
 
-class Weapon {
+export class Weapon {
     constructor(player) {
         this.player = player;
         this.x = 0;
@@ -74,9 +74,6 @@ class Weapon {
 
                 if (mouseX >= weaponX && mouseX <= weaponX + weaponWidth &&
                     mouseY >= weaponY && mouseY <= weaponY + weaponHeight) {
-                    // Le clic est à l'intérieur de la zone de l'image de l'arme
-                    // Déclenchez une action appropriée, comme la sélection de cette arme
-                    console.log('Weapon clicked:', this.constructor.name);
                     this.selectWeapon();
                 }
             });
@@ -84,8 +81,7 @@ class Weapon {
     }
 
     selectWeapon() {
-        this.player.selectedWeapon = this;
-        console.log('Weapon selected:', this.constructor.name);
+        this.player.changeWeapon(this);
     }
 }
 
@@ -93,8 +89,8 @@ export class Pistol extends Weapon {
     constructor(player) {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 10; // Initialiser this.speed ici pour la classe Pistol
-        this.fireRate = 1; // Initialiser this.fireRate ici pour la classe Pistol
-        this.damage = 10; // Initialiser this.damage ici pour la classe Pistol
+        this.fireRate = 2; // Initialiser this.fireRate ici pour la classe Pistol
+        this.damage = 8; // Initialiser this.damage ici pour la classe Pistol
         this.x = 0; // Initialiser this.x ici pour la classe Pistol
         this.y = 0; // Initialiser this.y ici pour la classe Pistol
         this.image = new Image();
@@ -122,7 +118,7 @@ export class Shotgun extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 3; // Initialiser this.speed ici pour la classe Shotgun
         this.fireRate = 0.5; // Initialiser this.fireRate ici pour la classe Shotgun
-        this.damage = 5; // Initialiser this.damage ici pour la classe Shotgun
+        this.damage = 20; // Initialiser this.damage ici pour la classe Shotgun
         this.x = 0; // Initialiser this.x ici pour la classe Shotgun
         this.y = 0; // Initialiser this.y ici pour la classe Shotgun
         this.image = new Image();
@@ -156,7 +152,7 @@ export class SMG extends Weapon {
         super(player); // Appel du constructeur de la classe mère
         this.speed = 5; // Initialiser this.speed ici pour la classe SMG
         this.fireRate = 10; // Initialiser this.fireRate ici pour la classe SMG
-        this.damage = 25; // Initialiser this.damage ici pour la classe SMG
+        this.damage = 3; // Initialiser this.damage ici pour la classe SMG
         this.x = 0; // Initialiser this.x ici pour la classe SMG
         this.y = 0; // Initialiser this.y ici pour la classe SMG
         this.image = new Image();
@@ -183,9 +179,9 @@ export class Famas extends Weapon {
     constructor(player) {
         super(player);
         this.speed = 5;
-        this.fireRate = 2000; // Temps de pause de 2 secondes
-        this.damage = 5; // Chaque balle fait 3 de dégâts
-        this.burstCount = 4; // Nombre de tirs dans une rafale
+        this.burstCount = 500; // Temps de pause de 0.5 secondes
+        this.damage = 5; // Chaque balle fait 5 de dégâts
+        this.fireRate = 4; // Nombre de tirs dans une rafale
         this.isReloading = false; // Indicateur pour savoir si le Famas est en train de recharger
         this.burstDelay = 50; // Délai entre chaque balle d'une même rafale
         this.x = 0;
@@ -198,7 +194,7 @@ export class Famas extends Weapon {
         if (!this.isReloading) {
             this.isReloading = true; // Commencer à recharger
 
-            for (let i = 0; i < this.burstCount; i++) {
+            for (let i = 0; i < this.fireRate; i++) {
                 setTimeout(() => {
                     const x = this.player.x + this.player.width / 2;
                     const y = this.player.y + this.player.height / 2;
@@ -212,7 +208,7 @@ export class Famas extends Weapon {
 
             setTimeout(() => {
                 this.isReloading = false;
-            }, this.fireRate);
+            }, this.burstCount);
         }
     }
 }
@@ -222,7 +218,7 @@ export class Sniper extends Weapon {
         super(player);
         this.speed = 15;
         this.fireRate = 0.5;
-        this.damage = 25;
+        this.damage = 50;
         this.range = 1000;
         this.x = 0;
         this.y = 0;

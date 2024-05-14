@@ -5,12 +5,80 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
+#ath {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+}
+
+@keyframes hit {
+    0% {
+        transform: translate(+1px, 50.5%) rotate(0deg);
+    }
+
+    10% {
+        transform: translate(-1px, 49%) rotate(-1deg);
+    }
+
+    20% {
+        transform: translate(-3px, 50%) rotate(1deg);
+    }
+
+    30% {
+        transform: translate(+3px, 51%) rotate(0deg);
+    }
+
+    40% {
+        transform: translate(+1px, 49.5%) rotate(1deg);
+    }
+
+    50% {
+        transform: translate(-1px, 51%) rotate(-1deg);
+    }
+
+    60% {
+        transform: translate(-3px, 50.5%) rotate(0deg);
+    }
+
+    70% {
+        transform: translate(+3px, 50.5%) rotate(-1deg);
+    }
+
+    80% {
+        transform: translate(-1px, 49.5%) rotate(1deg);
+    }
+
+    90% {
+        transform: translate(+1px, 51%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(+1px, 49%) rotate(-1deg);
+    }
+}
+
+
+#vignette {
+    position: fixed;
+    top: -10px;
+    left: -10px;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.5) 100%);
+    pointer-events: none;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 10px solid rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.7) inset;
+    z-index: 1000;
+}
+
 #gameCanvas {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    border: 1px solid black;
+    background-color: darkgray;
 }
 
 #wrapper {
@@ -293,7 +361,7 @@ input:checked+.slider:before {
     background-color: rgba(0, 0, 0, 0.8);
     min-height: 30vh;
     padding: 20px;
-    right: 0;
+    left: 0;
     top: 50%;
     transform: translate(0, -50%);
     z-index: 100;
@@ -323,6 +391,25 @@ input:checked+.slider:before {
     text-align: center;
     text-decoration: none;
     padding-left: 0;
+}
+
+#healthStats,
+#damageStats {
+    width: 100%;
+}
+
+#healthStats li,
+#damageStats li {
+    position: relative;
+    width: 100%;
+    left: 0;
+    text-align: start;
+}
+
+#healthStats li span,
+#damageStats li span {
+    position: absolute;
+    right: 0;
 }
 
 #pauseBtn {
@@ -427,18 +514,17 @@ input:checked+.slider:before {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    bottom: 20px;
+    bottom: 10px;
     right: 20px;
     z-index: 100;
-    transform: rotate(-90deg);
 }
 
 .weapon {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 20vh;
-    height: 10vh;
+    width: 100px;
+    height: 50px;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.1s ease-in-out;
