@@ -12,7 +12,8 @@ export class Weapon {
         this.damage = 1; // Dégâts par défaut
     }
 
-    shoot(direction) { }
+    shoot(direction) {
+    }
 
     startShooting() {
         if (this.timeoutId !== null) {

@@ -1,6 +1,6 @@
 import { Player } from './player.js';
 import { Slime, Ghost, Shooter, Tank } from './enemy.js';
-import { FireBoss, IceBoss, VoidBoss } from './bosses.js';
+import { IceBoss, EarthBoss, WindBoss, FireBoss, VoidBoss } from './bosses.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
 import { updateScore } from '../score/updatescore.js';
@@ -29,14 +29,22 @@ export class gameInstance {
         // Eléments de jeu
         this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this);
         this.enemies = [];
-        this.enemyTypes = ['slime', 'ghost', 'tank', 'shooter'];
+        this.enemyTypes = [
+            new Slime(this.player, this.mapWidth, this.mapHeight),
+            new Ghost(this.player, this.mapWidth, this.mapHeight),
+            new Tank(this.player, this.mapWidth, this.mapHeight),
+            new Shooter(this.player, this.mapWidth, this.mapHeight)];
+        this.bossTypes = ['iceBoss', 'earthBoss', 'windBoss', 'fireBoss', 'voidBoss'];
+        this.maxEnemies = 5;
         this.coins = [];
         this.enemiesWithGeneratedCoins = new Set();
         this.specialItems = [];
 
         // Evénements
+        this.alreadyUpdated = false;
         this.addEnemyInterval = null;
         this.isBossLevel = false;
+        this.bossCount = 1;
         this.timerScore = 0;
         this.addEventListeners();
     }
@@ -109,29 +117,49 @@ export class gameInstance {
 
     // Méthode pour démarrer la génération d'ennemis
     startEnemyGeneration(level) {
+        // Définir la fréquence de spawn des ennemis en fonction de l'avancement du jeu
+        if (level % 5 == 0 && this.alreadyUpdated === false) {
+            this.spawnFrequency = this.spawnFrequency + Math.floor(this.spawnFrequency * 0.1);
+            this.maxEnemies += 1;
+            this.alreadyUpdated = true;
+            console.log('Mise à jour de la fréquence de spawn des ennemis');
+        } else if (level % 5 !== 0) {
+            this.alreadyUpdated = false;
+            console.log('Pas de mise à jour de la fréquence de spawn des ennemis');
+        }
+
         // Arrêter l'ancien intervalle de génération d'ennemis
         if (this.addEnemyInterval !== null) {
             this.stopEnemyGeneration();
         }
 
-        // Définir la fréquence de spawn des ennemis en fonction de l'avancement du jeu
-        if (level % 5 == 0) {
-            this.spawnFrequency = Math.floor(this.spawnFrequency * 0.9);
-        }
-
-        // Ajouter différents types d'ennemis en fonction des ennemis déjà présent (65% de chance de spawn un slime, 35% de chance de spawn un ghost)
+        // Ajouter différents types d'ennemis en fonction des ennemis déjà présent
         this.addEnemyInterval = setInterval(() => {
-            if (this.enemies.length < 10 && this.isBossLevel === false) {
-                let enemyType = Math.floor(Math.random() * this.enemyTypes.length);
-                this.addEnemy(this.enemyTypes[enemyType]);
-            } else if (this.enemies.length < 1 && this.isBossLevel === true) {
-                let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
+            if (this.enemies.length < this.maxEnemies && this.isBossLevel === false) {
+                let random = Math.random();
+                let cumulativeProbability = 0;
+                let enemyType;
+
+                for (let i = 0; i < this.enemyTypes.length; i++) {
+                    cumulativeProbability += this.enemyTypes[i].pourcentage;
+                    if (random < cumulativeProbability) {
+                        enemyType = this.enemyTypes[i].constructor.name;
+                        break;
+                    }
+                }
                 this.addEnemy(enemyType);
+            } else if (this.enemies.length < this.bossCount && this.isBossLevel === true) {
+                let bossIndex = ((this.player.level / 10) - 1) % 5;
+
+                for (let i = 0; i < this.bossCount; i++) {
+                    let enemyType = this.bossTypes[bossIndex];
+                    this.addEnemy(enemyType);
+                }
             }
         }, this.spawnFrequency);
     }
 
-    // Nouvelle méthode pour arrêter la génération d'ennemis
+    // Méthode pour arrêter la génération d'ennemis
     stopEnemyGeneration() {
         clearInterval(this.addEnemyInterval);
         this.addEnemyInterval = null;
@@ -190,7 +218,7 @@ export class gameInstance {
                     case 2:
                         rarete.textContent = 'Rare'
                         img.src = 'assets/Icons/Rare/' + items[i].icon + '.png';
-                        img.style.filter = 'hue-rotate(40deg) brightness(0.5)';
+                        img.style.filter = 'hue-rotate(40deg) brightness(-0.1)';
                         shopItem.style.border = '1px blue solid';
                         rarete.style.color = 'blue';
                         break;
@@ -213,13 +241,14 @@ export class gameInstance {
                         rarete.style.color = 'red';
                         break;
                 }
-                // image.src = items[i].image;
 
-                if (items[i].rarete === 3 || items[i].rarete === 4) {
+                if (items[i].icon === '') {
+                    stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + Math.ceil(items[i].stats[Object.keys(items[i].stats)[0]] / 3 * 10) + ' ' + items[i].type;
+                } else if (items[i].rarete === 3 || items[i].rarete === 4) {
                     stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%' + '<br>' + Object.keys(items[i].stats)[1] + ': +' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
                 } else if (items[i].rarete === 2 || items[i].rarete === 1) {
                     stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
-                } else { // Si l'item est spécialstats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '%';
+                } else {
                     stats.innerHTML = items[i].type + ' : +' + items[i].damage;
                 }
 
@@ -270,6 +299,22 @@ export class gameInstance {
 
                             // Ajouter le nouvel élément div au body du document
                             document.body.appendChild(itemDiv);
+                        } else {
+                            // Items temporaires
+                            switch (items[i].type) {
+                                case 'Pièces':
+                                    this.player.money += Math.ceil(items[i].stats[Object.keys(items[i].stats)[0]] / 3 * 10);
+                                    break;
+                                case 'PV':
+                                    this.player.health += Math.ceil(items[i].stats[Object.keys(items[i].stats)[0]] / 3 * 10);
+                                    if (this.player.health > this.player.maxHealth) {
+                                        this.player.health = this.player.maxHealth;
+                                    }
+                                    break;
+                                case 'Exp':
+                                    this.player.experience += Math.ceil(items[i].stats[Object.keys(items[i].stats)[0]] / 3 * 10);
+                                    break;
+                            }
                         }
 
                         this.resumeGame();
@@ -427,21 +472,27 @@ export class gameInstance {
     addEnemy(enemyType) {
         let enemy;
         switch (enemyType) {
-            case 'slime':
+            case 'Slime':
                 enemy = new Slime(this.player, this.mapWidth, this.mapHeight);
                 break;
-            case 'ghost':
+            case 'Ghost':
                 enemy = new Ghost(this.player, this.mapWidth, this.mapHeight);
                 break;
-            case 'tank':
+            case 'Tank':
                 enemy = new Tank(this.player, this.mapWidth, this.mapHeight);
                 break;
-            case 'shooter':
+            case 'Shooter':
                 enemy = new Shooter(this.player, this.mapWidth, this.mapHeight);
                 enemy.startShooting();
                 break;
             case 'iceBoss':
                 enemy = new IceBoss(this.player, this.mapWidth, this.mapHeight);
+                break;
+            case 'earthBoss':
+                enemy = new EarthBoss(this.player, this.mapWidth, this.mapHeight);
+                break;
+            case 'windBoss':
+                enemy = new WindBoss(this.player, this.mapWidth, this.mapHeight);
                 break;
             case 'fireBoss':
                 enemy = new FireBoss(this.player, this.mapWidth, this.mapHeight);
@@ -652,6 +703,12 @@ export class gameInstance {
                             let weaponDropped = enemy.dropWeapon();
                             weaponDropped !== null ? this.player.addWeapon(weaponDropped) : null;
                             this.isBossLevel = false;
+                            if (enemy.constructor.name.includes('Void')) {
+                                let expectedBossCount = Math.floor(this.player.level / 50) + 1;
+                                if (this.bossCount < expectedBossCount) {
+                                    this.bossCount++;
+                                }
+                            }
                         }
                     }
 
@@ -739,14 +796,8 @@ export class gameInstance {
                 // Supprimer l'ennemi de la liste des ennemis
                 this.enemies = this.enemies.filter(e => e !== enemy);
             } else {
-                // Si l'ennemi est dans la vue du joueur, le dessiner
-                if (enemy.x >= this.player.x - 175 - (this.canvas.width / 2) + this.player.width / 2 &&
-                    enemy.x <= this.player.x + (this.canvas.width / 2) + this.player.width / 2 &&
-                    enemy.y >= this.player.y - 175 - (this.canvas.height / 2) + this.player.height / 2 &&
-                    enemy.y <= this.player.y + (this.canvas.height / 2) + this.player.height / 2) {
-                    enemy.draw(this.context, mapStartX, mapStartY);
-                    enemy.drawHealthBar(this.context, mapStartX, mapStartY);
-                }
+                enemy.draw(this.context, mapStartX, mapStartY);
+                enemy.drawHealthBar(this.context, mapStartX, mapStartY);
             }
         }
 
