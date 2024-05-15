@@ -73,6 +73,69 @@ export class IceBoss extends Boss {
     }
 }
 
+export class EarthBoss extends Boss {
+    constructor(player, mapWidth, mapHeight) {
+        super(player, mapWidth, mapHeight, 600, 25, 150);
+        this.enemyColor = 'brown';
+        this.lastBallThrowTime = new Date().getTime();
+    }
+
+    useSpecialAbility(currentTime) {
+        // Implémentez la capacité spéciale de l'IceBoss ici
+        const bulletSpeed = 1; // Vitesse des projectiles
+        const bulletSize = 20; // Taille des projectiles
+        const bulletDamage = 15; // Dégâts des projectiles
+
+        if (currentTime - this.lastBallThrowTime >= 500) {
+            // Tirer des projectiles en diagonales
+            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: -1 }, bulletSize, this.enemyColor));
+            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: -1 }, bulletSize, this.enemyColor));
+            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 1 }, bulletSize, this.enemyColor));
+            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 1 }, bulletSize, this.enemyColor));
+
+            // Réinitialiser le temps écoulé
+            this.lastBallThrowTime = currentTime;
+        }
+    }
+}
+
+export class WindBoss extends Boss {
+    constructor(player, mapWidth, mapHeight) {
+        super(player, mapWidth, mapHeight, 600, 25, 150);
+        this.enemyColor = 'green';
+        this.lastBallThrowTime = new Date().getTime();
+        this.isDiagonalShoot = false; // Ajout de la nouvelle propriété
+    }
+
+    useSpecialAbility(currentTime) {
+        const bulletSpeed = 1;
+        const bulletSize = 20;
+        const bulletDamage = 15;
+
+        if (currentTime - this.lastBallThrowTime >= 500) {
+            if (this.isDiagonalShoot) {
+                // Tirer des projectiles en diagonales
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: -1 }, bulletSize, this.enemyColor));
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: -1 }, bulletSize, this.enemyColor));
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 1 }, bulletSize, this.enemyColor));
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 1 }, bulletSize, this.enemyColor));
+            } else {
+                // Tirer des projectiles vers le haut, le bas, la gauche et la droite
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: -1 }, bulletSize, this.enemyColor));
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: 1 }, bulletSize, this.enemyColor));
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 0 }, bulletSize, this.enemyColor));
+                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 0 }, bulletSize, this.enemyColor));
+            }
+
+            // Basculer l'état de tir
+            this.isDiagonalShoot = !this.isDiagonalShoot;
+
+            // Réinitialiser le temps écoulé
+            this.lastBallThrowTime = currentTime;
+        }
+    }
+}
+
 export class FireBoss extends Boss {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 500, 10, 100);

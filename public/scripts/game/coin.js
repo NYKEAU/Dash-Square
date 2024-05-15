@@ -30,9 +30,12 @@ export class Coin {
             // Calculez la vitesse d'attraction en fonction de la proximité de la pièce au joueur
             let attractionSpeed = 5 * (500 - distance) / 500;
 
-            // Déplacez la pièce vers le joueur
-            this.x += directionX * attractionSpeed;
-            this.y += directionY * attractionSpeed;
+            // Vérifiez si la vitesse d'attraction est positive
+            if (attractionSpeed > 0) {
+                // Déplacez la pièce vers le joueur
+                this.x += directionX * attractionSpeed;
+                this.y += directionY * attractionSpeed;
+            }
         }
     }
 }

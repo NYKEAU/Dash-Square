@@ -9,6 +9,7 @@ export class Player {
         this.x = x; // La position x du joueur
         this.y = y; // La position y du joueur
         this.width = 30; // La largeur du joueur
+        this.maxBarWidth = document.getElementById('gameCanvas').width * 0.4; // La largeur maximale de la barre de vie
         this.height = 30; // La hauteur du joueur
         this.items = []; // Les items du joueur
         this.score = 0; // Le score du joueur
@@ -156,14 +157,18 @@ export class Player {
 
     // Méthode pour dessiner la barre de vie du joueur
     drawHealthBar(context) {
-        const barWidth = this.health; // La largeur de la barre de vie est égale à la santé du joueur
+        const barWidth = (this.maxHealth < this.maxBarWidth) ? (this.health / this.maxHealth) * this.maxHealth : (this.health / this.maxHealth) * this.maxBarWidth; // La largeur de la b<arre d'expérience est proportionnelle à l'expérience du joueur
         const barHeight = 25; // La hauteur de la barre de vie
         const barX = 10; // La position x de la barre de vie (10 pixels depuis le bord gauche de l'écran)
         const barY = 10; // La position y de la barre de vie (10 pixels depuis le haut de l'écran)
 
         // Dessiner le contour de la barre de vie
         context.strokeStyle = 'black';
-        context.strokeRect(barX, barY, this.maxHealth, barHeight); // La largeur du contour est toujours de 100 pixels, indépendamment de la santé du joueur
+        if (this.maxHealth < this.maxBarWidth) {
+            context.strokeRect(barX, barY, this.maxHealth, barHeight);
+        } else {
+            context.strokeRect(barX, barY, this.maxBarWidth, barHeight);
+        }
 
         // Remplir l'intérieur de la barre de vie en rouge
         context.fillStyle = 'red';
@@ -187,17 +192,22 @@ export class Player {
         // Sauvegarder l'état actuel du contexte
         context.save();
 
-        const barWidth = (this.experience / this.maxExperience) * this.maxHealth; // La largeur de la barre d'expérience est proportionnelle à l'expérience du joueur
+        const barWidth = (this.maxHealth < this.maxBarWidth) ? (this.experience / this.maxExperience) * this.maxHealth : (this.experience / this.maxExperience) * this.maxBarWidth; // La largeur de la barre d'expérience est proportionnelle à l'expérience du joueur
         const barHeight = 12.5; // La hauteur de la barre d'expérience
         const barX = 10; // La position x de la barre d'expérience (10 pixels depuis le bord gauche de l'écran)
         const barY = 40; // La position y de la barre d'expérience (40 pixels depuis le haut de l'écran)
 
+
         // Dessiner le contour de la barre d'expérience
         context.strokeStyle = 'black';
-        context.strokeRect(barX, barY, this.maxHealth, barHeight); // La largeur du contour est maintenant égale à la santé maximale du joueur
+        if (this.maxHealth < this.maxBarWidth) {
+            context.strokeRect(barX, barY, this.maxHealth, barHeight);
+        } else {
+            context.strokeRect(barX, barY, this.maxBarWidth, barHeight);
+        }
 
         // Remplir l'intérieur de la barre d'expérience en bleu
-        context.fillStyle = 'blue';
+        context.fillStyle = 'cyan';
         context.fillRect(barX, barY, barWidth, barHeight);
 
         // Préparer le texte
@@ -207,7 +217,11 @@ export class Player {
         context.fillStyle = 'black'; // Couleur du texte
         context.font = '10px Roboto'; // Taille et police du texte
         context.textAlign = 'right'; // Aligner le texte à droite
-        context.fillText(experienceText, barX + this.maxHealth - 5, barY + barHeight / 2 + 4); // Position du texte
+        if (this.maxHealth < this.maxBarWidth) {
+            context.fillText(experienceText, barX + this.maxHealth - 5, barY + barHeight / 2 + 4);
+        } else {
+            context.fillText(experienceText, barX + this.maxBarWidth - 5, barY + barHeight / 2 + 4);
+        }
 
         // Restaurer l'état du contexte
         context.restore();
@@ -457,7 +471,7 @@ export class Player {
 
         if (this.level % 10 === 0) {
             this.maxHealth = Math.ceil(this.maxHealth * 1.025 / 10) * 10;
-            this.maxExperience += 100;
+            this.maxExperience += 50;
         };
 
         // Augmenter les dégâts du joueur (sans décimales et arrondi au chiffre supérieur)

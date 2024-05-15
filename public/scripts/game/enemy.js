@@ -21,14 +21,13 @@ export class Enemy {
 
         // Mouvement
         this.speed = 1;
-        this.knockback = { x: 0, y: 0 };
-        this.knockbackSpeed = { x: 0, y: 0 };
 
         // Apparence
         this.enemyColor = 'green';
         this.hitEffects = [];
         this.particles = [];
         this.hitFlashDuration = 0;
+        this.pourcentage = 0;
 
         // Combat
         this.health = this.calculateHealth(baseHealth, this.player.level);;
@@ -179,14 +178,6 @@ export class Enemy {
             this.x += moveX * this.speed;
             this.y += moveY * this.speed;
         }
-
-        // Appliquer le recul
-        this.x += this.knockbackSpeed.x;
-        this.y += this.knockbackSpeed.y;
-
-        // Réduire progressivement le recul
-        this.knockbackSpeed.x *= 0.9;
-        this.knockbackSpeed.y *= 0.9;
     }
 
     // Méthode pour gérer la collision avec le joueur
@@ -250,13 +241,6 @@ export class Enemy {
                     y: direction.y + (Math.random() - 0.5) * 0.5
                 };
                 this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1, this.width));
-            }
-
-            if (!isBossLevel) {
-                // Ajouter un effet de recul
-                const knockbackFactor = 0.1;
-                this.knockbackSpeed.x += direction.x * amount * knockbackFactor;
-                this.knockbackSpeed.y += direction.y * amount * knockbackFactor;
             }
         }
 
@@ -343,6 +327,7 @@ export class Slime extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 25, 5, 10);
         this.enemyColor = 'green';
+        this.pourcentage = 0.3;
     }
 }
 
@@ -350,6 +335,7 @@ export class Ghost extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 20, 10, 20);
         this.enemyColor = 'purple';
+        this.pourcentage = 0.3;
         this.speed = 2;
     }
 }
@@ -358,6 +344,7 @@ export class Tank extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 50, 10, 20);
         this.enemyColor = 'grey';
+        this.pourcentage = 0.2;
         this.speed = 0.2;
     }
 }
@@ -367,6 +354,7 @@ export class Shooter extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 50, 5, 15);
         this.enemyColor = 'red';
+        this.pourcentage = 0.2;
         this.speed = 1.5;
         this.lastProjectileTime = 0;
         this.fireRate = 1; // Temps de pause de 1 seconde
