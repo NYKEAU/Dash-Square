@@ -3,7 +3,6 @@ import { Slime, Ghost, Shooter, Tank } from './enemy.js';
 import { IceBoss, EarthBoss, WindBoss, FireBoss, VoidBoss } from './bosses.js';
 import { SniperProjectile } from './projectile.js';
 import { Item } from './item.js';
-import { updateScore } from '../score/updatescore.js';
 import { getScores, setScore } from '../data/index.js';
 
 export class gameInstance {
@@ -150,7 +149,6 @@ export class gameInstance {
                 this.addEnemy(enemyType);
             } else if (this.enemies.length < this.bossCount && this.isBossLevel === true) {
                 let bossIndex = ((this.player.level / 10) - 1) % 5;
-
                 for (let i = 0; i < this.bossCount; i++) {
                     let enemyType = this.bossTypes[bossIndex];
                     this.addEnemy(enemyType);
@@ -464,6 +462,9 @@ export class gameInstance {
         // Cacher le jeu
         this.canvas.style.display = 'none';
 
+        // Mettre à jour le score du joueur
+        setScore(this.player.score);
+
         // Mettre à jour le leaderboard
         getScores();
     }
@@ -517,6 +518,11 @@ export class gameInstance {
 
         this.startEnemyGeneration(this.player.level);
         this.isStarted = true;
+
+        let itemDivs = document.getElementsByClassName('itemDiv');
+        for (let i = 0; i < itemDivs.length; i++) {
+            itemDivs[i].remove();
+        }
 
         this.player.initStats();
 
@@ -587,14 +593,23 @@ export class gameInstance {
                     for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
                         const projectile = this.player.projectiles[i];
 
+                        // Ajoutez cette ligne pour initialiser hitEnemies si elle n'existe pas
+                        projectile.hitEnemies = projectile.hitEnemies || [];
+
                         const dx = projectile.x - enemy.x - enemy.width / 2;
                         const dy = projectile.y - enemy.y - enemy.height / 2;
                         const distance = Math.sqrt(dx * dx + dy * dy);
 
                         if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
-                            // Collision détectée, réduire la santé de l'ennemi
-                            this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, this.isBossLevel);
-                            this.player.increaseScore(1);
+                            // Ajoutez cette vérification pour voir si l'ennemi a déjà été touché
+                            if (!projectile.hitEnemies.includes(enemy)) {
+                                // Collision détectée, réduire la santé de l'ennemi
+                                this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, this.isBossLevel);
+                                this.player.increaseScore(1);
+
+                                // Ajoutez l'ennemi à la liste des ennemis touchés
+                                projectile.hitEnemies.push(enemy);
+                            }
 
                             // Si le projectile n'est pas un projectile de Sniper, le supprimer
                             if (!(projectile instanceof SniperProjectile)) {

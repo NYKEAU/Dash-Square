@@ -56,7 +56,6 @@ export class Projectile {
 export class SniperProjectile extends Projectile {
     constructor(x, y, speed, damage, range, player) {
         super(x, y, speed, damage, range, player);
-        // Ajoutez d'autres propriétés spécifiques au SniperProjectile ici si nécessaire
     }
 }
 
