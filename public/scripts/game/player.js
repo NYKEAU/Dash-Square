@@ -434,7 +434,7 @@ export class Player {
         this.hitEffects.push(new HitEffect(this, amount, 'player'));
 
         // Vérifier si le joueur est mort
-        if (this.health <= 0) {
+        if (this.health < 1) {
             // Arrêter la génération des ennemis
             this.gameInstance.stopEnemyGeneration();
 
