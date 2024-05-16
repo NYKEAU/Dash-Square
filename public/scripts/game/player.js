@@ -19,8 +19,8 @@ export class Player {
         this.levelPopupScale = 1; // L'échelle du texte du niveau
 
         // Armes et Projectiles
-        this.weapon = new Sniper(this); // Initialiser l'arme de base du joueur
-        this.weapons = [new Sniper(this)]; // Initialiser l'arsenal du joueur
+        this.weapon = new Pistol(this); // Initialiser l'arme de base du joueur
+        this.weapons = [new Pistol(this)]; // Initialiser l'arsenal du joueur
         this.currentWeaponIndex = 0; // L'arme actuellement équipée par le joueur
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
         this.previousWeapon = null; // L'arme précédente du joueur
