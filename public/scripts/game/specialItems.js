@@ -12,16 +12,17 @@ export class SpecialItem {
     }
 }
 
-export class Shuriken extends SpecialItem {
-    constructor(player, enemies, canvas) {
-        super("Shuriken");
-        this.speed = 10; // Définir une vitesse pour le shuriken
+export class Orbe extends SpecialItem {
+    constructor(player, enemies, canvas, color) {
+        super("Orbe");
+        this.speed = 10; // Définir une vitesse pour l'orbe
         this.direction = { x: 0, y: 0 }; // Ajouter une propriété direction
-        this.radius = 10;
+        this.color = color;
         this.type = 'Dégâts';
-        this.damage = 10;
+        this.damage = 25;
         this.rotationSpeed = 0.05;
         this.range = 50;
+        this.isGoingCloser = false;
         this.player = player;
         this.enemies = enemies;
         this.prix = 150;
@@ -35,28 +36,44 @@ export class Shuriken extends SpecialItem {
     }
 
     move() {
-        // Mettre à jour la position du shuriken en fonction de la direction et de la vitesse
+        // Mettre à jour la position de l'orbe en fonction de la direction et de la vitesse
         this.position.x += this.speed * this.direction.x;
         this.position.y += this.speed * this.direction.y;
     }
 
     update() {
-        // Met à jour la position du shuriken pour qu'il tourne autour du joueur
+        // Met à jour la position de l'orbe pour qu'il tourne autour du joueur
         this.position.x = this.center.x + Math.cos(this.angle) * this.range;
         this.position.y = this.center.y + Math.sin(this.angle) * this.range;
 
-        // Mettre à jour l'angle pour faire tourner le shuriken
+        // Mettre à jour l'angle pour faire tourner l'orbe
         this.angle += this.rotationSpeed;
+
+        // Varier le range de l'orbe
+        if (this.isGoingCloser) {
+            this.range -= 0.5;
+        } else {
+            this.range += 0.5;
+        }
+
+        // Inverser la direction si l'orbe atteint une certaine distance
+        if (this.range >= 200) {
+            this.isGoingCloser = true;
+        } else if (this.range <= 50) {
+            this.isGoingCloser = false;
+        }
     }
 
     draw(context) {
         context.beginPath();
         context.arc(this.position.x, this.position.y, 10, 0, 2 * Math.PI, false);
-        context.fillStyle = 'gray';
-        context.fill();
+        context.fillStyle = this.color;
         context.lineWidth = 2;
-        context.strokeStyle = '#003300';
+        context.strokeStyle = context.fillStyle;
+        context.shadowColor = context.fillStyle;
+        context.shadowBlur = 10;
         context.stroke();
+        context.shadowBlur = 0;
     }
 
     collidesWith(enemy) {

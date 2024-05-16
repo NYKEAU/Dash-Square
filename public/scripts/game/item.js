@@ -1,4 +1,4 @@
-import { Shuriken } from './specialItems.js';
+import { Orbe } from './specialItems.js';
 
 export class Item {
     constructor(id, nom, icon, stats, rarete, prix, type) {
@@ -53,7 +53,7 @@ export class Item {
         const epicItems = allItems.filter((item) => item.rarete === 3);
         const legendaryItems = allItems.filter((item) => item.rarete === 4);
 
-        const specialItems = ['Shuriken'];
+        const specialItems = ['Orbe'];
 
         let rareProb, epicProb, legendaryProb;
         let selectedItems = [];
@@ -73,6 +73,19 @@ export class Item {
 
         let randomIndex = 0;
 
+        const possibleColors = [
+            'F55D3E',
+            'FFB627',
+            '4CB944',
+            '2191FB',
+            '38023B',
+            '9BF3F0',
+            'F038FF',
+            'FF1B3F',
+            'E2EF70',
+            'FFE3E0'
+        ];
+
         for (let i = 0; i < 3; i++) {
             const randomNumber = Math.floor(Math.random() * 100);
 
@@ -83,8 +96,9 @@ export class Item {
             if (specialItemRandomNumber < 0.03) {
                 const specialItemName = specialItems[Math.floor(Math.random() * specialItems.length)];
                 switch (specialItemName) {
-                    case 'Shuriken':
-                        selectedItems.push(new Shuriken(player, this.enemies, canvas));
+                    case 'Orbe':
+                        var color = '#' + possibleColors[Math.floor(Math.random() * possibleColors.length)];
+                        selectedItems.push(new Orbe(player, this.enemies, canvas, color));
                         break;
                 }
             } else {
