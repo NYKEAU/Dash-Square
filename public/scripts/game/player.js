@@ -307,6 +307,30 @@ export class Player {
         }
     }
 
+    resetStats() {
+        this.health = 100;
+        this.maxHealth = 100;
+        this.level = 1;
+        this.experience = 0;
+        this.maxExperience = 100;
+        this.totalExp = 0;
+        this.money = 0;
+        this.score = 0;
+        this.damage = this.weapon.damage;
+        this.defense = 0;
+        this.rof = this.weapon.fireRate;
+        this.permanentStats = {
+            Vie: 0,
+            VieMax: 0,
+            Exp: 0,
+            Argent: 0,
+            Dégâts: 0,
+            Défense: 0,
+            Cadence: 0,
+            Vitesse: 0
+        };
+    }
+
     // Méthode pour initialiser les statistiques du joueur dans le tableau de stats
     initStats() {
         document.getElementById('health').innerText = this.health + '/' + this.maxHealth;
@@ -321,7 +345,6 @@ export class Player {
     // Méthode pour mettre à jour les statistiques du joueur
     updateStats(stats) {
         for (let stat in stats) {
-            console.log(this.permanentStats);
             this.permanentStats[stat] += stats[stat];
 
             if (stat === 'Vie') {
@@ -330,7 +353,6 @@ export class Player {
             } else if (stat === 'VieMax') {
                 this.maxHealth = this.maxHealth + Math.ceil(this.maxHealth * stats[stat] / 1000);
             } else if (stat === 'Vitesse') {
-                console.log('this.speed' + this.speed + Math.ceil(this.speed * stats[stat] / 1000));
                 this.speed = this.speed + Math.ceil(this.speed * stats[stat] / 1000);
             } else if (stat === 'Exp') {
                 this.experience = this.experience + Math.ceil(this.experience * stats[stat] / 1000);

@@ -328,6 +328,7 @@ export class Slime extends Enemy {
         super(player, mapWidth, mapHeight, 25, 5, 10);
         this.enemyColor = 'green';
         this.pourcentage = 0.3;
+        this.speed = 4;
     }
 }
 
@@ -336,7 +337,7 @@ export class Ghost extends Enemy {
         super(player, mapWidth, mapHeight, 20, 10, 20);
         this.enemyColor = 'purple';
         this.pourcentage = 0.3;
-        this.speed = 2;
+        this.speed = 5;
     }
 }
 
@@ -345,7 +346,7 @@ export class Tank extends Enemy {
         super(player, mapWidth, mapHeight, 50, 10, 20);
         this.enemyColor = 'grey';
         this.pourcentage = 0.2;
-        this.speed = 0.2;
+        this.speed = 2;
     }
 }
 
@@ -355,7 +356,7 @@ export class Shooter extends Enemy {
         super(player, mapWidth, mapHeight, 50, 5, 15);
         this.enemyColor = 'red';
         this.pourcentage = 0.2;
-        this.speed = 1.5;
+        this.speed = 3;
         this.lastProjectileTime = 0;
         this.fireRate = 1; // Temps de pause de 1 seconde
     }

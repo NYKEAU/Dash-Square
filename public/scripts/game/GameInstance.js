@@ -372,18 +372,21 @@ export class gameInstance {
         // Cacher le timer
         this.showTimer = false;
 
-        // Arrêtez de tirer
+        // Arrêter de tirer
         this.player.weapon.stopShooting();
 
-        // Afficher le menu de stats
-        document.getElementById('statsMenu').style.display = 'block';
+        // Arrêter la boucle de jeu
+        cancelAnimationFrame(this.gameLoopId);
 
-        // Arrêtez de tirer les ennemis
+        // Mettre en pause tous les objets de jeu
         for (let enemy of this.enemies) {
             if (enemy instanceof Shooter) {
                 enemy.stopShooting();
             }
         }
+
+        // Afficher le menu de stats
+        document.getElementById('statsMenu').style.display = 'block';
 
         this.pauseStartTime = Date.now();
     }
@@ -442,6 +445,18 @@ export class gameInstance {
         // Supprimer les items que le joueur possède et réinitialiser leur affichage
         this.player.removeItems();
 
+        // Arrêter la boucle de jeu
+        cancelAnimationFrame(() => this.update());
+        cancelAnimationFrame(() => this.draw());
+
+        // Supprimer tous les objets de jeu
+        this.enemies = [];
+        this.projectiles = [];
+
+        // Réinitialiser l'état du jeu
+        this.isStarted = false;
+        this.isPaused = false;
+
         // Afficher le menu de démarrage
         document.getElementById('startMenu').style.display = 'flex';
         document.getElementById('leaderboardMenu').style.display = 'flex';
@@ -458,6 +473,9 @@ export class gameInstance {
 
         // Effacer les armes (supprimer les divs des armes)
         document.getElementById('weaponsContainer').innerHTML = '';
+
+        // Réinitialiser le joueur
+        this.player.resetStats();
 
         // Cacher le jeu
         this.canvas.style.display = 'none';
