@@ -11,22 +11,6 @@ export class gameInstance {
         // Initialisation du jeu
         this.startTime = Date.now();
         this.isStarted = false;
-<<<<<<<< HEAD:scripts/game/GameInstance.js
-========
-        this.canvas = canvas; // L'objet canvas
-        this.context = canvas.getContext('2d'); // Le contexte de dessin du canvas
-        this.screenWidth = window.innerWidth; // La largeur de l'écran du navigateur
-        this.screenHeight = window.innerHeight; // La hauteur de l'écran du navigateur
-        this.mapWidth = this.screenWidth * 1.5; // La largeur de la carte (1.5 fois la largeur de l'écran)
-        this.mapHeight = this.screenHeight * 1.5; // La hauteur de la carte (1.5 fois la hauteur de l'écran)
-        this.player = new Player(this.mapWidth / 2, this.mapHeight / 2, this); // Le joueur
-        this.enemies = []; // Le tableau des ennemis
-        this.enemyTypes = ['slime', 'ghost', 'tank', 'shooter']; // Les types d'ennemis
-        this.keys = {}; // L'objet pour stocker l'état des touches enfoncées
-        this.addEventListeners(); // Ajouter les écouteurs d'événements
-        // this.logPlayerPosition(); // Ajoutez cette ligne pour démarrer le suivi de la position du joueur
-        this.addEnemyInterval = null; // L'identifiant de l'intervalle pour ajouter des ennemis
->>>>>>>> origin/main:src/GameInstance.js
         this.spawnFrequency = 200;
         this.lastScoreIncreaseTime = null;
         this.itemsCount = 0;
@@ -151,7 +135,6 @@ export class gameInstance {
 
         // Ajouter différents types d'ennemis en fonction des ennemis déjà présent
         this.addEnemyInterval = setInterval(() => {
-<<<<<<<< HEAD:scripts/game/GameInstance.js
             if (this.enemies.length < this.maxEnemies && this.isBossLevel === false) {
                 let random = Math.random();
                 let cumulativeProbability = 0;
@@ -164,13 +147,6 @@ export class gameInstance {
                         break;
                     }
                 }
-========
-            if (this.enemies.length < 10 && this.isBossLevel === false) {
-                let enemyType = Math.floor(Math.random() * this.enemyTypes.length);
-                this.addEnemy(this.enemyTypes[enemyType]);
-            } else if (this.enemies.length < 1 && this.isBossLevel === true) {
-                let enemyType = Math.random() < 0.5 ? 'fireBoss' : 'iceBoss';
->>>>>>>> origin/main:src/GameInstance.js
                 this.addEnemy(enemyType);
             } else if (this.enemies.length < this.bossCount && this.isBossLevel === true) {
                 let bossIndex = ((this.player.level / 10) - 1) % 5;
