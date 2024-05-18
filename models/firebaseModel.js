@@ -3,13 +3,14 @@ const { initializeApp } = require('firebase/app');
 const { getFirestore } = require('firebase/firestore');
 
 const firebaseConfig = {
-    apiKey: process.env.API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    projectId: process.env.PROJECT_ID,
-    storageBucket: process.env.STORAGE_BUCKET,
-    messagingSenderId: process.env.MESSAGING_SENDER_ID,
-    appId: process.env.APP_ID,
-    measurementId: process.env.MEASUREMENT_ID
+    apiKey: "AIzaSyARQrBTmekSsmXuoo-evcEoTUbeaR7yM5o",
+authDomain: "rogue-lite.firebaseapp.com",
+databaseURL: "https://rogue-lite-default-rtdb.europe-west1.firebasedatabase.app",
+projectId: "rogue-lite",
+storageBucket: "rogue-lite.appspot.com",
+messagingSenderId: "1091853759584",
+appId: "1:1091853759584:web:6f811c7407ed000acd7f05",
+measurementId: "G-8D2P7DBQHP"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
