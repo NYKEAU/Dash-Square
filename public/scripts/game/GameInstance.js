@@ -117,13 +117,15 @@ export class gameInstance {
     // Méthode pour démarrer la génération d'ennemis
     startEnemyGeneration(level) {
         // Définir la fréquence de spawn des ennemis en fonction de l'avancement du jeu
-        if (level % 5 == 0 && this.alreadyUpdated === false) {
+        if (level % 10 == 0 && !this.alreadyUpdated) {
             this.spawnFrequency = this.spawnFrequency + Math.floor(this.spawnFrequency * 0.1);
             this.maxEnemies += 1;
             this.alreadyUpdated = true;
+            this.isBossLevel = true; // Indiquer que c'est un niveau de boss
             console.log('Mise à jour de la fréquence de spawn des ennemis');
-        } else if (level % 5 !== 0) {
+        } else if (level % 10 !== 0) {
             this.alreadyUpdated = false;
+            this.isBossLevel = false; // Indiquer que ce n'est pas un niveau de boss
             console.log('Pas de mise à jour de la fréquence de spawn des ennemis');
         }
 
@@ -132,9 +134,16 @@ export class gameInstance {
             this.stopEnemyGeneration();
         }
 
-        // Ajouter différents types d'ennemis en fonction des ennemis déjà présent
+        // Ajouter différents types d'ennemis en fonction des ennemis déjà présents
         this.addEnemyInterval = setInterval(() => {
-            if (this.enemies.length < this.maxEnemies && this.isBossLevel === false) {
+            if (this.isBossLevel && this.enemies.length < this.bossCount) {
+                // Ajouter des boss
+                let bossIndex = Math.floor((this.player.level / 10) - 1) % this.bossTypes.length;
+                let enemyType = this.bossTypes[bossIndex];
+                this.addEnemy(enemyType);
+                console.log(`Boss de type ${enemyType} généré`);
+            } else if (!this.isBossLevel && this.enemies.length < this.maxEnemies) {
+                // Ajouter des ennemis normaux
                 let random = Math.random();
                 let cumulativeProbability = 0;
                 let enemyType;
@@ -147,12 +156,14 @@ export class gameInstance {
                     }
                 }
                 this.addEnemy(enemyType);
-            } else if (this.enemies.length < this.bossCount && this.isBossLevel === true) {
-                let bossIndex = ((this.player.level / 10) - 1) % 5;
-                for (let i = 0; i < this.bossCount; i++) {
-                    let enemyType = this.bossTypes[bossIndex];
-                    this.addEnemy(enemyType);
-                }
+                console.log(`Ennemi de type ${enemyType} généré`);
+            } else if (this.player.level % 10 > 0 && !this.bossGenerated) {
+                // Si le joueur a atteint le niveau suivant sans avoir rencontré le boss, le générer
+                let bossIndex = Math.floor((this.player.level / 10) - 1) % this.bossTypes.length;
+                let enemyType = this.bossTypes[bossIndex];
+                this.addEnemy(enemyType);
+                this.bossGenerated = true;
+                console.log(`Boss de type ${enemyType} généré tardivement`);
             }
         }, this.spawnFrequency);
     }
