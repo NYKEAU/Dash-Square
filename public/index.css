@@ -1,5 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+@media screen and (max-width: 750px) {
+    #startMenu * {
+        margin: 0;
+    }
+
+    #pauseMenu {
+        min-width: 25%;
+    }
+
+    #shop {
+        z-index: 100;
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        top: 50%;
+        left: 50%;
+        min-width: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        border: 2px solid #000;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+}
+
 body {
     overflow: hidden;
     margin: 0;
@@ -196,7 +224,6 @@ button:hover,
     align-items: center;
     width: 100vw;
     height: -webkit-fill-available;
-    border: 2px solid #000;
     color: white;
     text-align: center;
 }
@@ -207,7 +234,8 @@ button:hover,
     justify-content: space-around;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.8);
-    min-height: 50vh;
+    min-height: 40vh;
+    max-height: 50vh;
     width: 40%;
     margin: 20px;
     padding: 20px;
@@ -260,6 +288,13 @@ button:hover,
     justify-content: space-around;
     align-items: center;
     width: 100%;
+}
+
+#mobileSwitch {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .switch {
@@ -323,7 +358,7 @@ input:checked+.slider:before {
     top: 15%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 1000;
+    z-index: 0;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 20px;
     border: 2px solid red;
@@ -333,11 +368,11 @@ input:checked+.slider:before {
 
 #leaderboard {
     padding-left: 0;
-    min-height: 30vh;
+    height: 30vh;
     width: 75%;
     overflow-y: scroll;
     scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
+    scrollbar-color: rgba(255, 255, 255, 1) rgba(0, 0, 0, 0);
 }
 
 #leaderboard .score-item {

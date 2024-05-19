@@ -14,8 +14,10 @@ function displayError(errorMessage) {
     const errorSection = document.getElementById('errorSection');
     errorSection.textContent = errorMessage;
     errorSection.style.opacity = 1;
+    errorSection.style.zIndex = 1000;
     setTimeout(() => {
         errorSection.style.opacity = 0;
+        errorSection.style.zIndex = 0;
     }, 5000);
 }
 
@@ -23,6 +25,7 @@ const backArrow = document.getElementById("backArrow");
 backArrow.addEventListener("click", (event) => {
     event.preventDefault();
     document.getElementById('loginRegisterMenu').style.display = 'none';
+    document.getElementById('mobileSwitch').style.display = 'block';
     document.getElementById('startMenu').style.display = 'flex';
     document.getElementById('leaderboardMenu').style.display = 'flex';
 });
@@ -149,6 +152,7 @@ registerForm.addEventListener("submit", async (event) => {
         } else {
             console.log("Inscription réussie:", response);
             document.getElementById('loginRegisterMenu').style.display = 'none';
+            document.getElementById('mobileSwitch').style.display = 'block';
             document.getElementById('startMenu').style.display = 'flex';
             document.getElementById('leaderboardMenu').style.display = 'flex';
         }
@@ -182,6 +186,7 @@ loginForm.addEventListener("submit", async (event) => {
             initUser();
             document.getElementById('loginRegisterMenu').style.display = 'none';
             document.getElementById('connectDiv').style.display = 'none';
+            document.getElementById('mobileSwitch').style.display = 'block';
             document.getElementById('userDiv').style.display = 'flex';
             document.getElementById('leaderboardMenu').style.display = 'flex';
             document.getElementById('startMenu').style.display = 'flex';
