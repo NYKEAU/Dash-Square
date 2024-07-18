@@ -1,19 +1,33 @@
 const { collection, addDoc, query, where, getDocs } = require('firebase/firestore');
-const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = require('firebase/auth');
+const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } = require('firebase/auth');
 const db = require('../models/firebaseModel');
 
 const login = async (req, res) => {
-    const { pseudo, password } = req.body;
+    const { identifier, password } = req.body;
 
     try {
-        const email = pseudo + '@' + process.env.DOMAIN_EMAIL_USER
         const auth = getAuth();
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        let userEmail = identifier;
+
+        const isEmail = identifier.includes('@');
+
+        if (!isEmail) {
+            const userQuery = query(collection(db, 'users'), where('pseudo', '==', identifier));
+            const querySnapshot = await getDocs(userQuery);
+
+            if (querySnapshot.empty) {
+                throw new Error('Utilisateur non trouvé avec ce pseudo');
+            }
+
+            const userDoc = querySnapshot.docs[0];
+            userEmail = userDoc.data().email;
+        }
+
+        const userCredential = await signInWithEmailAndPassword(auth, userEmail, password);
         const user = userCredential.user;
         const token = await user.getIdToken();
 
-        // Stocker le jeton dans Firestore (facultatif, dépend de vos besoins)
-        const tokenDocRef = await addDoc(collection(db, 'tokens'), { uid: user.uid, token });
+        await addDoc(collection(db, 'tokens'), { uid: user.uid, token });
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -29,8 +43,21 @@ const login = async (req, res) => {
     }
 };
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const auth = getAuth();
+        await sendPasswordResetEmail(auth, email);
+        res.status(200).json({ message: 'Email de réinitialisation envoyé' });
+    } catch (error) {
+        console.error('Erreur lors de la réinitialisation du mot de passe', error);
+        res.status(400).json({ error: 'Erreur lors de la réinitialisation du mot de passe', details: error.message });
+    }
+};
+
 const register = async (req, res) => {
-    const { pseudo, password, score } = req.body;
+    const { pseudo, email, password, score } = req.body;
 
     try {
         const q = query(collection(db, 'users'), where('pseudo', '==', pseudo));
@@ -39,7 +66,6 @@ const register = async (req, res) => {
         if (!userRef.empty) {
             return res.status(400).json({ error: 'Le pseudo est déjà pris. Veuillez en choisir un autre.' });
         }
-        const email = pseudo + '@' + process.env.DOMAIN_EMAIL_USER
         const auth = getAuth();
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
@@ -47,12 +73,20 @@ const register = async (req, res) => {
         const userData = {
             uid: user.uid,
             pseudo: pseudo,
+            email: email,
             bestscore: score ?? 0
         };
         await addDoc(collection(db, 'users'), userData);
-        await login(req, res);
 
-        // res.status(200).json({ uid: user.uid, email: userData.pseudo });
+        const loginReq = {
+            body: {
+                identifier: email,
+                password: password
+            }
+        };
+
+        await login(loginReq, res);
+
     } catch (error) {
         console.error('Erreur lors de l\'inscription utilisateur', error);
         res.status(400).json({ error: 'Erreur lors de l\'inscription', details: error.message });
@@ -99,4 +133,4 @@ const getUser = async (req, res) => {
     }
 };
 
-module.exports = { getUser, login, register, logout };
+module.exports = { getUser, login, forgotPassword, register, logout };

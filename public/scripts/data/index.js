@@ -124,16 +124,16 @@ registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const pseudoInput = document.getElementById("text");
+    const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
-    const passwordConfirmInput = document.getElementById("password2");
 
-    if (pseudoInput.value.trim() === '' || passwordInput.value.trim() === '') {
+    if (pseudoInput.value.trim() === '' || passwordInput.value.trim() === '' || emailInput.value.trim() === '') {
         displayError("Veuillez remplir tous les champs.");
         return;
     }
 
-    if (passwordInput.value !== passwordConfirmInput.value) {
-        displayError("Les mots de passe ne correspondent pas.");
+    if (!emailInput.value.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)) {
+        displayError("L'adresse email n'est pas valide.");
         return;
     }
 
@@ -143,7 +143,7 @@ registerForm.addEventListener("submit", async (event) => {
     }
 
     try {
-        const response = await user.auth.register(pseudoInput.value, passwordInput.value);
+        const response = await user.auth.register(pseudoInput.value, emailInput.value, passwordInput.value);
         if (response.error) {
             displayError(response.error);
         } else {
@@ -191,6 +191,31 @@ loginForm.addEventListener("submit", async (event) => {
         document.getElementById('connectDiv').style.display = 'flex';
         document.getElementById('userDiv').style.display = 'none';
         displayError('Échec de la connexion: ' + error.message);
+    }
+});
+
+const forgotPasswordForm = document.getElementById("forgot-password-form");
+forgotPasswordForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const emailInput = document.getElementById("emailRecover");
+
+    if (emailInput.value.trim() === '') {
+        displayError("Veuillez entrer votre adresse email.");
+        return;
+    }
+
+    try {
+        const data = await user.auth.forgotPassword(emailInput.value);
+        if (data.error) {
+            console.error('Forgot password error:', data.error);
+            displayError('Échec de la réinitialisation du mot de passe: ' + data.error);
+        } else {
+            console.log('Réinitialisation du mot de passe réussie:', data);
+            displayError('Un email de réinitialisation du mot de passe a été envoyé.');
+        }
+    } catch (error) {
+        console.error('Erreur lors de la réinitialisation du mot de passe', error);
+        displayError('Échec de la réinitialisation du mot de passe: ' + error.message);
     }
 });
 
