@@ -46,6 +46,10 @@ export class gameInstance {
         this.bossCount = 1;
         this.timerScore = 0;
         this.addEventListeners();
+
+        // Gestion des FPS
+        this.fps = 60;
+        this.fpointerai = 1000 / this.fps;
     }
 
     wait(ms) {
@@ -576,27 +580,39 @@ export class gameInstance {
         }
     }
 
+    let then = Date.now();
     // Méthode pour mettre à jour le jeu
     update() {
-        if (!this.isPaused) {
-            // Mettre à jour les stats du joueur
-            this.player.updateStatsDisplay();
+        requestAnimationFrame(() => this.update());
 
-            // Appeler la méthode de déplacement du joueur
-            this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
+        // Obtenir le temps actuel
+        let now = Date.now();
+        let elapsed = now - then;
 
-            // Mettre à jour la position de chaque projectile de l'ennemi
-            for (let enemy of this.enemies) {
-                for (let projectile of enemy.projectiles) {
-                    projectile.move();
+        // Si suffisamment de temps s'est écoulé, dessiner la prochaine frame
+        if (elapsed > this.fpsInterval) {
+            // Préparer le prochain appel
+            then = now - (elapsed % this.fpsInterval);
+            
+            if (!this.isPaused) {
+                // Mettre à jour les stats du joueur
+                this.player.updateStatsDisplay();
 
-                    // Supprimer le projectile s'il est sorti des limites de la carte
-                    if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
-                        enemy.projectiles.splice(enemy.projectiles.indexOf(projectile), 1);
-                        continue;
+                // Appeler la méthode de déplacement du joueur
+                this.player.move(this.keys, this.mapWidth, this.mapHeight, this.enemies);
+
+                // Mettre à jour la position de chaque projectile de l'ennemi
+                for (let enemy of this.enemies) {
+                    for (let projectile of enemy.projectiles) {
+                        projectile.move();
+
+                        // Supprimer le projectile s'il est sorti des limites de la carte
+                        if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
+                            enemy.projectiles.splice(enemy.projectiles.indexOf(projectile), 1);
+                            continue;
+                        }
                     }
                 }
-            }
 
             // Mettre à jour la position de chaque projectile
             for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
@@ -779,11 +795,9 @@ export class gameInstance {
 
             // Appeler la méthode de vérification des collisions entre les ennemis
             this.checkEnemyCollisions();
-
         }
 
-        // Demander une nouvelle animation
-        requestAnimationFrame(() => this.update());
+        }
     }
 
     // Méthode pour dessiner le jeu
