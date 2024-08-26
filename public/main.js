@@ -28,6 +28,7 @@ document.getElementById('startButton').addEventListener('click', function () {
 
     // Vérifier si le mode mobile est activé
     if (document.getElementById('mobileMode').checked) {
+        game.fps = 60;
         parent.style.display = 'block';
         document.getElementById('statsSwitch').style.display = 'none';
         document.getElementById('pauseBtn').style.display = 'block';
@@ -36,6 +37,7 @@ document.getElementById('startButton').addEventListener('click', function () {
             alreadyCreatedJoystick = true;
         }
     } else {
+        game.fps = 120;
         parent.style.display = 'none';
         document.getElementById('statsSwitch').style.display = 'block';
         document.getElementById('pauseBtn').style.display = 'none';
@@ -46,6 +48,8 @@ document.getElementById('startButton').addEventListener('click', function () {
     document.getElementById('resumeButton').addEventListener('click', () => game.resumeGame());
     document.getElementById('restartButton').addEventListener('click', () => game.quitGame());
     document.getElementById('quitButton').addEventListener('click', () => game.quitGame());
+
+    console.log(game.fps);
 
     // Lancer le jeu
     game.start();

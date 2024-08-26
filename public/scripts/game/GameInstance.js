@@ -48,8 +48,7 @@ export class gameInstance {
         this.addEventListeners();
 
         // Gestion des FPS
-        this.fps = 60;
-        this.fpsInterval = 1000 / this.fps;
+        this.fps = 120;
         this.then = Date.now();
     }
 
@@ -588,12 +587,13 @@ export class gameInstance {
         // Obtenir le temps actuel
         let now = Date.now();
         let elapsed = now - this.then;
+        let fpsInterval = 1000 / this.fps;
 
         // Si suffisamment de temps s'est écoulé, dessiner la prochaine frame
-        if (elapsed > this.fpsInterval) {
+        if (elapsed > fpsInterval) {
             // Préparer le prochain appel
-            this.then = now - (elapsed % this.fpsInterval);
-            
+            this.then = now - (elapsed % fpsInterval);
+
             if (!this.isPaused) {
                 // Mettre à jour les stats du joueur
                 this.player.updateStatsDisplay();
@@ -617,45 +617,45 @@ export class gameInstance {
                 // Mettre à jour la position de chaque projectile
                 for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
                     const projectile = this.player.projectiles[i];
-    
+
                     // Vérifier si le projectile est défini
                     if (projectile) {
                         // Déplacer le projectile
                         projectile.move();
-    
+
                         // Supprimer le projectile s'il est sorti des limites de la carte
                         if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
                             this.player.projectiles.splice(i, 1);
                             continue;
                         }
                     }
-    
+
                     // Vérifier la collision avec chaque ennemi
                     for (let j = this.enemies.length - 1; j >= 0; j--) {
                         const enemy = this.enemies[j];
-    
+
                         // Vérifier la collision avec chaque ennemi
                         for (let i = this.player.projectiles.length - 1; i >= 0; i--) {
                             const projectile = this.player.projectiles[i];
-    
+
                             // Ajoutez cette ligne pour initialiser hitEnemies si elle n'existe pas
                             projectile.hitEnemies = projectile.hitEnemies || [];
-    
+
                             const dx = projectile.x - enemy.x - enemy.width / 2;
                             const dy = projectile.y - enemy.y - enemy.height / 2;
                             const distance = Math.sqrt(dx * dx + dy * dy);
-    
+
                             if (distance < projectile.size + Math.hypot(enemy.width / 2, enemy.height / 2)) {
                                 // Ajoutez cette vérification pour voir si l'ennemi a déjà été touché
                                 if (!projectile.hitEnemies.includes(enemy)) {
                                     // Collision détectée, réduire la santé de l'ennemi
                                     this.enemies[j].decreaseHealth(this.player.damage, projectile.direction, this.isBossLevel);
                                     this.player.increaseScore(1);
-    
+
                                     // Ajoutez l'ennemi à la liste des ennemis touchés
                                     projectile.hitEnemies.push(enemy);
                                 }
-    
+
                                 // Si le projectile n'est pas un projectile de Sniper, le supprimer
                                 if (!(projectile instanceof SniperProjectile)) {
                                     this.player.projectiles.splice(i, 1);
@@ -665,11 +665,11 @@ export class gameInstance {
                         }
                     }
                 }
-    
+
                 // Mettez à jour chaque item spécial
                 for (let i = 0; i < this.specialItems.length; i++) {
                     this.specialItems[i].update();
-    
+
                     // Vérifiez les collisions avec chaque ennemi
                     for (let j = 0; j < this.enemies.length; j++) {
                         if (this.specialItems[i].collidesWith(this.enemies[j])) {
@@ -687,64 +687,64 @@ export class gameInstance {
                         }
                     }
                 }
-    
+
                 // Mettre à jour la position de chaque projectile de l'ennemi
                 for (let enemy of this.enemies) {
                     for (let projectile of enemy.projectiles) {
                         projectile.move();
-    
+
                         // Supprimer le projectile s'il est sorti des limites de la carte
                         if (projectile.x < 0 || projectile.y < 0 || projectile.x > this.mapWidth || projectile.y > this.mapHeight) {
                             enemy.projectiles.splice(enemy.projectiles.indexOf(projectile), 1);
                             continue;
                         }
                     }
-    
+
                     // Vérifier la collision avec le joueur
                     for (let i = enemy.projectiles.length - 1; i >= 0; i--) {
                         const projectile = enemy.projectiles[i];
-    
+
                         const dx = projectile.x - this.player.x - this.player.width / 2;
                         const dy = projectile.y - this.player.y - this.player.height / 2;
                         const distance = Math.sqrt(dx * dx + dy * dy);
-    
+
                         if (distance < projectile.size + Math.hypot(this.player.width / 2, this.player.height / 2)) {
                             // Collision détectée, réduire la santé du joueur
                             this.player.decreaseHealth(enemy.damage, projectile.direction, projectile.speed);
-    
+
                             // Supprimer le projectile
                             enemy.projectiles.splice(i, 1);
                         }
                     }
                 }
-    
+
                 // Supprimer les ennemis morts dont tous les effets ont été traités
                 this.enemies = this.enemies.filter(enemy => !(enemy.isDead && enemy.allEffectsProcessed()));
-    
+
                 // Mettre à jour la position et la santé de chaque ennemi
                 for (let i = this.enemies.length - 1; i >= 0; i--) {
                     const enemy = this.enemies[i];
                     let currentTime = new Date().getTime();
-    
+
                     if (enemy.constructor.name.includes('Boss') && !enemy.isDead) {
                         enemy.useSpecialAbility(currentTime); // Activer la capacité spéciale du boss
                     }
-    
+
                     // Mettre à jour les particules de chaque ennemi
                     for (let j = enemy.particles.length - 1; j >= 0; j--) {
                         const particle = enemy.particles[j];
-    
+
                         // Décrémentez l'opacité de la particule indépendamment de l'opacité de l'ennemi
                         particle.opacity -= 1 / 60;
-    
+
                         particle.update();
-    
+
                         // Supprimer la particule si sa taille est inférieure ou égale à zéro
                         if (particle.size <= 0) {
                             enemy.particles.splice(j, 1);
                         }
                     }
-    
+
                     // Si l'ennemi est mort, vérifier si tous les effets de coup associés à cet ennemi ont fini de s'afficher
                     if (enemy.isDead && !enemy.coinGenerated) {
                         // Générer la pièce
@@ -753,10 +753,10 @@ export class gameInstance {
                             this.coins.push(coin);
                             enemy.coinGenerated = true;
                         }
-    
+
                         // Créer un effet de mort pour l'ennemi
                         enemy.createDeathEffect(enemy);
-    
+
                         // Si le nom de l'ennemi contient "Boss"
                         if (enemy.constructor.name.includes('Boss')) {
                             if (enemy.health <= 0) {
@@ -771,28 +771,28 @@ export class gameInstance {
                                 }
                             }
                         }
-    
+
                         this.player.increaseExperience(enemy.xpGived);
                         i--;
                     }
-    
+
                     // Si l'ennemi n'est pas en collision avec le joueur, mettre à jour sa position
                     if (!enemy.isCollidingWithPlayer(this.player) && !enemy.isDead) {
                         enemy.move(this.player);
                     }
-    
+
                     // Vérifier les collisions entre le joueur et les ennemis
                     if (this.player.isCollidingWithEnemy(enemy)) {
                         // Gérer la collision entre le joueur et l'ennemi
                         enemy.handleCollisionWithPlayer(this.player);
                     }
                 }
-    
+
                 // Mettre à jour la position de chaque projectile
                 for (let projectile of this.player.projectiles) {
                     projectile.move();
                 }
-    
+
                 // Appeler la méthode de vérification des collisions entre les ennemis
                 this.checkEnemyCollisions();
             }
