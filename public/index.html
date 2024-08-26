@@ -60,21 +60,29 @@
             </div>
             <div id="loginForm">
                 <form id="login-form">
-                    <label for="login">Pseudo</label>
+                    <label for="login">Pseudo / Email</label>
                     <input type="text" id="login-text" name="login" required>
                     <label for="password">Mot de passe</label>
                     <input type="password" id="login-password" name="passwordLogin" required>
                     <button id="connexionButton" type="submit">Se connecter</button>
+                    <a id="forgotPasswordTab" class="tab button">Mot de passe oublié</a>
+                </form>
+            </div>
+            <div id="forgotPasswordForm" style="display: none;">
+                <form id="forgot-password-form">
+                    <label for="emailRecover">Adresse e-mail</label>
+                    <input type="email" id="emailRecover" name="emailRecover" required>
+                    <button id="forgotPasswordButton" type="submit">Envoyer</button>
                 </form>
             </div>
             <div id="registerForm" style="display: none;">
                 <form id="register-form">
                     <label for="login">Pseudo</label>
                     <input type="text" id="text" name="login" required>
+                    <label for="email">Adresse e-mail</label>
+                    <input type="email" id="email" name="email" required>
                     <label for="password">Mot de passe</label>
                     <input type="password" id="password" name="password" required>
-                    <label for="password2">Confirmer le mot de passe</label>
-                    <input type="password" id="password2" name="password2" required>
                     <button id="registerButton" type="submit">S'inscrire</button>
                 </form>
             </div>
@@ -154,21 +162,35 @@
 
     const connectTab = document.getElementById('connectTab');
     const registerTab = document.getElementById('registerTab');
+    const forgotPasswordTab = document.getElementById('forgotPasswordTab');
     const connectForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
 
     connectTab.addEventListener('click', () => {
         connectTab.classList.add('activeTab');
         registerTab.classList.remove('activeTab');
+        forgotPasswordTab.classList.remove('activeTab');
         connectForm.style.display = 'block';
         registerForm.style.display = 'none';
+        forgotPasswordForm.style.display = 'none';
     });
 
     registerTab.addEventListener('click', () => {
         connectTab.classList.remove('activeTab');
         registerTab.classList.add('activeTab');
+        forgotPasswordTab.classList.remove('activeTab');
         connectForm.style.display = 'none';
         registerForm.style.display = 'block';
+        forgotPasswordForm.style.display = 'none';
+    });
+
+    forgotPasswordTab.addEventListener('click', () => {
+        connectTab.classList.remove('activeTab');
+        registerTab.classList.remove('activeTab');
+        forgotPasswordTab.classList.add('activeTab');
+        connectForm.style.display = 'none';
+        registerForm.style.display = 'none';
+        forgotPasswordForm.style.display = 'block';
     });
 </script>
 

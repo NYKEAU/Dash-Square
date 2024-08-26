@@ -368,11 +368,24 @@ input:checked+.slider:before {
 
 #leaderboard {
     padding-left: 0;
-    height: 30vh;
+    min-height: 30vh;
+    max-height: 40vh;
     width: 75%;
     overflow-y: scroll;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 1) rgba(0, 0, 0, 0);
+}
+
+#leaderboard::-webkit-scrollbar {
+    width: 8px;
+}
+
+#leaderboard::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+}
+
+#leaderboard::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 1);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0);
 }
 
 #leaderboard .score-item {
