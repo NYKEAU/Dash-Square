@@ -334,7 +334,7 @@ export class Slime extends Enemy {
 
 export class Ghost extends Enemy {
     constructor(player, mapWidth, mapHeight) {
-        super(player, mapWidth, mapHeight, 20, 10, 20);
+        super(player, mapWidth, mapHeight, 20, 10, 25);
         this.enemyColor = 'purple';
         this.pourcentage = 0.3;
         this.speed = 5;
@@ -343,7 +343,7 @@ export class Ghost extends Enemy {
 
 export class Tank extends Enemy {
     constructor(player, mapWidth, mapHeight) {
-        super(player, mapWidth, mapHeight, 50, 10, 20);
+        super(player, mapWidth, mapHeight, 50, 10, 30);
         this.enemyColor = 'grey';
         this.pourcentage = 0.2;
         this.speed = 2;
@@ -353,7 +353,7 @@ export class Tank extends Enemy {
 // Enemy class that inherits from the Enemy class, shooting projectiles at the player
 export class Shooter extends Enemy {
     constructor(player, mapWidth, mapHeight) {
-        super(player, mapWidth, mapHeight, 50, 5, 15);
+        super(player, mapWidth, mapHeight, 50, 5, 20);
         this.enemyColor = 'red';
         this.pourcentage = 0.2;
         this.speed = 3;

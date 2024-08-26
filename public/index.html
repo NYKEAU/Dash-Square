@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Simple jeu de type rogue-lite">
     <meta name="keywords" content="rogue-lite, jeu, simple, javascript">
-    <title>Rogue-lite</title>
+    <title>Dash Square</title>
     <link rel="stylesheet" href="index.css">
     <script type="module" src="main.js"></script>
     <script type="module" src="./scripts/data/index.js"></script>
@@ -21,7 +21,7 @@
         </div>
         <div id="baseMenu">
             <div class="startMenu" id="startMenu">
-                <h1 style="margin-top: 0;">Rogue-lite</h1>
+                <h1 style="margin-top: 0;">Dash Square</h1>
                 <button id="startButton">Commencer</button>
                 <div id="connectDiv">
                     <h3>OU</h3>
@@ -32,18 +32,19 @@
                     <div id="leaderboardPlace"></div>
                     <a class="button" id="logoutBtn">Se déconnecter</a>
                 </div>
-                <div style="margin-top: 10px;">
-                    <label for="mobileMode">Mode mobile</label>
-                    <label class="switch">
-                        <input id="mobileMode" type="checkbox">
-                        <span class="slider"></span>
-                    </label>
-                </div>
             </div>
             <div class="startMenu" id="leaderboardMenu">
                 <h1>Classement</h1>
                 <ul id="leaderboard"></ul>
             </div>
+        </div>
+
+        <div id="mobileSwitch">
+            <label for="mobileMode">Mode mobile</label>
+            <label class="switch">
+                <input id="mobileMode" type="checkbox">
+                <span class="slider"></span>
+            </label>
         </div>
 
         <div class="menu" id="loginRegisterMenu" style="display: none;">
@@ -150,11 +151,13 @@
     const loginMenu = document.getElementById('loginRegisterMenu');
     const startMenu = document.getElementById('startMenu');
     const leaderboardMenu = document.getElementById('leaderboardMenu');
+    const mobileSwitch = document.getElementById('mobileSwitch');
 
     loginButton.addEventListener('click', () => {
         loginMenu.style.display = 'block';
         startMenu.style.display = 'none';
         leaderboardMenu.style.display = 'none';
+        mobileSwitch.style.display = 'none';
     });
 
     const connectTab = document.getElementById('connectTab');
