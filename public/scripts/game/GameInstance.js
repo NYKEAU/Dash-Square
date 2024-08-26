@@ -49,7 +49,7 @@ export class gameInstance {
 
         // Gestion des FPS
         this.fps = 60;
-        this.fpointerai = 1000 / this.fps;
+        this.fpsInterval = 1000 / this.fps;
         this.then = Date.now();
     }
 
