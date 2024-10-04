@@ -45,6 +45,13 @@ class Boss extends Enemy {
 
         return weapon;
     }
+
+    calculateProjectileStartPosition(direction) {
+        const offset = 10;
+        const startX = this.x + this.width / 2 + direction.x * (this.width / 2 + offset);
+        const startY = this.y + this.height / 2 + direction.y * (this.height / 2 + offset);
+        return { x: startX, y: startY };
+    }
 }
 
 export class IceBoss extends Boss {
@@ -61,11 +68,17 @@ export class IceBoss extends Boss {
         const bulletDamage = 15; // Dégâts des projectiles
 
         if (currentTime - this.lastBallThrowTime >= 500) {
-            // Tirer des projectiles vers le haut, le bas, la gauche et la droite
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: -1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: 1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 0 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 0 }, bulletSize, this.enemyColor));
+            const directions = [
+                { x: 0, y: -1 },
+                { x: 0, y: 1 },
+                { x: -1, y: 0 },
+                { x: 1, y: 0 }
+            ];
+
+            directions.forEach(direction => {
+                const startPosition = this.calculateProjectileStartPosition(direction);
+                this.projectiles.push(new BulletHellProjectile(startPosition.x, startPosition.y, bulletSpeed, bulletDamage, direction, bulletSize, this.enemyColor));
+            });
 
             // Réinitialiser le temps écoulé
             this.lastBallThrowTime = currentTime;
@@ -87,11 +100,17 @@ export class EarthBoss extends Boss {
         const bulletDamage = 15; // Dégâts des projectiles
 
         if (currentTime - this.lastBallThrowTime >= 500) {
-            // Tirer des projectiles en diagonales
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: -1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: -1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 1 }, bulletSize, this.enemyColor));
+            const directions = [
+                { x: -1, y: -1 },
+                { x: 1, y: -1 },
+                { x: -1, y: 1 },
+                { x: 1, y: 1 }
+            ];
+
+            directions.forEach(direction => {
+                const startPosition = this.calculateProjectileStartPosition(direction);
+                this.projectiles.push(new BulletHellProjectile(startPosition.x, startPosition.y, bulletSpeed, bulletDamage, direction, bulletSize, this.enemyColor));
+            });
 
             // Réinitialiser le temps écoulé
             this.lastBallThrowTime = currentTime;
@@ -113,19 +132,29 @@ export class WindBoss extends Boss {
         const bulletDamage = 15;
 
         if (currentTime - this.lastBallThrowTime >= 500) {
+            let directions;
             if (this.isDiagonalShoot) {
-                // Tirer des projectiles en diagonales
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: -1 }, bulletSize, this.enemyColor));
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: -1 }, bulletSize, this.enemyColor));
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 1 }, bulletSize, this.enemyColor));
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 1 }, bulletSize, this.enemyColor));
+                // Directions des projectiles en diagonales
+                directions = [
+                    { x: -1, y: -1 },
+                    { x: 1, y: -1 },
+                    { x: -1, y: 1 },
+                    { x: 1, y: 1 }
+                ];
             } else {
-                // Tirer des projectiles vers le haut, le bas, la gauche et la droite
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: -1 }, bulletSize, this.enemyColor));
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: 1 }, bulletSize, this.enemyColor));
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 0 }, bulletSize, this.enemyColor));
-                this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 0 }, bulletSize, this.enemyColor));
+                // Directions des projectiles vers le haut, le bas, la gauche et la droite
+                directions = [
+                    { x: 0, y: -1 },
+                    { x: 0, y: 1 },
+                    { x: -1, y: 0 },
+                    { x: 1, y: 0 }
+                ];
             }
+
+            directions.forEach(direction => {
+                const startPosition = this.calculateProjectileStartPosition(direction);
+                this.projectiles.push(new BulletHellProjectile(startPosition.x, startPosition.y, bulletSpeed, bulletDamage, direction, bulletSize, this.enemyColor));
+            });
 
             // Basculer l'état de tir
             this.isDiagonalShoot = !this.isDiagonalShoot;
@@ -150,17 +179,21 @@ export class FireBoss extends Boss {
         const bulletDamage = 10; // Dégâts des projectiles
 
         if (currentTime - this.lastBallThrowTime >= 500) {
-            // Tirer des projectiles vers le haut, le bas, la gauche et la droite
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: -1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 0, y: 1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 0 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 0 }, bulletSize, this.enemyColor));
+            const directions = [
+                { x: 0, y: -1 },
+                { x: 0, y: 1 },
+                { x: -1, y: 0 },
+                { x: 1, y: 0 },
+                { x: -1, y: -1 },
+                { x: 1, y: -1 },
+                { x: -1, y: 1 },
+                { x: 1, y: 1 }
+            ];
 
-            // Tirer des projectiles en diagonale
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: -1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: -1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -1, y: 1 }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: 1, y: 1 }, bulletSize, this.enemyColor));
+            directions.forEach(direction => {
+                const startPosition = this.calculateProjectileStartPosition(direction);
+                this.projectiles.push(new BulletHellProjectile(startPosition.x, startPosition.y, bulletSpeed, bulletDamage, direction, bulletSize, this.enemyColor));
+            });
 
             // Réinitialiser le temps écoulé
             this.lastBallThrowTime = currentTime;
@@ -188,8 +221,15 @@ export class VoidBoss extends Boss {
             const directionX = Math.cos(this.angle);
             const directionY = Math.sin(this.angle);
 
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: directionX, y: directionY }, bulletSize, this.enemyColor));
-            this.projectiles.push(new BulletHellProjectile(this.x + this.width / 2, this.y + this.height / 2, bulletSpeed, bulletDamage, { x: -directionX, y: -directionY }, bulletSize, this.enemyColor));
+            const directions = [
+                { x: directionX, y: directionY },
+                { x: -directionX, y: -directionY }
+            ];
+
+            directions.forEach(direction => {
+                const startPosition = this.calculateProjectileStartPosition(direction);
+                this.projectiles.push(new BulletHellProjectile(startPosition.x, startPosition.y, bulletSpeed, bulletDamage, direction, bulletSize, this.enemyColor));
+            });
 
             // Augmenter l'angle pour le prochain tir avec la vitesse de rotation actuelle
             this.angle += this.rotationSpeed;

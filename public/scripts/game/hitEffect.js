@@ -14,6 +14,7 @@ export class HitEffect {
     }
 
     draw(context, mapStartX, mapStartY) {
+        // Si le nom de la target contient 'boss'
         if (this.duration > 0) {
             const textWidth = context.measureText(this.damage).width;
             const textX = mapStartX + this.x + this.target.width / 2 - textWidth / 2;
@@ -23,8 +24,12 @@ export class HitEffect {
             const normalizedDuration = this.duration / 60; // Normaliser la durée entre 0 et 1
 
             // Appliquer une animation de couleur
-            const color = Math.floor(255 * (1 - normalizedDuration));
-            context.fillStyle = `rgba(${color}, ${color}, ${color}, ${this.opacity * normalizedDuration})`;
+            if (!this.target.constructor.name.includes('Boss')) {
+                const color = Math.floor(255 * (1 - normalizedDuration));
+                context.fillStyle = `rgba(${color}, ${color}, ${color}, ${this.opacity * normalizedDuration})`;
+            } else {
+                context.fillStyle = 'white';
+            }
 
             // Appliquer une animation de taille de police
             this.fontSize = this.maxFontSize * normalizedDuration;

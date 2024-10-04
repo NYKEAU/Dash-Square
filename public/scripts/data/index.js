@@ -46,6 +46,45 @@ async function initUser() {
     getScores();
 }
 
+// document.addEventListener('DOMContentLoaded', function () {
+//     const watchAdButton = document.getElementById('watchAdButton');
+//     if (watchAdButton) {
+//         watchAdButton.addEventListener('click', function () {
+//             console.log('Button clicked');
+//             const adElement = document.querySelector('.adsbygoogle');
+//             adElement.style.display = 'block'; // Assurez-vous que l'élément est visible
+//             if (typeof adsbygoogle !== 'undefined') {
+//                 (adsbygoogle = window.adsbygoogle || []).push({});
+//             }
+//         });
+//     }
+
+//     // Ajouter un écouteur d'événements pour le bouton de connexion Google
+//     const googleLoginButton = document.getElementById('googleLoginButton');
+//     if (googleLoginButton) {
+//         googleLoginButton.addEventListener('click', function () {
+//             fetch('/api/loginWithGoogle', { // Mise à jour de l'URL pour inclure /api
+//                 method: 'POST',
+//                 credentials: 'include'
+//             }).then(response => {
+//                 if (response.ok) {
+//                     return response.json();
+//                 } else {
+//                     throw new Error('Erreur lors de la connexion avec Google');
+//                 }
+//             }).then(data => {
+//                 console.log('Utilisateur connecté avec Google:', data);
+//                 document.getElementById('connectDiv').style.display = 'none';
+//                 document.getElementById('userDiv').style.display = 'flex';
+//                 isLoggedIn = true;
+//             }).catch(error => {
+//                 console.error('Erreur lors de la connexion avec Google', error);
+//                 document.getElementById('errorSection').style.opacity = 1;
+//             });
+//         });
+//     }
+// });
+
 function isLogged() {
     user.auth.getUser().then((data) => {
         if (data) {

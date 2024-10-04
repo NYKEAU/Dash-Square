@@ -1,5 +1,4 @@
 import { gameInstance } from './scripts/game/GameInstance.js';
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
 import { createJoystick } from './scripts/game/joystick.js';
 
 const canvas = document.getElementById('gameCanvas');

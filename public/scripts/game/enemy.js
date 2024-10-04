@@ -10,8 +10,8 @@ export class Enemy {
         this.timeoutId = null;
 
         // Dimensions
-        this.width = 20;
-        this.height = 20;
+        this.width = 30;
+        this.height = 30;
         this.radius = this.width / 2;
 
         // Position
@@ -24,6 +24,8 @@ export class Enemy {
 
         // Apparence
         this.enemyColor = 'green';
+        this.image = new Image();
+        // this.image.src = `../assets/Sprites/${this.constructor.name}.png`;
         this.hitEffects = [];
         this.particles = [];
         this.hitFlashDuration = 0;
@@ -43,6 +45,12 @@ export class Enemy {
         this.coinGenerated = false;
     }
 
+    calculateDirection(targetX, targetY) {
+        const dx = targetX - (this.x + this.width / 2);
+        const dy = targetY - (this.y + this.height / 2);
+        return Math.atan2(dy, dx);
+    }
+
     // Méthode pour calculer la santé de l'ennemi en fonction du niveau du joueur
     calculateHealth(baseHealth, playerLevel) {
         const health = baseHealth + 2 * Math.exp(playerLevel * 0.075);
@@ -57,33 +65,53 @@ export class Enemy {
 
     // Méthode pour dessiner l'ennemi
     draw(context, mapStartX, mapStartY) {
-        context.shadowColor = this.enemyColor;
         // Dessiner les particules
         for (let particle of this.particles) {
+            context.save(); // Sauvegarder l'état actuel du contexte pour chaque particule
             context.shadowBlur = 1;
             particle.draw(context, this.width, mapStartX, mapStartY);
+            context.restore(); // Restaurer l'état précédent du contexte pour chaque particule
         }
 
         // Dessiner les effets de coup avant de vérifier si l'ennemi est mort
         for (let hitEffect of this.hitEffects) {
+            context.save(); // Sauvegarder l'état actuel du contexte pour chaque effet de coup
             context.shadowBlur = 2;
             hitEffect.draw(context, mapStartX - 10, mapStartY);
+            context.restore(); // Restaurer l'état précédent du contexte pour chaque effet de coup
         }
 
-        // Remplir un rectangle de couleur à la position x et y
+        context.save(); // Sauvegarder l'état actuel du contexte
 
+        // Calculer l'angle de rotation
+        const angle = this.calculateDirection(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+
+        // Déplacer le contexte au centre de l'ennemi
+        context.translate(mapStartX + this.x + this.width / 2, mapStartY + this.y + this.height / 2);
+
+        // Appliquer la rotation avec un décalage de 90 degrés (π/2 radians)
+        context.rotate(angle + Math.PI / 2);
+
+        context.shadowColor = this.enemyColor;
+
+        // Dessiner l'image de l'ennemi
         if (this.hitFlashDuration > 0) {
-            context.fillStyle = 'white';
-            context.shadowColor = 'white';
+            context.globalAlpha = 0.5; // Appliquer une transparence pour le flash blanc
             this.hitFlashDuration--;
         } else {
-            context.fillStyle = this.enemyColor;
-            context.shadowColor = this.enemyColor;
+            context.globalAlpha = 1; // Opacité normale
         }
-        this.constructor.name.includes('Boss') ? context.shadowBlur = 100 : 10;
 
-        context.fillRect(mapStartX + this.x, mapStartY + this.y, this.width, this.height);
-        context.shadowBlur = 0;
+        if (this.image && this.image.src) {
+            context.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
+        } else {
+            context.fillStyle = this.enemyColor;
+            context.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        }
+
+        context.globalAlpha = 1; // Réinitialiser l'opacité
+
+        context.restore(); // Restaurer l'état précédent du contexte
     }
 
     shoot(direction) { }
@@ -240,7 +268,10 @@ export class Enemy {
                     x: direction.x + (Math.random() - 0.5) * 0.5,
                     y: direction.y + (Math.random() - 0.5) * 0.5
                 };
-                this.particles.push(new Particle(this.x, this.y, this.enemyColor, particleDirection, 1, this.width));
+
+                const oppositeX = this.x + (this.width * direction.x) / 2;
+                const oppositeY = this.y + (this.height * direction.y) / 2;
+                this.particles.push(new Particle(oppositeX, oppositeY, this.enemyColor, particleDirection, 1, this.width));
             }
         }
 
@@ -321,12 +352,20 @@ export class Enemy {
             }
         }, 10);
     }
+
+    calculateProjectileStartPosition(direction) {
+        const offset = 10; // Distance à ajouter pour que le projectile sorte du devant de l'ennemi
+        const startX = this.x + this.width / 2 + direction.x * offset;
+        const startY = this.y + this.height / 2 + direction.y * offset;
+        return { x: startX, y: startY };
+    }
 }
 
 export class Slime extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 25, 5, 10);
         this.enemyColor = 'green';
+        this.image.src = '../assets/Sprites/Slime.png';
         this.pourcentage = 0.3;
         this.speed = 4;
     }
@@ -336,6 +375,7 @@ export class Ghost extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 20, 10, 25);
         this.enemyColor = 'purple';
+        this.image.src = '../assets/Sprites/Ghost.png';
         this.pourcentage = 0.3;
         this.speed = 5;
     }
@@ -345,16 +385,17 @@ export class Tank extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 50, 10, 30);
         this.enemyColor = 'grey';
+        this.image.src = '../assets/Sprites/Tank.png';
         this.pourcentage = 0.2;
         this.speed = 2;
     }
 }
 
-// Enemy class that inherits from the Enemy class, shooting projectiles at the player
 export class Shooter extends Enemy {
     constructor(player, mapWidth, mapHeight) {
         super(player, mapWidth, mapHeight, 50, 5, 20);
         this.enemyColor = 'red';
+        this.image.src = '../assets/Sprites/Shooter.png';
         this.pourcentage = 0.2;
         this.speed = 3;
         this.lastProjectileTime = 0;
@@ -363,6 +404,7 @@ export class Shooter extends Enemy {
 
     shoot(direction) {
         // Calculer la position initiale du projectile
+        const startPosition = this.calculateProjectileStartPosition(direction);
         const x = this.x + this.width / 2;
         const y = this.y + this.height / 2;
 

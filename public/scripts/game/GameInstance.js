@@ -7,12 +7,14 @@ import { getScores, setScore } from '../data/index.js';
 
 export class gameInstance {
     constructor(canvas) {
+
         // Initialisation du jeu
         this.startTime = Date.now();
         this.isStarted = false;
         this.spawnFrequency = 200;
         this.lastScoreIncreaseTime = null;
         this.itemsCount = 0;
+        this.isRunning = false;
 
         // Affichage et carte
         this.canvas = canvas;
@@ -148,17 +150,7 @@ export class gameInstance {
                 console.log(`Boss de type ${enemyType} généré`);
             } else if (!this.isBossLevel && this.enemies.length < this.maxEnemies) {
                 // Ajouter des ennemis normaux
-                let random = Math.random();
-                let cumulativeProbability = 0;
-                let enemyType;
-
-                for (let i = 0; i < this.enemyTypes.length; i++) {
-                    cumulativeProbability += this.enemyTypes[i].pourcentage;
-                    if (random < cumulativeProbability) {
-                        enemyType = this.enemyTypes[i].constructor.name;
-                        break;
-                    }
-                }
+                let enemyType = this.getEnemyTypeByLevel(this.player.level);
                 this.addEnemy(enemyType);
                 console.log(`Ennemi de type ${enemyType} généré`);
             } else if (this.player.level % 10 > 0 && !this.bossGenerated) {
@@ -170,6 +162,19 @@ export class gameInstance {
                 console.log(`Boss de type ${enemyType} généré tardivement`);
             }
         }, this.spawnFrequency);
+    }
+
+    // Méthode pour obtenir le type d'ennemi en fonction du niveau du joueur
+    getEnemyTypeByLevel(level) {
+        if (level < 5) {
+            return 'Slime';
+        } else if (level < 10) {
+            return ['Slime', 'Ghost'][Math.floor(Math.random() * 2)];
+        } else if (level < 15) {
+            return ['Slime', 'Ghost', 'Shooter'][Math.floor(Math.random() * 3)];
+        } else {
+            return ['Slime', 'Ghost', 'Shooter', 'Tank'][Math.floor(Math.random() * 4)];
+        }
     }
 
     // Méthode pour arrêter la génération d'ennemis
@@ -349,6 +354,8 @@ export class gameInstance {
     }
 
     destroy() {
+        if (!this.isRunning) return;
+
         // Mettre le jeu en pause
         this.pauseGame();
         this.isStarted = false;
@@ -368,10 +375,14 @@ export class gameInstance {
 
         // Mettre à jour le score dans la bdd
         setScore(this.player.score);
+
+        this.isRunning = false;
     }
 
     // Méthode pour mettre en pause le jeu
     pauseGame() {
+        if (!this.isRunning) return;
+
         // Mettre le jeu en pause
         this.isPaused = true;
 
@@ -407,6 +418,8 @@ export class gameInstance {
     }
 
     resumeGame() {
+        if (!this.isRunning) return;
+
         const shop = document.getElementById('shop');
         const pause = document.getElementById('pauseMenu');
         const stats = document.getElementById('statsMenu');
@@ -500,6 +513,8 @@ export class gameInstance {
 
         // Mettre à jour le leaderboard
         getScores();
+
+        this.isRunning = false;
     }
 
     // Méthode pour ajouter un nouvel ennemi
@@ -545,6 +560,9 @@ export class gameInstance {
 
     // Méthode pour lancer le jeu
     start() {
+        if (this.isRunning) return;
+        this.isRunning = true;
+
         // Appeler les méthodes de mise à jour et de dessin du jeu
         this.draw();
         this.update();

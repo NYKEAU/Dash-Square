@@ -17,6 +17,8 @@ export class Player {
         this.scorePopupTime = 0; // Le temps restant avant que le texte ne disparaisse
         this.scorePopupY = 0; // La position y du texte à afficher au-dessus du score
         this.levelPopupScale = 1; // L'échelle du texte du niveau
+        this.image = new Image(); // Initialiser l'image du joueur
+        this.image.src = '../../assets/Sprites/Hero_Square.png'; // L'image du joueur
 
         // Armes et Projectiles
         this.weapon = new Pistol(this); // Initialiser l'arme de base du joueur
@@ -59,6 +61,11 @@ export class Player {
         };
     }
 
+    draw(ctx) {
+        // Remplacer le dessin du carré par le dessin de l'image
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    }
+
     // Méthode pour ajouter une arme
     addWeapon(weapon) {
         this.weapons.push(weapon);
@@ -81,25 +88,46 @@ export class Player {
 
             this.damage = this.damage + Math.ceil(this.damage * this.permanentStats.Dégâts / 1000);
             this.rof = this.rof + Math.ceil(this.rof * this.permanentStats.Cadence / 1000);
+
+            this.updateStatsDisplay();
+
+            console.log(this.permanentStats);
         } else {
             console.error('Invalid weapon type');
         }
     }
 
-    // Méthode pour dessiner le joueur
     draw(context, x, y, mapStartX, mapStartY) {
         // Dessiner les effets de coup avant de vérifier si le joueur est mort
         for (let hitEffect of this.hitEffects) {
             hitEffect.draw(context, mapStartX - 10, mapStartY);
         }
 
+        context.save(); // Sauvegarder l'état actuel du contexte
+
+        // Calculer l'angle de rotation
+        const angle = this.getRotationAngleToEnemy();
+
+        // Déplacer le contexte au centre du joueur
+        context.translate(x + this.width / 2, y + this.height / 2);
+
+        // Appliquer la rotation
+        context.rotate(angle + Math.PI / 2);
+
+        // Dessiner l'image du joueur en tenant compte de la rotation
         context.shadowColor = 'blue';
         context.shadowBlur = 10;
 
-        context.fillStyle = this.hitFlash ? 'white' : 'blue';
-        context.fillRect(x, y, this.width, this.height);
+        if (this.hitFlash) {
+            context.fillStyle = 'white';
+            context.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        } else {
+            context.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
+        }
 
         context.shadowBlur = 0;
+
+        context.restore(); // Restaurer l'état précédent du contexte
     }
 
     // Méthode pour dessiner les armes du joueur
@@ -279,6 +307,16 @@ export class Player {
         }
     }
 
+    getRotationAngleToEnemy() {
+        const closestEnemy = this.gameInstance.getClosestEnemy();
+        if (closestEnemy && !closestEnemy.isDead) {
+            const dx = closestEnemy.x + closestEnemy.width / 2 - (this.x + this.width / 2);
+            const dy = closestEnemy.y + closestEnemy.height / 2 - (this.y + this.height / 2);
+            return Math.atan2(dy, dx);
+        }
+        return 0; // Par défaut, pas de rotation si aucun ennemi n'est trouvé
+    }
+
     // Méthode pour ajouter un item et mettre à jour les statistiques du joueur
     addItem(item) {
         if (item.rarete === 'special') {
@@ -403,6 +441,7 @@ export class Player {
                 newY += normalizedY * this.speed;
             }
         } else {
+            // Logique existante pour les touches du clavier
             if (keys['ArrowUp'] || keys['z'] || keys['Z']) newY -= this.speed;
             if (keys['ArrowDown'] || keys['s'] || keys['S']) newY += this.speed;
             if (keys['ArrowLeft'] || keys['q'] || keys['Q']) newX -= this.speed;

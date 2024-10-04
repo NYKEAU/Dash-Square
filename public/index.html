@@ -66,7 +66,11 @@
                     <input type="text" id="login-text" name="login" required>
                     <label for="password">Mot de passe</label>
                     <input type="password" id="login-password" name="passwordLogin" required>
-                    <button id="connexionButton" type="submit">Se connecter</button>
+                    <div class="connexionBtns">
+                        <button id="connexionButton" type="submit">Se connecter</button>
+                        <!-- <h3>OU</h3>
+                        <button id="googleLoginButton" class="button" disabled>Google</button> -->
+                    </div>
                     <a id="forgotPasswordTab" class="tab button">Mot de passe oublié</a>
                 </form>
             </div>
@@ -143,7 +147,6 @@
             <p>Score: <span id="score"></span></p>
             <p>Timer: <span id="timerScore"></span></p>
             <h3>Score final: <span id="finalScore"></span></h3>
-            <button id="watchAdButton">Regarder une pub<br /><i>Revivre avec 50% de PV</i></button>
             <button id="restartButton">Quitter</button>
         </div>
     </div>

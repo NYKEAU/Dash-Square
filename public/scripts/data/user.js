@@ -27,6 +27,20 @@ export const auth = {
             }
             return res.json();
         }),
+    // loginWithGoogle: (idToken) => fetch("/api/loginWithGoogle", {
+    //     method: "POST",
+    //     body: JSON.stringify({ idToken }),
+    //     headers: {
+    //         Accept: "application/json",
+    //         "Content-Type": "application/json"
+    //     }
+    // })
+    //     .then(res => {
+    //         if (!res.ok) {
+    //             return res.text().then(text => { throw new Error(text) });
+    //         }
+    //         return res.json();
+    //     }),
     forgotPassword: (email) => fetch("/api/forgot-password", {
         method: "POST",
         body: JSON.stringify({ email }),

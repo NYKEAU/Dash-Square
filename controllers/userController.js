@@ -1,5 +1,5 @@
 const { collection, addDoc, query, where, getDocs } = require('firebase/firestore');
-const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } = require('firebase/auth');
+const { getAuth, signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider } = require('firebase/auth');
 const db = require('../models/firebaseModel');
 
 const login = async (req, res) => {
@@ -42,6 +42,32 @@ const login = async (req, res) => {
         res.status(401).json({ error: 'Identifiants invalides', details: error.message });
     }
 };
+
+// const loginWithGoogle = async (req, res) => {
+//     try {
+//         const { idToken } = req.body;
+//         const auth = getAuth();
+//         const credential = GoogleAuthProvider.credential(idToken);
+//         const userCredential = await signInWithCredential(auth, credential);
+//         const user = userCredential.user;
+
+//         // Gérer la session, créer un token JWT, etc.
+//         const token = await user.getIdToken();
+
+//         // Enregistre ou utilise le token
+//         res.cookie('token', token, {
+//             httpOnly: true,
+//             secure: true,
+//             sameSite: 'strict',
+//             maxAge: 365 * 24 * 60 * 60 * 1000
+//         });
+
+//         res.status(200).json({ uid: user.uid, email: user.email, token });
+//     } catch (error) {
+//         console.error('Erreur lors de la connexion utilisateur', error);
+//         res.status(401).json({ error: 'Identifiants invalides', details: error.message });
+//     }
+// };
 
 const forgotPassword = async (req, res) => {
     const { email } = req.body;
@@ -133,4 +159,4 @@ const getUser = async (req, res) => {
     }
 };
 
-module.exports = { getUser, login, forgotPassword, register, logout };
+module.exports = { getUser, login, loginWithGoogle, forgotPassword, register, logout };

@@ -10,6 +10,7 @@ router.get('/', (req, res) => {
 
 router.get('/user', middleware.verifyToken, userController.getUser);
 router.post('/login', userController.login);
+// router.post('/loginWithGoogle', userController.loginWithGoogle);
 router.post('/forgot-password', userController.forgotPassword);
 router.post('/register', userController.register);
 router.post('/logout', userController.logout);
