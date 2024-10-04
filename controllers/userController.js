@@ -159,4 +159,5 @@ const getUser = async (req, res) => {
     }
 };
 
-module.exports = { getUser, login, loginWithGoogle, forgotPassword, register, logout };
+module.exports = { getUser, login, forgotPassword, register, logout };
+// module.exports = { getUser, login, loginWithGoogle, forgotPassword, register, logout };
