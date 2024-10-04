@@ -492,21 +492,23 @@ export class Player {
 
     // Méthode pour réduire la santé du joueur
     decreaseHealth(amount) {
-        this.health -= amount;
+        // Calculer les dégâts réduits en fonction de la défense
+        const effectiveDefense = 1 - Math.pow(1 - this.defense / 100, 1);
+        const reducedAmount = amount * (1 - effectiveDefense);
+
+        // Appliquer les dégâts réduits à la santé du joueur
+        this.health -= reducedAmount;
         this.hitFlash = true;
         setTimeout(() => {
             this.hitFlash = false;
         }, this.duration);
 
         // Afficher le nombre de dégâts subis
-        this.hitEffects.push(new HitEffect(this, amount, 'player'));
+        this.hitEffects.push(new HitEffect(this, reducedAmount, 'player'));
 
         // Vérifier si le joueur est mort
         if (this.health < 1) {
-            // Arrêter la génération des ennemis
             this.gameInstance.stopEnemyGeneration();
-
-            // Afficher l'écran de fin de partie
             this.gameInstance.destroy();
         }
 
