@@ -418,7 +418,7 @@ export class Player {
     }
 
     // Méthode pour déplacer le joueur
-    move(keys, mapWidth, mapHeight, enemies) {
+    move(keys, mapWidth, mapHeight) {
         let newX = this.x;
         let newY = this.y;
 
@@ -446,6 +446,13 @@ export class Player {
             if (keys['ArrowDown'] || keys['s'] || keys['S']) newY += this.speed;
             if (keys['ArrowLeft'] || keys['q'] || keys['Q']) newX -= this.speed;
             if (keys['ArrowRight'] || keys['d'] || keys['D']) newX += this.speed;
+        }
+
+        // Normaliser la vitesse si le joueur se déplace en diagonale
+        if (newX !== this.x && newY !== this.y) {
+            const diagonalSpeed = this.speed / Math.sqrt(2);
+            newX = this.x + (newX - this.x) * diagonalSpeed / this.speed;
+            newY = this.y + (newY - this.y) * diagonalSpeed / this.speed;
         }
 
         // Vérifier si le joueur est à l'intérieur de la zone de jeu
