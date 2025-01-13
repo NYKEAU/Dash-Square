@@ -43,6 +43,13 @@ export class Enemy {
         // Récompenses
         this.xpGived = xpGived;
         this.coinGenerated = false;
+
+        // Animation de spawn
+        this.spawnAnimationProgress = 0;
+        this.spawnWaveProgress = 0;
+
+        // Ondes de spawn
+        this.spawnWaves = this.createSpawnWaves();
     }
 
     calculateDirection(targetX, targetY) {
@@ -61,6 +68,19 @@ export class Enemy {
     calculateDamage(baseDamage, playerLevel) {
         const damage = baseDamage + 2 * Math.exp(playerLevel * 0.075);
         return Math.round(damage); // Arrondit à l'entier le plus proche
+    }
+
+    // Méthode pour créer des ondes de spawn
+    createSpawnWaves() {
+        const waves = [];
+        for (let i = 0; i < 5; i++) {
+            waves.push({
+                progress: 0,
+                maxSize: 50 + i * 10,
+                alpha: 1 - i * 0.2
+            });
+        }
+        return waves;
     }
 
     // Méthode pour dessiner l'ennemi
@@ -102,6 +122,14 @@ export class Enemy {
             context.globalAlpha = 1; // Opacité normale
         }
 
+        // Animation de spawn
+        if (this.spawnAnimationProgress < 1) {
+            this.spawnAnimationProgress += 0.05; // Ajustez cette valeur pour changer la vitesse de l'animation
+        }
+
+        const scale = Math.min(this.spawnAnimationProgress, 1);
+        context.scale(scale, scale);
+
         if (this.image && this.image.src) {
             context.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
         } else {
@@ -112,6 +140,31 @@ export class Enemy {
         context.globalAlpha = 1; // Réinitialiser l'opacité
 
         context.restore(); // Restaurer l'état précédent du contexte
+
+        // Dessiner les ondes de spawn
+        for (let wave of this.spawnWaves) {
+            if (wave.progress < 1) {
+                wave.progress += 0.05; // Ajustez cette valeur pour changer la vitesse de l'animation
+                context.save();
+                context.globalAlpha = wave.alpha; // L'onde devient plus transparente avec le temps
+                context.strokeStyle = this.enemyColor;
+                context.lineWidth = 10 * (1 - wave.progress);
+                const waveSize = wave.maxSize * wave.progress; // Ajustez cette valeur pour changer la taille de l'onde
+
+                // Appliquer la rotation aux ondes de spawn
+                context.translate(mapStartX + this.x + this.width / 2, mapStartY + this.y + this.height / 2);
+                context.rotate(angle + Math.PI / 2);
+                context.translate(-(mapStartX + this.x + this.width / 2), -(mapStartY + this.y + this.height / 2));
+
+                context.strokeRect(
+                    mapStartX + this.x + this.width / 2 - waveSize / 2,
+                    mapStartY + this.y + this.height / 2 - waveSize / 2,
+                    waveSize,
+                    waveSize
+                );
+                context.restore();
+            }
+        }
     }
 
     shoot(direction) { }

@@ -137,16 +137,28 @@ export async function getScores() {
             listItem.classList.add('score-item');
 
             let emoji = '';
-            if (index === 0) {
+            if(index === 0) {
                 emoji = '🥇';
-            } else if (index === 1) {
+                listItem.innerHTML = `
+                    <td class="txt__label">${emoji} - ${user.pseudo}</td>
+                `;
+            } else if(index === 1) {
                 emoji = '🥈';
-            } else if (index === 2) {
+                listItem.innerHTML = `
+                    <td class="txt__label">${emoji} - ${user.pseudo}</td>
+                `;
+            } else if(index === 2) {
                 emoji = '🥉';
+                listItem.innerHTML = `
+                    <td class="txt__label">${emoji}- ${user.pseudo}</td>
+                `;
+            } else {
+                listItem.innerHTML = `
+                    <td class="txt__label">${index + 1} - ${user.pseudo}</td>
+                `;
             }
 
-            listItem.innerHTML = `
-                <td class="txt__label">${emoji}${index + 1} - ${user.pseudo}</td>
+            listItem.innerHTML += `
                 <td class="txt__number">${user.bestscore}</td>
             `;
             board.appendChild(listItem);

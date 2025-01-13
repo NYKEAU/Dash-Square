@@ -1,6 +1,6 @@
 import { Enemy } from './enemy.js';
 import { BulletHellProjectile } from './projectile.js';
-import { Pistol, Shotgun, SMG, Famas, Sniper } from './weapon.js';
+import { Pistol, Shotgun, SMG, P90, Sniper } from './weapon.js';
 
 class Boss extends Enemy {
     constructor(player, mapWidth, mapHeight, baseHealth, damage, xpGived) {
@@ -15,7 +15,7 @@ class Boss extends Enemy {
 
     dropWeapon() {
         // Liste de toutes les classes d'armes possibles
-        const weaponClasses = [Pistol, Shotgun, SMG, Famas, Sniper];
+        const weaponClasses = [Pistol, Shotgun, SMG, P90, Sniper];
 
         // Choisissez une classe d'arme aléatoire et que le joueur n'a pas déjà
         let weaponClass = null;

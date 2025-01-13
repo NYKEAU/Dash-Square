@@ -34,7 +34,7 @@ export class HitEffect {
             // Appliquer une animation de taille de police
             this.fontSize = this.maxFontSize * normalizedDuration;
             if (this.fontSize < 20) this.fontSize = 20;
-            context.font = `${this.fontSize}px Roboto`;
+            context.font = `${this.fontSize}px VT323 !important`;
 
             // Dessiner le texte et afficher en négatif si la cible est le joueur
             if (this.targetType === 'player') {

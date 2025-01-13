@@ -176,14 +176,14 @@ export class SMG extends Weapon {
     }
 }
 
-export class Famas extends Weapon {
+export class P90 extends Weapon {
     constructor(player) {
         super(player);
         this.speed = 5;
         this.burstCount = 500; // Temps de pause de 0.5 secondes
         this.damage = 5; // Chaque balle fait 5 de dégâts
         this.fireRate = 4; // Nombre de tirs dans une rafale
-        this.isReloading = false; // Indicateur pour savoir si le Famas est en train de recharger
+        this.isReloading = false; // Indicateur pour savoir si le P90 est en train de recharger
         this.burstDelay = 50; // Délai entre chaque balle d'une même rafale
         this.x = 0;
         this.y = 0;

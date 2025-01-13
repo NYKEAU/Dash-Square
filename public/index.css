@@ -1,8 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 @media screen and (max-width: 750px) {
     #startMenu * {
         margin: 0;
+    }
+
+    .menuText {
+        display: none;
     }
 
     #pauseMenu {
@@ -32,7 +36,8 @@ body {
     overflow: hidden;
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'VT323', sans-serif !important;
+    font-size: 24px;
 }
 
 #ath {
@@ -103,12 +108,138 @@ body {
     z-index: 1000;
 }
 
+#animEvent {
+    position: fixed;
+    top: calc(50% - 20vh);
+    left: calc(50% - 21.25vw);
+    width: 40vw;
+    height: 40vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.weapon-acquired-anim {
+    position: relative;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000;
+    animation: zoomInFadeOut 3s ease-in-out;
+    overflow: hidden;
+}
+
+.weapon-acquired-anim::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 25%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0) 100%);
+    z-index: 1;
+}
+
+.weapon-acquired-anim::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('./assets/Sprites/Jsp.png') no-repeat center/85%;
+    z-index: 1;
+    animation: rotateBackground 10s linear infinite;
+}
+
+.weapon-acquired-anim img {
+    position: relative;
+    width: 75%;
+    z-index: 2;
+    animation: glow 3s ease-in-out, rotate 3s ease-in-out, float 3s ease-in-out;
+}
+
+.weapon-name {
+    margin-top: 10px;
+    font-size: 62px;
+    color: #fff;
+    z-index: 2;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+@keyframes zoomInFadeOut {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    10% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+}
+
+@keyframes glow {
+    0% {
+        filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1));
+    }
+    100% {
+        filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+    }
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(360deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes rotateBackground {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 #gameCanvas {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     background-color: darkgray;
+}
+
+#gameCanvas * {
+    font-family: 'VT323', sans-serif !important;
 }
 
 #wrapper {
@@ -202,7 +333,8 @@ button,
     text-decoration: none;
     border: 2px solid #000;
     padding: 10px 20px;
-    font-size: 18px;
+    font-family: 'VT323', sans-serif !important;
+    font-size: 32px;
     cursor: pointer;
     margin: 10px;
     transition: all 0.1s ease-in-out;
@@ -234,7 +366,7 @@ button:hover,
     justify-content: space-around;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.8);
-    min-height: 40vh;
+    min-height: 30vh;
     max-height: 50vh;
     width: 40%;
     margin: 20px;
@@ -291,9 +423,12 @@ button:hover,
 }
 
 #mobileSwitch {
+    display: flex;
+    align-items: center;
     position: absolute;
     bottom: 15px;
     left: 50%;
+    gap: 20px;
     transform: translate(-50%, -50%);
 }
 
@@ -510,15 +645,18 @@ input:checked+.slider:before {
 
 .shopItem h2 {
     margin: 0;
+    font-size: 48px;
 }
 
 .shopItem h3 {
     margin-top: 0;
+    font-size: 32px;
 }
 
 .shopItem div {
     display: flex;
     flex-direction: row;
+    font-size: 24px;
 }
 
 .shopItem svg {

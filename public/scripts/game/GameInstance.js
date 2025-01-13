@@ -1,3 +1,5 @@
+import confetti from 'https://cdn.skypack.dev/canvas-confetti';
+     
 import { Player } from './player.js';
 import { Slime, Ghost, Shooter, Tank } from './enemy.js';
 import { IceBoss, EarthBoss, WindBoss, FireBoss, VoidBoss } from './bosses.js';
@@ -19,8 +21,11 @@ export class gameInstance {
         // Affichage et carte
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
+        this.context.font = '32px VT323';
         this.mapWidth = 2000;
         this.mapHeight = 1500;
+        this.mapImage = new Image();
+        // this.mapImage.src = '../../assets/Sprites/test32.png';
 
         // Contrôles et pause
         this.keys = {};
@@ -127,12 +132,10 @@ export class gameInstance {
             this.spawnFrequency = this.spawnFrequency + Math.floor(this.spawnFrequency * 0.1);
             this.maxEnemies += 1;
             this.alreadyUpdated = true;
-            this.isBossLevel = true; // Indiquer que c'est un niveau de boss
-            console.log('Mise à jour de la fréquence de spawn des ennemis');
+            this.isBossLevel = true;
         } else if (level % 10 !== 0) {
             this.alreadyUpdated = false;
-            this.isBossLevel = false; // Indiquer que ce n'est pas un niveau de boss
-            console.log('Pas de mise à jour de la fréquence de spawn des ennemis');
+            this.isBossLevel = false;
         }
 
         // Arrêter l'ancien intervalle de génération d'ennemis
@@ -147,19 +150,16 @@ export class gameInstance {
                 let bossIndex = Math.floor((this.player.level / 10) - 1) % this.bossTypes.length;
                 let enemyType = this.bossTypes[bossIndex];
                 this.addEnemy(enemyType);
-                console.log(`Boss de type ${enemyType} généré`);
             } else if (!this.isBossLevel && this.enemies.length < this.maxEnemies) {
                 // Ajouter des ennemis normaux
                 let enemyType = this.getEnemyTypeByLevel(this.player.level);
                 this.addEnemy(enemyType);
-                console.log(`Ennemi de type ${enemyType} généré`);
             } else if (this.player.level % 10 > 0 && !this.bossGenerated) {
                 // Si le joueur a atteint le niveau suivant sans avoir rencontré le boss, le générer
                 let bossIndex = Math.floor((this.player.level / 10) - 1) % this.bossTypes.length;
                 let enemyType = this.bossTypes[bossIndex];
                 this.addEnemy(enemyType);
                 this.bossGenerated = true;
-                console.log(`Boss de type ${enemyType} généré tardivement`);
             }
         }, this.spawnFrequency);
     }
@@ -187,22 +187,22 @@ export class gameInstance {
     displayShop() {
         // Mettre le jeu en pause
         this.pauseGame();
-
+    
         // Afficher le magasin
         document.getElementById('shop').style.display = 'flex';
-
+    
         // Cacher le bouton de pause
         document.getElementById('pauseBtn').style.display = 'none';
-
+    
         // Créez trois options d'amélioration (via la méthode generateItems de la classe item.js)
         let items = Item.generateItems(this.player, this.enemies, this.canvas);
-
+    
         // Obtenir le conteneur de la boutique
         let itemsContainer = document.getElementById('shopItems');
-
+    
         // Supprimer les éléments de la boutique précédente
         itemsContainer.innerHTML = '';
-
+    
         // Parcourir les items
         for (let i = 0; i < items.length; i++) {
             // Vérifier si l'item est défini
@@ -210,56 +210,55 @@ export class gameInstance {
                 // Créer un nouvel élément de liste
                 let shopItem = document.createElement('li');
                 shopItem.className = 'shopItem';
-
+    
                 // Créer les éléments de l'item
                 let title = document.createElement('h2');
                 let rarete = document.createElement('h3');
-                // let image = document.createElement('img');
                 let stats = document.createElement('p');
                 let price = document.createElement('div');
                 let error = document.createElement('p');
-
+    
                 let itemDiv = document.createElement('div');
                 let img = document.createElement('img');
-
+    
                 // Mettre à jour les éléments de l'item
                 title.textContent = items[i].nom;
                 error.textContent = 'Pas assez d\'argent!';
-
+    
                 switch (items[i].rarete) {
                     case 1:
                         rarete.textContent = 'Commun';
-                        img.src = 'assets/Icons/Commun/' + items[i].icon + '.png';
-                        shopItem.style.border = '1px green solid';
+                        img.src = items[i].icon !== '' ? 'assets/Icons/Commun/' + items[i].icon + '.png' : '';
+                        shopItem.style.border = '5px green solid';
                         rarete.style.color = 'green';
                         break;
                     case 2:
                         rarete.textContent = 'Rare'
-                        img.src = 'assets/Icons/Rare/' + items[i].icon + '.png';
+                        img.src = items[i].icon !== '' ? 'assets/Icons/Rare/' + items[i].icon + '.png' : '';
                         img.style.filter = 'hue-rotate(40deg) brightness(-0.1)';
-                        shopItem.style.border = '1px blue solid';
+                        shopItem.style.border = '5px blue solid';
                         rarete.style.color = 'blue';
                         break;
                     case 3:
                         rarete.textContent = 'Épique';
-                        img.src = 'assets/Icons/Epique/' + items[i].icon + '.png';
-                        shopItem.style.border = '1px purple solid';
+                        img.src = items[i].icon !== '' ? 'assets/Icons/Epique/' + items[i].icon + '.png' : '';
+                        shopItem.style.border = '5px purple solid';
                         rarete.style.color = 'purple';
                         break;
                     case 4:
                         rarete.textContent = 'Légendaire';
-                        img.src = 'assets/Icons/Légendaire/' + items[i].icon + '.png';
-                        shopItem.style.border = '1px orange solid';
+                        img.src = items[i].icon !== '' ? 'assets/Icons/Légendaire/' + items[i].icon + '.png' : '';
+                        shopItem.style.border = '5px orange solid';
                         rarete.style.color = 'orange';
                         break;
                     case 'special':
                         rarete.textContent = 'Spécial';
-                        img.src = 'assets/Icons/Spécial/' + items[i].icon + '.png';
-                        shopItem.style.border = '1px red solid';
+                        img.src = items[i].icon !== '' ? 'assets/Icons/Spécial/' + items[i].icon + '.png' : '';
+                        shopItem.style.border = '5px red solid';
                         rarete.style.color = 'red';
                         break;
                 }
-
+    
                 if (items[i].icon === '') {
                     stats.innerHTML = Object.keys(items[i].stats)[0] + ': +' + Math.ceil(items[i].stats[Object.keys(items[i].stats)[0]] / 3 * 10) + ' ' + items[i].type;
                 } else if (items[i].rarete === 3 || items[i].rarete === 4) {
@@ -269,37 +268,43 @@ export class gameInstance {
                 } else {
                     stats.innerHTML = items[i].type + ' : +' + items[i].damage;
                 }
-
-                price.innerHTML += items[i].prix + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.5 3C11.9853 3 14 7.02944 14 12M9.5 3C7.01472 3 5 7.02944 5 12C5 16.9706 7.01472 21 9.5 21M9.5 3H15C17.2091 3 19 7.02944 19 12M14 12C14 16.9706 11.9853 21 9.5 21M14 12H19M9.5 21H15C17.2091 21 19 16.9706 19 12M18.3264 17H13.2422M18.3264 7H13.2422M9.5 8C10.3284 8 11 9.79086 11 12C11 14.2091 10.3284 16 9.5 16C8.67157 16 8 14.2091 8 12C8 9.79086 8.67157 8 9.5 8Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
-
+    
+                // Vérifier si l'item est de type "Pièces"
+                if (items[i].type === 'Pièces') {
+                    items[i].prix = 0; // Rendre l'item gratuit
+                    items[i].stats[Object.keys(items[i].stats)[0]] -= items[i].prix; // Ajuster l'effet de l'item
+                    price.innerHTML += 'GRATUIT ' + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.5 3C11.9853 3 14 7.02944 14 12M9.5 3C7.01472 3 5 7.02944 5 12C5 16.9706 7.01472 21 9.5 21M9.5 3H15C17.2091 3 19 7.02944 19 12M14 12C14 16.9706 11.9853 21 9.5 21M14 12H19M9.5 21H15C17.2091 21 19 16.9706 19 12M18.3264 17H13.2422M18.3264 7H13.2422M9.5 8C10.3284 8 11 9.79086 11 12C11 14.2091 10.3284 16 9.5 16C8.67157 16 8 14.2091 8 12C8 9.79086 8.67157 8 9.5 8Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
+                } else {
+                    price.innerHTML += items[i].prix + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.5 3C11.9853 3 14 7.02944 14 12M9.5 3C7.01472 3 5 7.02944 5 12C5 16.9706 7.01472 21 9.5 21M9.5 3H15C17.2091 3 19 7.02944 19 12M14 12C14 16.9706 11.9853 21 9.5 21M14 12H19M9.5 21H15C17.2091 21 19 16.9706 19 12M18.3264 17H13.2422M18.3264 7H13.2422M9.5 8C10.3284 8 11 9.79086 11 12C11 14.2091 10.3284 16 9.5 16C8.67157 16 8 14.2091 8 12C8 9.79086 8.67157 8 9.5 8Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
+                }
+                
                 // Ajouter les éléments à l'élément de la liste
                 shopItem.appendChild(title);
                 shopItem.appendChild(rarete);
-                // shopItem.appendChild(image);
                 shopItem.appendChild(stats);
                 shopItem.appendChild(price);
-
+    
                 // Ajouter l'élément de la liste à l'élément ul
                 itemsContainer.appendChild(shopItem);
-
+    
                 shopItem.addEventListener('click', () => {
                     if (this.player.money >= items[i].prix) {
                         this.player.money -= items[i].prix;
                         if (items[i].icon !== '') {
                             this.player.addItem(items[i]);
                             this.itemsCount++;
-
+    
                             // Créer un nouvel élément div pour représenter l'item récupéré
                             itemDiv.className = 'itemDiv';
-                            itemDiv.style.width = '30px';
-                            itemDiv.style.height = '30px';
+                            itemDiv.style.width = '40px';
+                            itemDiv.style.height = '40px';
                             itemDiv.style.backgroundColor = 'white';
                             itemDiv.style.position = 'absolute';
-                            itemDiv.style.bottom = `${Math.floor(this.itemsCount / 15) * 40}px`;
-                            itemDiv.style.left = `${((this.itemsCount % 15) * 35) + ((this.itemsCount >= 15 ? 1 : 0) * 35)}px`;
-                            itemDiv.style.border = '1px solid black';
-                            itemDiv.style.margin = '15px 5px';
-
+                            itemDiv.style.bottom = `${Math.floor(this.itemsCount / 10) * 45}px`;
+                            itemDiv.style.left = `${((this.itemsCount % 10) * 45) + ((this.itemsCount >= 10 ? 1 : 0) * 45)}px`;
+                            itemDiv.style.border = '2px solid black';
+                            itemDiv.style.margin = '10px 5px';
+    
                             if (items[i].rarete === 3 || items[i].rarete === 4) {
                                 itemDiv.title = Object.keys(items[i].stats)[0] + ' +' + items[i].stats[Object.keys(items[i].stats)[0]] / 10 + '% \u000d' + Object.keys(items[i].stats)[1] + '+' + items[i].stats[Object.keys(items[i].stats)[1]] / 10 + '%';
                             } else if (items[i].rarete === 2 || items[i].rarete === 1) {
@@ -307,14 +312,14 @@ export class gameInstance {
                             } else {
                                 itemDiv.title = items[i].nom;
                             }
-
+    
                             // Ajouter l'image de l'item en fonction de sa rareté
                             img.style.width = '100%'; // Ajuster la taille de l'image pour qu'elle remplisse la div
                             img.style.height = '100%';
                             img.style.objectFit = 'contain'; // Ajuster l'image à la div
-
+    
                             itemDiv.appendChild(img);
-
+    
                             // Ajouter le nouvel élément div au body du document
                             document.body.appendChild(itemDiv);
                         } else {
@@ -335,14 +340,59 @@ export class gameInstance {
                             }
                         }
 
-                        this.resumeGame();
+                        // Obtenir les coordonnées de l'élément shopItem
+                        const rect = shopItem.getBoundingClientRect();
+                        const x = rect.left + rect.width / 2;
+                        const y = rect.top + rect.height / 2;
+    
+                        // Ajouter l'effet de confetti
+                        var defaults = {
+                            spread: 360,
+                            ticks: 50,
+                            gravity: 0,
+                            decay: 0.94,
+                            startVelocity: 30,
+                            colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
+                            origin: {
+                                x: x / window.innerWidth,
+                                y: y / window.innerHeight
+                            },
+                        };
+                        
+                        function shoot() {
+                            confetti({
+                                ...defaults,
+                                particleCount: 40,
+                                scalar: 1.2,
+                                shapes: ['star']
+                            });
+                            
+                            confetti({
+                                ...defaults,
+                                particleCount: 10,
+                                scalar: 0.75,
+                                shapes: ['circle']
+                            });
+                        }
+                        
+                        setTimeout(shoot, 0);
+                        setTimeout(shoot, 100);
+                        setTimeout(shoot, 200);
+
+                        let shopItems = document.getElementsByClassName('shopItem');
+                        for (let i = 0; i < shopItems.length; i++) {
+                            shopItems[i].style.pointerEvents = 'none';
+                        }
+
+                        setTimeout(() => {
+                            this.resumeGame();
+                        }, 500);
                     } else {
                         shopItem.style.borderColor = 'red';
                         price.style.color = 'red';
                         price.style.fontWeight = 'bold';
                         // Mettre la piece en rouge
                         price.children[0].querySelector("#SVGRepo_iconCarrier > path").style.stroke = 'red';
-                        // price.children[0].lastChild.getElementsByTagName('path').style.stroke = 'red';
                         shopItem.style.animation = 'horizontal-shaking 0.5s';
                         shopItem.insertBefore(error, title);
                         error.style.color = 'red';
@@ -465,48 +515,48 @@ export class gameInstance {
 
     // Méthode pour quitter le jeu
     quitGame() {
-        // Cacher le menu de pause
-        document.getElementById('pauseMenu').style.display = 'none';
-        document.getElementById('gameOverMenu').style.display = 'none';
-        document.getElementById('statsMenu').style.display = 'none';
+        // // Cacher le menu de pause
+        // document.getElementById('pauseMenu').style.display = 'none';
+        // document.getElementById('gameOverMenu').style.display = 'none';
+        // document.getElementById('statsMenu').style.display = 'none';
 
-        // Supprimer les items que le joueur possède et réinitialiser leur affichage
-        this.player.removeItems();
+        // // Supprimer les items que le joueur possède et réinitialiser leur affichage
+        // this.player.removeItems();
 
-        // Arrêter la boucle de jeu
-        cancelAnimationFrame(() => this.update());
-        cancelAnimationFrame(() => this.draw());
+        // // Arrêter la boucle de jeu
+        // cancelAnimationFrame(() => this.update());
+        // cancelAnimationFrame(() => this.draw());
 
-        // Supprimer tous les objets de jeu
-        this.enemies = [];
-        this.projectiles = [];
+        // // Supprimer tous les objets de jeu
+        // this.enemies = [];
+        // this.projectiles = [];
 
-        // Réinitialiser l'état du jeu
-        this.isStarted = false;
-        this.isPaused = false;
+        // // Réinitialiser l'état du jeu
+        // this.isStarted = false;
+        // this.isPaused = false;
 
-        // Afficher le menu de démarrage
-        document.getElementById('startMenu').style.display = 'flex';
-        document.getElementById('leaderboardMenu').style.display = 'flex';
-        this.isStarted = false;
+        // // Afficher le menu de démarrage
+        // document.getElementById('startMenu').style.display = 'flex';
+        // document.getElementById('leaderboardMenu').style.display = 'flex';
+        // this.isStarted = false;
 
-        // Effacer le joystick
-        document.getElementById('wrapper').style.display = 'none';
+        // // Effacer le joystick
+        // document.getElementById('wrapper').style.display = 'none';
 
-        // Effacer les items
-        let itemDivs = document.getElementsByClassName('itemDiv');
-        for (let i = 0; i < itemDivs.length; i++) {
-            itemDivs[i].remove();
-        }
+        // // Effacer les items
+        // let itemDivs = document.getElementsByClassName('itemDiv');
+        // for (let i = 0; i < itemDivs.length; i++) {
+        //     itemDivs[i].remove();
+        // }
 
-        // Effacer les armes (supprimer les divs des armes)
-        document.getElementById('weaponsContainer').innerHTML = '';
+        // // Effacer les armes (supprimer les divs des armes)
+        // document.getElementById('weaponsContainer').innerHTML = '';
 
-        // Réinitialiser le joueur
-        this.player.resetStats();
+        // // Réinitialiser le joueur
+        // this.player.resetStats();
 
-        // Cacher le jeu
-        this.canvas.style.display = 'none';
+        // // Cacher le jeu
+        // this.canvas.style.display = 'none';
 
         // Mettre à jour le score du joueur
         setScore(this.player.score);
@@ -514,7 +564,9 @@ export class gameInstance {
         // Mettre à jour le leaderboard
         getScores();
 
-        this.isRunning = false;
+        // this.isRunning = false;
+
+        window.location.reload();
     }
 
     // Méthode pour ajouter un nouvel ennemi
@@ -550,7 +602,6 @@ export class gameInstance {
                 enemy = new VoidBoss(this.player, this.mapWidth, this.mapHeight);
                 break;
             default:
-                console.error(`Unknown enemy type: ${enemyType}`);
                 return;
         }
 
@@ -728,7 +779,7 @@ export class gameInstance {
 
                         if (distance < projectile.size + Math.hypot(this.player.width / 2, this.player.height / 2)) {
                             // Collision détectée, réduire la santé du joueur
-                            this.player.decreaseHealth(enemy.damage, projectile.direction, projectile.speed);
+                            this.player.decreaseHealth(enemy.damage, this.context, projectile.direction, projectile.speed);
 
                             // Supprimer le projectile
                             enemy.projectiles.splice(i, 1);
@@ -779,7 +830,13 @@ export class gameInstance {
                         if (enemy.constructor.name.includes('Boss')) {
                             if (enemy.health <= 0) {
                                 let weaponDropped = enemy.dropWeapon();
-                                weaponDropped !== null ? this.player.addWeapon(weaponDropped) : null;
+                                if(weaponDropped !== null) {
+                                    this.player.addWeapon(weaponDropped);
+                                    this.pauseGame();
+                                    setTimeout(() => {
+                                        this.resumeGame();
+                                    }, 3000);
+                                }
                                 this.isBossLevel = false;
                                 if (enemy.constructor.name.includes('Void')) {
                                     let expectedBossCount = Math.floor(this.player.level / 50) + 1;
@@ -790,7 +847,7 @@ export class gameInstance {
                             }
                         }
 
-                        this.player.increaseExperience(enemy.xpGived);
+                        this.player.increaseExperience(enemy.xpGived, this.context);
                         i--;
                     }
 
@@ -822,20 +879,19 @@ export class gameInstance {
     draw() {
         // Effacer le canvas
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
+    
         // Calculer la position de départ pour dessiner la carte centrée sur le joueur
         const mapStartX = this.canvas.width / 2 - this.player.x - this.player.width / 2;
         const mapStartY = this.canvas.height / 2 - this.player.y - this.player.height / 2;
-
-        // Dessiner le décor (arrière-plan) centré sur le joueur
-        this.context.fillStyle = 'lightgrey'; // Couleur de la carte
-        this.context.fillRect(mapStartX, mapStartY, this.mapWidth, this.mapHeight);
-
+    
+        // Dessiner l'image de la carte centrée sur le joueur
+        this.context.drawImage(this.mapImage, mapStartX, mapStartY, this.mapWidth, this.mapHeight);
+    
         // Dessiner toutes les pièces et vérifier la collision avec le joueur
         for (let i = 0; i < this.coins.length; i++) {
             if (this.player.isCollidingWithCoin(this.coins[i])) {
                 // Supprimer la pièce si le joueur est en collision avec elle
-                this.player.increaseMoney(this.coins[i].value);
+                this.player.increaseMoney(this.coins[i].value, this.context);
                 this.coins.splice(i, 1);
                 i--; // Ajuster l'index après la suppression
             } else {
@@ -843,12 +899,12 @@ export class gameInstance {
                 this.coins[i].draw(this.context, mapStartX, mapStartY);
             }
         }
-
+    
         // Dessiner tous les projectiles
         for (let projectile of this.player.projectiles) {
             projectile.draw(this.context, mapStartX, mapStartY, 'player');
         }
-
+    
         // Dessiner tous les projectiles des ennemis
         for (let enemy of this.enemies) {
             for (let projectile of enemy.projectiles) {
@@ -861,10 +917,10 @@ export class gameInstance {
                 }
             }
         }
-
+    
         // Dessiner le joueur au milieu de l'écran
         this.player.draw(this.context, this.canvas.width / 2 - this.player.width / 2, this.canvas.height / 2 - this.player.height / 2, mapStartX, mapStartY);
-
+    
         // Dessiner tous les ennemis
         for (let enemy of this.enemies) {
             // Vérifier si l'ennemi est mort
@@ -876,29 +932,29 @@ export class gameInstance {
                 enemy.drawHealthBar(this.context, mapStartX, mapStartY);
             }
         }
-
+    
         // Dessinez les items spéciaux
         for (let specialItem of this.specialItems) {
             specialItem.draw(this.context, mapStartX, mapStartY);
         }
-
+    
         // Dessiner l'ATH
         this.player.drawHealthBar(this.context);
         this.player.drawExperienceBar(this.context);
         this.player.drawLevel(this.context);
         this.player.drawMoney(this.context);
         this.player.drawScore(this.context);
-
+    
         // Supprimer les effets de hit qui ont expiré
         this.player.hitEffects = this.player.hitEffects.filter(hitEffect => hitEffect.duration > 0);
-
+    
         // Timer
         this.context.fillStyle = 'black';
-        this.context.font = '30px Roboto';
+        this.context.font = '30px VT323 !important';
         const timerText = this.getElapsedTime();
         const textWidth = this.context.measureText(timerText).width;
         this.context.fillText(timerText, (this.canvas.width - textWidth) / 2, this.canvas.height - 10);
-
+    
         // Demander une nouvelle animation
         requestAnimationFrame(() => this.draw());
     }

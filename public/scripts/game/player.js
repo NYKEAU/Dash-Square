@@ -1,5 +1,5 @@
 import { HitEffect } from './hitEffect.js';
-import { Weapon, Pistol, Shotgun, SMG, Famas, Sniper } from './weapon.js';
+import { Weapon, Pistol, Shotgun, SMG, P90, Sniper } from './weapon.js';
 import { getJoystick } from './joystick.js';
 
 export class Player {
@@ -24,11 +24,14 @@ export class Player {
         this.weapon = new Pistol(this); // Initialiser l'arme de base du joueur
         this.weapons = [new Pistol(this)]; // Initialiser l'arsenal du joueur
         this.currentWeaponIndex = 0; // L'arme actuellement équipée par le joueur
+        this.currentWeaponImage = new Image(); // L'image de l'arme actuellement équipée par le joueur
+        this.currentWeaponImage.src = this.weapon.image.src;
         this.projectiles = []; // Initialiser les projectiles comme un tableau vide
         this.previousWeapon = null; // L'arme précédente du joueur
 
         // Mouvement
         this.speed = 5; // La vitesse de déplacement du joueur
+        this.currentAngle = 0; // L'angle de rotation actuel du joueur
 
         // Santé et Niveau
         this.health = 100; // La santé du joueur
@@ -69,7 +72,33 @@ export class Player {
     // Méthode pour ajouter une arme
     addWeapon(weapon) {
         this.weapons.push(weapon);
+        this.showWeaponAcquiredAnimation(weapon);
         this.drawWeapons();
+    }
+
+    // Méthode pour afficher l'animation d'obtention d'une nouvelle arme
+    showWeaponAcquiredAnimation(weapon) {
+        const animationContainer = document.createElement('div');
+        animationContainer.classList.add('weapon-acquired-anim');
+        animationContainer.id = 'animEvent';
+
+        const weaponImage = document.createElement('img');
+        weaponImage.src = weapon.image.src;
+        weaponImage.alt = weapon.name;
+
+        const weaponName = document.createElement('div');
+        console.log(weapon);
+        weaponName.innerText = `${weapon.constructor.name}`;
+        weaponName.classList.add('weapon-name');
+
+        animationContainer.appendChild(weaponImage);
+        animationContainer.appendChild(weaponName);
+
+        document.body.appendChild(animationContainer);
+
+        setTimeout(() => {
+            animationContainer.remove();
+        }, 3000);
     }
 
     // Méthode pour vérifier si le joueur possède déjà une arme
@@ -85,13 +114,14 @@ export class Player {
             this.weapon.startShooting();
             this.damage = this.weapon.damage; // Mettre à jour les dégâts du joueur
             this.rof = this.weapon.fireRate; // Mettre à jour la cadence de tir du joueur
-
+    
             this.damage = this.damage + Math.ceil(this.damage * this.permanentStats.Dégâts / 1000);
             this.rof = this.rof + Math.ceil(this.rof * this.permanentStats.Cadence / 1000);
-
+    
             this.updateStatsDisplay();
-
-            console.log(this.permanentStats);
+    
+            // Mettre à jour l'image de l'arme actuelle
+            this.currentWeaponImage.src = this.weapon.image.src;
         } else {
             console.error('Invalid weapon type');
         }
@@ -102,31 +132,48 @@ export class Player {
         for (let hitEffect of this.hitEffects) {
             hitEffect.draw(context, mapStartX - 10, mapStartY);
         }
-
+    
         context.save(); // Sauvegarder l'état actuel du contexte
-
-        // Calculer l'angle de rotation
-        const angle = this.getRotationAngleToEnemy();
-
+    
+        // Calculer l'angle de rotation cible
+        const targetAngle = this.getRotationAngleToEnemy();
+    
+        // Interpoler l'angle de rotation
+        const rotationSpeed = 0.4; // Vitesse de rotation (ajustez cette valeur pour un mouvement plus ou moins fluide)
+        this.currentAngle += (targetAngle - this.currentAngle) * rotationSpeed;
+    
         // Déplacer le contexte au centre du joueur
         context.translate(x + this.width / 2, y + this.height / 2);
-
+    
         // Appliquer la rotation
-        context.rotate(angle + Math.PI / 2);
-
+        context.rotate(this.currentAngle + Math.PI / 2);
+    
         // Dessiner l'image du joueur en tenant compte de la rotation
         context.shadowColor = 'blue';
         context.shadowBlur = 10;
-
+    
         if (this.hitFlash) {
             context.fillStyle = 'white';
             context.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
         } else {
             context.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
         }
-
+    
+        // Appliquer une rotation supplémentaire de -90 degrés pour l'image de l'arme
+        context.rotate(-Math.PI / 2);
+    
+        // Calculer la position et la taille de l'image de l'arme en fonction de ses dimensions
+        const weaponWidth = this.currentWeaponImage.width;
+        const weaponHeight = this.currentWeaponImage.height;
+        const scale = 1.5; // Échelle de l'image de l'arme
+        const offsetX = weaponWidth === 32 ? 25 : 10; // Décalage en x en fonction de la largeur de l'image de l'arme
+        const offsetY = -this.height / 2;
+    
+        // Dessiner l'image de l'arme actuelle
+        context.drawImage(this.currentWeaponImage, -this.width / 2 + offsetX, offsetY, weaponWidth * scale, weaponHeight * scale);
+    
         context.shadowBlur = 0;
-
+    
         context.restore(); // Restaurer l'état précédent du contexte
     }
 
@@ -186,11 +233,12 @@ export class Player {
     // Méthode pour dessiner la barre de vie du joueur
     drawHealthBar(context) {
         const barWidth = (this.maxHealth < this.maxBarWidth) ? (this.health / this.maxHealth) * this.maxHealth : (this.health / this.maxHealth) * this.maxBarWidth; // La largeur de la b<arre d'expérience est proportionnelle à l'expérience du joueur
-        const barHeight = 25; // La hauteur de la barre de vie
+        const barHeight = 30; // La hauteur de la barre de vie
         const barX = 10; // La position x de la barre de vie (10 pixels depuis le bord gauche de l'écran)
         const barY = 10; // La position y de la barre de vie (10 pixels depuis le haut de l'écran)
 
         // Dessiner le contour de la barre de vie
+        // console.log(context);
         context.strokeStyle = 'black';
         if (this.maxHealth < this.maxBarWidth) {
             context.strokeRect(barX, barY, this.maxHealth, barHeight);
@@ -211,8 +259,8 @@ export class Player {
 
         // Dessiner le nombre de points de vie dans la barre de vie
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = '16px Roboto'; // Taille et police du texte
-        context.fillText(healthText, barX + 5, barY + 17.5); // Position du texte
+        context.font = '12px VT323 !important'; // Taille et police du texte
+        context.fillText(healthText, barX + 5, barY + 25); // Position du texte
     }
 
     // Méthode pour dessiner la barre d'expérience du joueur
@@ -221,13 +269,14 @@ export class Player {
         context.save();
 
         const barWidth = (this.maxHealth < this.maxBarWidth) ? (this.experience / this.maxExperience) * this.maxHealth : (this.experience / this.maxExperience) * this.maxBarWidth; // La largeur de la barre d'expérience est proportionnelle à l'expérience du joueur
-        const barHeight = 12.5; // La hauteur de la barre d'expérience
+        const barHeight = 30; // La hauteur de la barre d'expérience
         const barX = 10; // La position x de la barre d'expérience (10 pixels depuis le bord gauche de l'écran)
-        const barY = 40; // La position y de la barre d'expérience (40 pixels depuis le haut de l'écran)
+        const barY = 50; // La position y de la barre d'expérience (50 pixels depuis le haut de l'écran)
 
 
         // Dessiner le contour de la barre d'expérience
         context.strokeStyle = 'black';
+
         if (this.maxHealth < this.maxBarWidth) {
             context.strokeRect(barX, barY, this.maxHealth, barHeight);
         } else {
@@ -243,12 +292,12 @@ export class Player {
 
         // Dessiner l'expérience du joueur dans la barre d'expérience
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = '10px Roboto'; // Taille et police du texte
+        context.font = '8px VT323 !important'; // Taille et police du texte
         context.textAlign = 'right'; // Aligner le texte à droite
         if (this.maxHealth < this.maxBarWidth) {
-            context.fillText(experienceText, barX + this.maxHealth - 5, barY + barHeight / 2 + 4);
+            context.fillText(experienceText, barX + this.maxHealth - 2.5, barY + barHeight / 2 + 10);
         } else {
-            context.fillText(experienceText, barX + this.maxBarWidth - 5, barY + barHeight / 2 + 4);
+            context.fillText(experienceText, barX + this.maxBarWidth - 2.5, barY + barHeight / 2 + 10);
         }
 
         // Restaurer l'état du contexte
@@ -262,7 +311,7 @@ export class Player {
 
         // Dessiner le niveau du joueur en haut de l'écran
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = `${30 * this.levelPopupScale}px Roboto`; // Taille et police du texte
+        context.font = `${150 * this.levelPopupScale} VT323 !important`; // Taille et police du texte 
         const textWidth = context.measureText(levelText).width;
         context.fillText(levelText, (this.gameInstance.canvas.width - textWidth) / 2, 50);
 
@@ -279,8 +328,8 @@ export class Player {
 
         // Dessiner l'argent du joueur en haut de l'écran
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = '16px Roboto'; // Taille et police du texte
-        context.fillText(moneyText, 10, 70); // Position du texte
+        context.font = '16px VT323 !important'; // Taille et police du texte
+        context.fillText(moneyText, 10, 110); // Position du texte
     }
 
     // Méthode pour dessiner le score du joueur
@@ -290,7 +339,7 @@ export class Player {
 
         // Dessiner le score du joueur en haut de l'écran
         context.fillStyle = 'black'; // Couleur du texte
-        context.font = '20px Roboto'; // Taille et police du texte
+        context.font = '20px VT323 !important'; // Taille et police du texte
 
         const textWidth = context.measureText(scoreText).width;
         context.fillText(scoreText, (this.gameInstance.canvas.width - textWidth) / 2, this.gameInstance.canvas.height - 50);
@@ -298,7 +347,7 @@ export class Player {
         // Dessiner le texte au-dessus du score si le temps restant est supérieur à 0
         if (this.scorePopupTime > 0) {
             context.fillStyle = `rgba(0, 0, 0, ${this.scorePopupTime / 2})`; // Couleur du texte (avec opacité)
-            context.font = '20px Roboto'; // Taille et police du texte
+            context.font = '20px VT323 !important'; // Taille et police du texte
             context.fillText(this.scorePopupText, (this.gameInstance.canvas.width) / 2, this.scorePopupY); // Position du texte
 
             // Réduire le temps restant et la position y
@@ -486,32 +535,58 @@ export class Player {
     }
 
     // Méthode pour augmenter l'argent du joueur
-    increaseMoney(amount) {
-        this.money += amount;
+    increaseMoney(amount, context) {
+        const incrementMoney = (i) => {
+            if (i < amount) {
+                this.money += 1;
+                // Mettre à jour l'affichage de l'argent
+                this.drawMoney(context);
+                setTimeout(() => incrementMoney(i + 1), 10); // Appeler la fonction après 10ms
+            }
+        };
+    
+        // Démarrer l'animation
+        incrementMoney(0);
     }
 
     // Méthode pour réduire la santé du joueur
-    decreaseHealth(amount) {
+    decreaseHealth(amount, context) {
         // Calculer les dégâts réduits en fonction de la défense
         const effectiveDefense = 1 - Math.pow(1 - this.defense / 100, 1);
         const reducedAmount = amount * (1 - effectiveDefense);
-
-        // Appliquer les dégâts réduits à la santé du joueur
-        this.health -= reducedAmount;
+    
+        // Définir la nouvelle valeur cible de la santé
+        const targetHealth = Math.max(this.health - reducedAmount, 0);
+    
+        // Fonction pour animer la réduction de la santé
+        const animateHealthDecrease = () => {
+            if (this.health > targetHealth) {
+                this.health -= 1; // Réduire la santé progressivement
+                this.drawHealthBar(context); // Mettre à jour la barre de vie
+                requestAnimationFrame(animateHealthDecrease); // Continuer l'animation
+            } else {
+                this.health = targetHealth; // S'assurer que la santé ne descend pas en dessous de la cible
+                this.drawHealthBar(context); // Mettre à jour la barre de vie une dernière fois
+            }
+        };
+    
+        // Démarrer l'animation
+        animateHealthDecrease();
+    
         this.hitFlash = true;
         setTimeout(() => {
             this.hitFlash = false;
         }, this.duration);
-
+    
         // Afficher le nombre de dégâts subis
         this.hitEffects.push(new HitEffect(this, reducedAmount, 'player'));
-
+    
         // Vérifier si le joueur est mort
         if (this.health < 1) {
             this.gameInstance.stopEnemyGeneration();
             this.gameInstance.destroy();
         }
-
+    
         // Jouer l'animation de dégâts
         document.getElementById('ath').style.animation = 'hit 0.25s';
         document.getElementById('ath').style.top = '-50%';
@@ -567,14 +642,28 @@ export class Player {
     }
 
     // Méthode pour augmenter l'expérience du joueur
-    increaseExperience(amount) {
-        this.experience += amount;
+    increaseExperience(amount, context) {
+        const targetExperience = this.experience + amount;
+        const animateExperienceIncrease = () => {
+            if (this.experience < targetExperience) {
+                this.experience += 2; // Augmenter l'expérience progressivement
+                this.drawExperienceBar(context); // Mettre à jour la barre d'expérience
+                requestAnimationFrame(animateExperienceIncrease); // Continuer l'animation
+            } else {
+                this.experience = targetExperience; // S'assurer que l'expérience ne dépasse pas la cible
+                this.drawExperienceBar(context); // Mettre à jour la barre d'expérience une dernière fois
+    
+                // Si l'expérience du joueur est supérieure à l'expérience maximale
+                if (this.experience >= this.maxExperience) {
+                    // Augmenter le niveau du joueur
+                    this.levelUp();
+                }
+            }
+        };
+    
+        // Démarrer l'animation
+        animateExperienceIncrease();
+    
         this.totalExp += amount;
-
-        // Si l'expérience du joueur est supérieure à l'expérience maximale
-        if (this.experience >= this.maxExperience) {
-            // Augmenter le niveau du joueur
-            this.levelUp();
-        }
     }
 }
