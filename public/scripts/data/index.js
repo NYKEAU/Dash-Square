@@ -36,13 +36,18 @@ async function initUser() {
         const data = await user.auth.getUser();
         if (data) {
             profil.innerHTML = `
-                  <span id="position"></span> <b><span class="txt__label">${data.pseudo} -</span> <span class="txt__number">${data.bestscore}</span></b>
-              `;
+                <span id="position"></span> <b><span class="txt__label">${data.pseudo} -</span> <span class="txt__number">${data.bestscore}</span></b>
+            `;
+            currentUser = data;
+        } else {
+            profil.innerHTML = '';
+            currentUser = null;
         }
     } catch (error) {
+        console.error('Erreur initUser:', error);
         profil.innerHTML = '';
+        currentUser = null;
     }
-    currentUser = await user.auth.getUser();
     getScores();
 }
 
@@ -93,13 +98,12 @@ function isLogged() {
             document.getElementById('userDiv').style.display = 'flex';
             isLoggedIn = true;
         } else {
-            console.log('Utilisateur non connecté');
             document.getElementById('connectDiv').style.display = 'flex';
             document.getElementById('userDiv').style.display = 'none';
             isLoggedIn = false;
         }
     }).catch((error) => {
-        console.error('Erreur lors de la vérification de la connexion utilisateur', error);
+        console.error('Erreur isLogged:', error);
         document.getElementById('connectDiv').style.display = 'flex';
         document.getElementById('userDiv').style.display = 'none';
         isLoggedIn = false;

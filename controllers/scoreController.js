@@ -12,7 +12,7 @@ const getScores = async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error('Erreur lors de la récupération des données', error);
-        res.status(500).send('Erreur serveur');
+        res.status(500).json({ error: 'Erreur serveur', details: error.message });
     }
 };
 
@@ -45,7 +45,7 @@ const setScore = async (req, res) => {
         }
     } catch (error) {
         console.error('Erreur lors de la récupération des données', error);
-        res.status(500).send('Erreur serveur');
+        res.status(500).json({ error: 'Erreur serveur', details: error.message });
     }
 };
 

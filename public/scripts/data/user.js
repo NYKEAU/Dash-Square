@@ -68,8 +68,17 @@ export const auth = {
             }
             return res.json();
         }),
-    getUser: () => fetch("/api/user", { credentials: 'include' })
+    getUser: () => fetch("/api/user", { 
+        credentials: 'include',
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+        }
+    })
         .then(res => {
+            if (res.status === 401) {
+                return null;
+            }
             if (!res.ok) {
                 return res.text().then(text => { throw new Error(text) });
             }
