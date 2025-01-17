@@ -1,6 +1,6 @@
-const { collection, addDoc, query, where, getDocs } = require('firebase/firestore');
-const { getAuth, signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider } = require('firebase/auth');
-const db = require('../models/firebaseModel');
+const { collection, query, where, getDocs, addDoc } = require('firebase/firestore');
+const { getAuth, signInWithEmailAndPassword } = require('firebase/auth');
+const { db } = require('../models/firebaseModel');
 
 const login = async (req, res) => {
     const { identifier, password } = req.body;
@@ -27,8 +27,6 @@ const login = async (req, res) => {
         const user = userCredential.user;
         const token = await user.getIdToken();
 
-        await addDoc(collection(db, 'tokens'), { uid: user.uid, token });
-
         res.cookie('token', token, {
             httpOnly: true,
             secure: true,
@@ -43,31 +41,55 @@ const login = async (req, res) => {
     }
 };
 
-// const loginWithGoogle = async (req, res) => {
-//     try {
-//         const { idToken } = req.body;
-//         const auth = getAuth();
-//         const credential = GoogleAuthProvider.credential(idToken);
-//         const userCredential = await signInWithCredential(auth, credential);
-//         const user = userCredential.user;
+const loginWithGoogle = async (req, res) => {
+    try {
+        const { idToken, email, displayName } = req.body;
+        console.log('Données reçues:', { idToken, email, displayName }); // Debug
 
-//         // Gérer la session, créer un token JWT, etc.
-//         const token = await user.getIdToken();
+        // Vérifier si l'utilisateur existe déjà
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('email', '==', email));
+        const querySnapshot = await getDocs(q);
 
-//         // Enregistre ou utilise le token
-//         res.cookie('token', token, {
-//             httpOnly: true,
-//             secure: true,
-//             sameSite: 'strict',
-//             maxAge: 365 * 24 * 60 * 60 * 1000
-//         });
+        let userData;
+        if (querySnapshot.empty) {
+            // Créer un nouvel utilisateur
+            userData = {
+                uid: idToken,
+                email: email,
+                pseudo: displayName || email.split('@')[0],
+                bestscore: 0
+            };
+            console.log('Création nouvel utilisateur:', userData); // Debug
+            await addDoc(collection(db, 'users'), userData);
+        } else {
+            userData = querySnapshot.docs[0].data();
+            console.log('Utilisateur existant:', userData); // Debug
+        }
 
-//         res.status(200).json({ uid: user.uid, email: user.email, token });
-//     } catch (error) {
-//         console.error('Erreur lors de la connexion utilisateur', error);
-//         res.status(401).json({ error: 'Identifiants invalides', details: error.message });
-//     }
-// };
+        // Créer le token de session
+        res.cookie('token', idToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 365 * 24 * 60 * 60 * 1000
+        });
+
+        res.status(200).json({
+            uid: userData.uid,
+            email: userData.email,
+            pseudo: userData.pseudo,
+            bestscore: userData.bestscore,
+            token: idToken
+        });
+    } catch (error) {
+        console.error('Erreur détaillée:', error); // Debug
+        res.status(401).json({ 
+            error: 'Erreur lors de la connexion Google', 
+            details: error.message 
+        });
+    }
+};
 
 const forgotPassword = async (req, res) => {
     const { email } = req.body;
@@ -159,5 +181,4 @@ const getUser = async (req, res) => {
     }
 };
 
-module.exports = { getUser, login, forgotPassword, register, logout };
-// module.exports = { getUser, login, loginWithGoogle, forgotPassword, register, logout };
+module.exports = { getUser, login, loginWithGoogle, forgotPassword, register, logout };

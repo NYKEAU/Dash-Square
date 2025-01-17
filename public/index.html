@@ -1,203 +1,265 @@
 <!DOCTYPE html>
 <html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="description" content="Simple jeu de type rogue-lite">
-    <meta name="keywords" content="rogue-lite, jeu, simple, javascript">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <meta name="description" content="Simple jeu de type rogue-lite" />
+    <meta name="keywords" content="rogue-lite, jeu, simple, javascript" />
     <title>Dash Square</title>
-    <link rel="stylesheet" href="index.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8486363630416927"
-        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="index.css" />
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8486363630416927"
+      crossorigin="anonymous"
+    ></script>
     <script type="module" src="main.js"></script>
     <script type="module" src="./scripts/data/index.js"></script>
     <script type="module" src="./scripts/game/pleaseRotate.js"></script>
-</head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
 
-<body>
+  <body>
     <div id="ath">
-        <div id="vignette"></div>
-        <div id="errorSection" style="opacity: 0;">
-            <p>Erreur de connexion</p>
+      <div id="vignette"></div>
+      <div id="errorSection" style="opacity: 0">
+        <p>Erreur de connexion</p>
+      </div>
+      <div id="baseMenu">
+        <div class="startMenu" id="startMenu">
+          <h1 style="margin-top: 0">Dash Square</h1>
+          <button id="startButton" class="button">Commencer</button>
+          <div id="connectDiv">
+            <h3 style="margin-top: 0px">OU</h3>
+            <a id="loginButton" class="button">Se connecter</a>
+            <p style="margin-top: 0px">pour enregistrer votre score !</p>
+          </div>
+          <div id="userDiv" style="display: none">
+            <div id="leaderboardPlace"></div>
+            <a class="button" id="logoutBtn">Se déconnecter</a>
+          </div>
         </div>
-        <div id="baseMenu">
-            <div class="startMenu" id="startMenu">
-                <h1 style="margin-top: 0;">Dash Square</h1>
-                <button id="startButton">Commencer</button>
-                <div id="connectDiv">
-                    <h3 style="margin-top: 0px;">OU</h3>
-                    <a id="loginButton" class="button">Se connecter</a>
-                    <p style="margin-top: 0px;">pour enregistrer votre score !</p>
-                </div>
-                <div id="userDiv" style="display: none;">
-                    <div id="leaderboardPlace"></div>
-                    <a class="button" id="logoutBtn">Se déconnecter</a>
-                </div>
-            </div>
-            <div class="startMenu" id="leaderboardMenu">
-                <h1>Classement</h1>
-                <ul id="leaderboard"></ul>
-            </div>
+        <div class="startMenu" id="leaderboardMenu">
+          <h1>Classement</h1>
+          <ul id="leaderboard"></ul>
         </div>
+      </div>
 
-        <div id="mobileSwitch">
-            <label for="mobileMode">Mode mobile</label>
-            <label class="switch">
-                <input id="mobileMode" type="checkbox">
-                <span class="slider"></span>
-            </label>
-        </div>
+      <div id="mobileSwitch">
+        <label for="mobileMode">Mode mobile</label>
+        <label class="switch">
+          <input id="mobileMode" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
 
-        <div class="menu" id="loginRegisterMenu" style="display: none;">
-            <div id="backArrow" style="display: flex;">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-                    <path d="M0 0h24v24H0V0z" fill="none" />
-                    <path fill="white" d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
-                </svg>
-            </div>
-            <div id="tabs">
-                <button id="connectTab" class="tab activeTab">Connexion</button>
-                <button id="registerTab" class="tab">Inscription</button>
-            </div>
-            <div id="loginForm">
-                <form id="login-form">
-                    <label for="login">Pseudo / Email</label>
-                    <input type="text" id="login-text" name="login" required>
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="login-password" name="passwordLogin" required>
-                    <div class="connexionBtns">
-                        <button id="connexionButton" type="submit">Se connecter</button>
-                        <!-- <h3>OU</h3>
-                        <button id="googleLoginButton" class="button" disabled>Google</button> -->
-                    </div>
-                    <a id="forgotPasswordTab" class="tab button">Mot de passe oublié</a>
-                </form>
-            </div>
-            <div id="forgotPasswordForm" style="display: none;">
-                <form id="forgot-password-form">
-                    <label for="emailRecover">Adresse e-mail</label>
-                    <input type="email" id="emailRecover" name="emailRecover" required>
-                    <button id="forgotPasswordButton" type="submit">Envoyer</button>
-                </form>
-            </div>
-            <div id="registerForm" style="display: none;">
-                <form id="register-form">
-                    <label for="login">Pseudo</label>
-                    <input type="text" id="text" name="login" required>
-                    <label for="email">Adresse e-mail</label>
-                    <input type="email" id="email" name="email" required>
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password" required>
-                    <button id="registerButton" type="submit">S'inscrire</button>
-                </form>
-            </div>
+      <div
+        id="loginRegisterMenu"
+        class="menu"
+        style="display: none; height: 45vh; padding-top: 0"
+      >
+        <div class="tabs-container">
+          <button id="loginTab" class="tab-btn active">Connexion</button>
+          <button id="registerTab" class="tab-btn">Inscription</button>
         </div>
-        <div id="pauseBtn" style="display: none;">
-            <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 0 48 48" width="48">
-                <path d="M0 0h48v48H0V0z" fill="none" />
-                <path fill="black" d="M12 38h8V10h-8v28zm16-28v28h8V10h-8z" />
-            </svg>
+        <div id="backArrow" class="back-btn">
+          <button class="pixel-btn">
+            <i class="fas fa-chevron-left"></i>
+            Retour
+          </button>
         </div>
-        <div id="wrapper" style="display: none;"></div>
-        <div id="weaponsContainer"></div>
-        <div class="menu" id="pauseMenu" style="display: none;">
-            <h1>Pause</h1>
-            <button id="resumeButton">Reprendre</button>
-            <button id="quitButton">Quitter</button>
-            <div id="statsSwitch" style="margin-top: 10px;">
-                <label for="constantStats">Affichage constant des statistiques</label>
-                <label class="switch">
-                    <input id="constantStats" type="checkbox">
-                    <span class="slider"></span>
-                </label>
+        <div id="loginForm">
+          <form id="login-form">
+            <label for="login">Pseudo / Email</label>
+            <input type="text" id="login-text" name="login" required />
+            <label for="password">Mot de passe</label>
+            <input
+              type="password"
+              id="login-password"
+              name="passwordLogin"
+              required
+            />
+            <div class="connexionBtns">
+              <button type="submit" class="auth-btn primary">
+                Se connecter
+              </button>
+              <button
+                type="button"
+                id="googleLoginButton"
+                class="auth-btn google-btn"
+              >
+                <i class="fab fa-google"></i>
+              </button>
             </div>
+            <a id="forgotPasswordTab" class="auth-link">Mot de passe oublié</a>
+          </form>
         </div>
-        <div id="statsMenu" style="display: none;">
-            <h1>Statistiques</h1>
-            <ul id="statsList">
-                <li id="healthStats">
-                    <br>
-                    <ul id="healthStatsList">
-                        <li>Vie: <span id="health"></span></li>
-                        <li>Vitesse: <span id="speed"></span></li>
-                        <li>Exp: <span id="exp"></span></li>
-                        <li>Argent: <span id="money"></span></li>
-                    </ul>
-                    <br>
-                <li id="damageStats">
-                    <br>
-                    <ul id="damageStatsList">
-                        <li>Défense: <span id="defense"></span></li>
-                        <li>Dégâts: <span id="damage"></span></li>
-                        <li>Cadence: <span id="cadence"></span></li>
-                    </ul>
-                    <br>
-                </li>
+        <div id="forgotPasswordForm" style="display: none">
+          <form id="forgot-password-form">
+            <label for="emailRecover">Adresse e-mail</label>
+            <input
+              type="email"
+              id="emailRecover"
+              name="emailRecover"
+              required
+            />
+            <button id="forgotPasswordButton" type="submit">Envoyer</button>
+          </form>
+        </div>
+        <div id="registerForm" style="display: none">
+          <form id="register-form">
+            <label for="login">Pseudo</label>
+            <input type="text" id="text" name="login" required />
+            <label for="email">Adresse e-mail</label>
+            <input type="email" id="email" name="email" required />
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" required />
+            <div class="connexionBtns">
+              <button type="submit" class="auth-btn register">
+                S'inscrire
+              </button>
+              <button
+                type="button"
+                id="googleRegisterButton"
+                class="auth-btn google-btn"
+              >
+                <i class="fab fa-google"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div id="pauseBtn" style="display: none">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="48"
+          viewBox="0 0 48 48"
+          width="48"
+        >
+          <path d="M0 0h48v48H0V0z" fill="none" />
+          <path fill="black" d="M12 38h8V10h-8v28zm16-28v28h8V10h-8z" />
+        </svg>
+      </div>
+      <div id="wrapper" style="display: none"></div>
+      <div id="weaponsContainer"></div>
+      <div class="menu" id="pauseMenu" style="display: none">
+        <h1>Pause</h1>
+        <button class="button" id="resumeButton">Reprendre</button>
+        <button class="button" id="quitButton">Quitter</button>
+        <div id="statsSwitch" style="margin-top: 10px">
+          <label for="constantStats">Affichage constant des statistiques</label>
+          <label class="switch">
+            <input id="constantStats" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <div id="statsMenu" style="display: none">
+        <h1>Statistiques</h1>
+        <ul id="statsList">
+          <li id="healthStats">
+            <br />
+            <ul id="healthStatsList">
+              <li>Vie: <span id="health"></span></li>
+              <li>Vitesse: <span id="speed"></span></li>
+              <li>Exp: <span id="exp"></span></li>
+              <li>Argent: <span id="money"></span></li>
             </ul>
-        </div>
-        <canvas id="gameCanvas" style="display: none;"></canvas>
-        <div class="menu" id="shop" style="display: none;">
-            <h1>Magasin</h1>
-            <ul id="shopItems"></ul>
-            <button id="shopClose">Fermer</button>
-        </div>
-        <div class="menu" id="gameOverMenu" style="display: none;">
-            <h1>Game Over</h1>
-            <p>Score: <span id="score"></span></p>
-            <p>Timer: <span id="timerScore"></span></p>
-            <h3>Score final: <span id="finalScore"></span></h3>
-            <button id="restartButton">Quitter</button>
-        </div>
+            <br />
+          </li>
+
+          <li id="damageStats">
+            <br />
+            <ul id="damageStatsList">
+              <li>Défense: <span id="defense"></span></li>
+              <li>Dégâts: <span id="damage"></span></li>
+              <li>Cadence: <span id="cadence"></span></li>
+            </ul>
+            <br />
+          </li>
+        </ul>
+      </div>
+      <canvas id="gameCanvas" style="display: none"></canvas>
+      <div class="menu" id="shop" style="display: none">
+        <h1>Magasin</h1>
+        <ul id="shopItems"></ul>
+        <button id="shopClose">Fermer</button>
+      </div>
+      <div class="menu" id="gameOverMenu" style="display: none">
+        <h1>Game Over</h1>
+        <p>Score: <span id="score"></span></p>
+        <p>Timer: <span id="timerScore"></span></p>
+        <h3>
+          <span class="wave-text">
+            <span>S</span>
+            <span>C</span>
+            <span>O</span>
+            <span>R</span>
+            <span>E</span>
+            <span>&nbsp;</span>
+            <span>F</span>
+            <span>I</span>
+            <span>N</span>
+            <span>A</span>
+            <span>L</span> </span
+          >:
+          <span id="finalScore"></span>
+        </h3>
+        <button class="button" id="restartButton">Quitter</button>
+      </div>
     </div>
-</body>
+  </body>
 
-<script type="text/javascript">
-    const loginButton = document.getElementById('loginButton');
-    const loginMenu = document.getElementById('loginRegisterMenu');
-    const startMenu = document.getElementById('startMenu');
-    const leaderboardMenu = document.getElementById('leaderboardMenu');
-    const mobileSwitch = document.getElementById('mobileSwitch');
+  <script type="text/javascript">
+    const loginButton = document.getElementById("loginButton");
+    const loginMenu = document.getElementById("loginRegisterMenu");
+    const startMenu = document.getElementById("startMenu");
+    const leaderboardMenu = document.getElementById("leaderboardMenu");
+    const mobileSwitch = document.getElementById("mobileSwitch");
 
-    loginButton.addEventListener('click', () => {
-        loginMenu.style.display = 'block';
-        startMenu.style.display = 'none';
-        leaderboardMenu.style.display = 'none';
-        mobileSwitch.style.display = 'none';
+    loginButton.addEventListener("click", () => {
+      loginMenu.style.display = "block";
+      startMenu.style.display = "none";
+      leaderboardMenu.style.display = "none";
+      mobileSwitch.style.display = "none";
     });
 
-    const connectTab = document.getElementById('connectTab');
-    const registerTab = document.getElementById('registerTab');
-    const forgotPasswordTab = document.getElementById('forgotPasswordTab');
-    const connectForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
+    const forgotPasswordTab = document.getElementById("forgotPasswordTab");
+    const connectForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
 
-    connectTab.addEventListener('click', () => {
-        connectTab.classList.add('activeTab');
-        registerTab.classList.remove('activeTab');
-        forgotPasswordTab.classList.remove('activeTab');
-        connectForm.style.display = 'block';
-        registerForm.style.display = 'none';
-        forgotPasswordForm.style.display = 'none';
+    loginTab.addEventListener("click", () => {
+      loginTab.classList.add("activeTab");
+      registerTab.classList.remove("activeTab");
+      forgotPasswordTab.classList.remove("activeTab");
+      connectForm.style.display = "block";
+      registerForm.style.display = "none";
+      forgotPasswordForm.style.display = "none";
     });
 
-    registerTab.addEventListener('click', () => {
-        connectTab.classList.remove('activeTab');
-        registerTab.classList.add('activeTab');
-        forgotPasswordTab.classList.remove('activeTab');
-        connectForm.style.display = 'none';
-        registerForm.style.display = 'block';
-        forgotPasswordForm.style.display = 'none';
+    registerTab.addEventListener("click", () => {
+      loginTab.classList.remove("activeTab");
+      registerTab.classList.add("activeTab");
+      forgotPasswordTab.classList.remove("activeTab");
+      connectForm.style.display = "none";
+      registerForm.style.display = "block";
+      forgotPasswordForm.style.display = "none";
     });
 
-    forgotPasswordTab.addEventListener('click', () => {
-        connectTab.classList.remove('activeTab');
-        registerTab.classList.remove('activeTab');
-        forgotPasswordTab.classList.add('activeTab');
-        connectForm.style.display = 'none';
-        registerForm.style.display = 'none';
-        forgotPasswordForm.style.display = 'block';
+    forgotPasswordTab.addEventListener("click", () => {
+      loginTab.classList.remove("activeTab");
+      registerTab.classList.remove("activeTab");
+      forgotPasswordTab.classList.add("activeTab");
+      connectForm.style.display = "none";
+      registerForm.style.display = "none";
+      forgotPasswordForm.style.display = "block";
     });
-</script>
-
+  </script>
 </html>

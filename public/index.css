@@ -1,379 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-
-@media screen and (max-width: 750px) {
-    #startMenu * {
-        margin: 0;
-    }
-
-    .menuText {
-        display: none;
-    }
-
-    #pauseMenu {
-        min-width: 25%;
-    }
-
-    #shop {
-        z-index: 100;
-        position: fixed;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        top: 50%;
-        left: 50%;
-        min-width: 50%;
-        transform: translate(-50%, -50%);
-        background-color: rgba(0, 0, 0, 0.8);
-        border: 2px solid #000;
-        color: white;
-        padding: 20px;
-        text-align: center;
-    }
-}
+@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
 
 body {
-    overflow: hidden;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: "VT323", sans-serif !important;
+  text-transform: uppercase;
+  font-size: 24px;
+  color: white;
+}
+
+@media screen and (max-width: 750px) {
+  #startMenu * {
     margin: 0;
-    padding: 0;
-    font-family: 'VT323', sans-serif !important;
-    font-size: 24px;
-}
-
-#ath {
-    position: fixed;
-    height: 100vh;
-    width: 100vw;
-}
-
-@keyframes hit {
-    0% {
-        transform: translate(+1px, 50.5%) rotate(0deg);
-    }
-
-    10% {
-        transform: translate(-1px, 49%) rotate(-1deg);
-    }
-
-    20% {
-        transform: translate(-3px, 50%) rotate(1deg);
-    }
-
-    30% {
-        transform: translate(+3px, 51%) rotate(0deg);
-    }
-
-    40% {
-        transform: translate(+1px, 49.5%) rotate(1deg);
-    }
-
-    50% {
-        transform: translate(-1px, 51%) rotate(-1deg);
-    }
-
-    60% {
-        transform: translate(-3px, 50.5%) rotate(0deg);
-    }
-
-    70% {
-        transform: translate(+3px, 50.5%) rotate(-1deg);
-    }
-
-    80% {
-        transform: translate(-1px, 49.5%) rotate(1deg);
-    }
-
-    90% {
-        transform: translate(+1px, 51%) rotate(0deg);
-    }
-
-    100% {
-        transform: translate(+1px, 49%) rotate(-1deg);
-    }
-}
-
-
-#vignette {
-    position: fixed;
-    top: -10px;
-    left: -10px;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.5) 100%);
-    pointer-events: none;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 10px solid rgba(0, 0, 0, 0.7);
-    box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.7) inset;
-    z-index: 1000;
-}
-
-#animEvent {
-    position: fixed;
-    top: calc(50% - 20vh);
-    left: calc(50% - 21.25vw);
-    width: 40vw;
-    height: 40vh;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.weapon-acquired-anim {
-    position: relative;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    z-index: 1000;
-    animation: zoomInFadeOut 3s ease-in-out;
-    overflow: hidden;
-}
-
-.weapon-acquired-anim::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 25%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0) 100%);
-    z-index: 1;
-}
-
-.weapon-acquired-anim::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('./assets/Sprites/Jsp.png') no-repeat center/85%;
-    z-index: 1;
-    animation: rotateBackground 10s linear infinite;
-}
-
-.weapon-acquired-anim img {
-    position: relative;
-    width: 75%;
-    z-index: 2;
-    animation: glow 3s ease-in-out, rotate 3s ease-in-out, float 3s ease-in-out;
-}
-
-.weapon-name {
-    margin-top: 10px;
-    font-size: 62px;
-    color: #fff;
-    z-index: 2;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-}
-
-@keyframes zoomInFadeOut {
-    0% {
-        opacity: 0;
-        transform: scale(0);
-    }
-    10% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    90% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(1);
-    }
-}
-
-@keyframes glow {
-    0% {
-        filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
-    }
-    50% {
-        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1));
-    }
-    100% {
-        filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
-    }
-}
-
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    50% {
-        transform: rotate(360deg);
-    }
-    100% {
-        transform: rotate(0deg);
-    }
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-@keyframes rotateBackground {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-#gameCanvas {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background-color: darkgray;
-}
-
-#gameCanvas * {
-    font-family: 'VT323', sans-serif !important;
-}
-
-#wrapper {
-    position: absolute;
-    width: 20vh;
-    height: 20vh;
-    top: 50%;
-    left: 15%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-}
-
-.joystick {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.15);
-    border-radius: 100%;
-    cursor: pointer;
-    height: 20vh;
-    width: 20vh;
-    user-select: none;
-    z-index: 1000;
-}
-
-.used {
-    background-color: rgba(0, 0, 0, 0.3);
-}
-
-#connexion {
-    z-index: 100;
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    height: 400px;
-    width: 500px;
-    border: 1px solid #000;
-    padding: 20px;
-    background-color: #fff;
-}
-
-#choiceBtns {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    width: 100%;
-}
-
-#choiceBtns button {
-    padding: 5px 10px;
-    font-size: 18px;
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0);
-    color: #fff;
-    border: none;
-    border-bottom: white 2px solid;
-}
-
-#signIn {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-}
-
-#signUp {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-}
-
-#connexion input {
-    padding: 10px;
-    font-size: 18px;
-    width: 50%;
-    margin-top: 10px;
-}
-
-button,
-.button {
-    background-color: lightgrey;
-    color: #000;
-    text-decoration: none;
-    border: 2px solid #000;
-    padding: 10px 20px;
-    font-family: 'VT323', sans-serif !important;
-    font-size: 32px;
-    cursor: pointer;
-    margin: 10px;
-    transition: all 0.1s ease-in-out;
-}
-
-button:hover,
-.button:hover {
-    background-color: #000;
-    border: 2px solid #fff;
-    color: #fff;
-
-}
-
-#baseMenu {
-    position: fixed;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: -webkit-fill-available;
-    color: white;
-    text-align: center;
-}
-
-.startMenu {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.8);
-    min-height: 30vh;
-    max-height: 50vh;
-    width: 40%;
-    margin: 20px;
-    padding: 20px;
-}
-
-.menu {
+  }
+  .menuText {
+    display: none;
+  }
+  #pauseMenu {
+    min-width: 25%;
+  }
+  #shop {
     z-index: 100;
     position: fixed;
     display: flex;
@@ -389,355 +36,1242 @@ button:hover,
     color: white;
     padding: 20px;
     text-align: center;
+  }
 }
 
-.menu form {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
+@keyframes hit {
+  0% {
+    transform: translate(+1px, 50.5%) rotate(0deg);
+  }
+  10% {
+    transform: translate(-1px, 49%) rotate(-1deg);
+  }
+  20% {
+    transform: translate(-3px, 50%) rotate(1deg);
+  }
+  30% {
+    transform: translate(+3px, 51%) rotate(0deg);
+  }
+  40% {
+    transform: translate(+1px, 49.5%) rotate(1deg);
+  }
+  50% {
+    transform: translate(-1px, 51%) rotate(-1deg);
+  }
+  60% {
+    transform: translate(-3px, 50.5%) rotate(0deg);
+  }
+  70% {
+    transform: translate(+3px, 50.5%) rotate(-1deg);
+  }
+  80% {
+    transform: translate(-1px, 49.5%) rotate(1deg);
+  }
+  90% {
+    transform: translate(+1px, 51%) rotate(0deg);
+  }
+  100% {
+    transform: translate(+1px, 49%) rotate(-1deg);
+  }
 }
 
-.menu input {
-    padding: 5px;
-    font-size: 15px;
-    width: 50%;
-    margin-bottom: 10px;
-}
-
-#connectDiv {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-}
-
-#userDiv {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-}
-
-#mobileSwitch {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    gap: 20px;
-    transform: translate(-50%, -50%);
-}
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 30px;
-    height: 17px;
-}
-
-.switch input {
+@keyframes zoomInFadeOut {
+  0% {
     opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 17px;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 13px;
-    width: 13px;
-    left: 2px;
-    bottom: 2px;
-    border-radius: 50%;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-}
-
-input:checked+.slider {
-    background-color: #2196F3;
-}
-
-input:focus+.slider {
-    box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked+.slider:before {
-    -webkit-transform: translateX(13px);
-    -ms-transform: translateX(13px);
-    transform: translateX(13px);
-}
-
-#errorSection {
-    color: black;
-    font-weight: bolder;
-    position: fixed;
+    transform: scale(0);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
     opacity: 0;
-    top: 15%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 0;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border: 2px solid red;
-    border-radius: 5px;
-    transition: all 0.5s ease-in-out;
+    transform: scale(1);
+  }
 }
 
-#leaderboard {
-    padding-left: 0;
-    min-height: 30vh;
-    max-height: 40vh;
-    width: 75%;
-    overflow-y: scroll;
+@keyframes glow {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1));
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  }
 }
 
-#leaderboard::-webkit-scrollbar {
-    width: 8px;
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
-#leaderboard::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0);
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
-#leaderboard::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 1);
-    border-radius: 10px;
-    border: 2px solid rgba(0, 0, 0, 0);
-}
-
-#leaderboard .score-item {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid white;
-}
-
-#leaderboard .score-item:last-child {
-    border-bottom: none;
-}
-
-#leaderboardPlace {
-    padding: 15px;
-}
-
-#statsMenu {
-    position: absolute;
-    display: block;
-    text-align: center;
-    background-color: rgba(0, 0, 0, 0.8);
-    min-height: 30vh;
-    padding: 20px;
-    left: 0;
-    top: 50%;
-    transform: translate(0, -50%);
-    z-index: 100;
-}
-
-#statsMenu h1 {
-    margin-top: 0;
-}
-
-#statsMenu h2 {
-    margin-bottom: 0;
-}
-
-#statsMenu ul {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#statsMenu * {
-    color: white;
-    display: inline-block;
-    text-align: center;
-    text-decoration: none;
-    padding-left: 0;
-}
-
-#healthStats,
-#damageStats {
-    width: 100%;
-}
-
-#healthStats li,
-#damageStats li {
-    position: relative;
-    width: 100%;
-    left: 0;
-    text-align: start;
-}
-
-#healthStats li span,
-#damageStats li span {
-    position: absolute;
-    right: 0;
-}
-
-#pauseBtn {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    z-index: 100;
-}
-
-#pauseMenu h1,
-#shop h1 {
-    margin-top: 0;
-}
-
-#shop ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    width: 100%;
-}
-
-.shopItem {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-    min-width: 25%;
-    padding: 20px 10px;
-    margin: 20px 10px;
-    cursor: pointer;
-    background-color: white;
-    transition: all 0.1s ease-in-out;
-}
-
-.shopItem:hover {
-    transform: scale(1.1);
-}
-
-.shopItem * {
-    color: black;
-}
-
-.shopItem h2 {
-    margin: 0;
-    font-size: 48px;
-}
-
-.shopItem h3 {
-    margin-top: 0;
-    font-size: 32px;
-}
-
-.shopItem div {
-    display: flex;
-    flex-direction: row;
-    font-size: 24px;
-}
-
-.shopItem svg {
-    width: 20px;
+@keyframes rotateBackground {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes horizontal-shaking {
-    0% {
-        transform: translateX(0)
-    }
-
-    25% {
-        transform: translateX(2.5px)
-    }
-
-    50% {
-        transform: translateX(-2.5px)
-    }
-
-    75% {
-        transform: translateX(2.5px)
-    }
-
-    100% {
-        transform: translateX(0)
-    }
-}
-
-#shopClose {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    margin: 0;
-}
-
-.hidden {
-    opacity: 0;
-    transition: all 0.5s ease-in-out;
-}
-
-#weaponsContainer {
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    bottom: 10px;
-    right: 20px;
-    z-index: 100;
-}
-
-.weapon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100px;
-    height: 50px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.1s ease-in-out;
-    margin: 0 10px 10px 0;
-    padding: 10px;
-}
-
-.selected {
-    transform: scale(1.1);
-    border: 1px solid #000;
-    background-color: rgba(0, 0, 0, 0.25);
-    margin-right: 0;
-}
-
-.tab {
-    padding: 5px 10px;
-    font-size: 15px;
-    margin-bottom: 20px;
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0);
-    color: #fff;
-    border: rgba(0, 0, 0, 0) 2px solid;
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(2.5px);
+  }
+  50% {
+    transform: translateX(-2.5px);
+  }
+  75% {
+    transform: translateX(2.5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .activeTab {
-    border-bottom: white 2px solid;
+  border-bottom: white 2px solid;
+}
+
+#animEvent {
+  position: fixed;
+  top: calc(50% - 20vh);
+  left: calc(50% - 21.25vw);
+  width: 40vw;
+  height: 40vh;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#ath {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Style pour le fond derrière les menus */
+#ath::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    #1a252f,
+    /* Bleu plus foncé */ #2c3e50,
+    /* Bleu foncé */ #34495e /* Bleu gris */
+  );
+  opacity: 0.95;
+  z-index: -1;
+  animation: gradientBG 15s ease infinite;
+  backdrop-filter: blur(5px);
+}
+
+/* Style de base pour les boutons de connexion */
+.auth-btn {
+  font-family: "VT323", sans-serif;
+  font-size: 22px;
+  padding: 10px 25px;
+  margin: 8px;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: #d4d4d4;
+  /* Gris clair plus doux */
+  color: #333;
+}
+
+/* Style spécifique pour le bouton Google */
+.auth-btn.google-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #8ca2d3;
+  /* Bleu Google plus doux */
+  color: white;
+  border-color: #6b82b3;
+  box-shadow: 2px 2px 0 0 #6b82b3, -2px -2px 0 0 #a7b8e0;
+}
+
+.auth-btn.google-btn i {
+  font-size: 18px;
+}
+
+.auth-btn.google-btn:hover {
+  background: #6b82b3;
+  box-shadow: 0 0 0 0 #6b82b3, -4px -4px 0 0 #a7b8e0;
+}
+
+/* Style pour le bouton de connexion principal */
+.auth-btn.primary {
+  background: #2ecc71;
+  color: white;
+  box-shadow: 0 4px 0 #27ae60, 0 0 20px rgba(46, 204, 113, 0.4);
+}
+
+.auth-btn.primary:hover {
+  background: #27ae60;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #219a52, 0 0 25px rgba(46, 204, 113, 0.6);
+}
+
+/* Style pour le bouton d'inscription */
+.auth-btn.register {
+  background: #3498db;
+  color: white;
+  box-shadow: 0 4px 0 #2980b9, 0 0 20px rgba(52, 152, 219, 0.4);
+}
+
+.auth-btn.register:hover {
+  background: #2980b9;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2472a4, 0 0 25px rgba(52, 152, 219, 0.6);
+}
+
+/* Hover effect */
+.auth-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 #000, -4px -4px 0 0 #666;
+}
+
+/* Style pour le lien "mot de passe oublié" */
+.auth-link {
+  font-family: "VT323", sans-serif;
+  font-size: 20px;
+  color: #666;
+  text-decoration: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+/* Style pour les liens d'authentification */
+.auth-link {
+  font-family: "VT323", sans-serif;
+  font-size: 20px;
+  color: #888;
+  text-decoration: none;
+  padding: 5px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  display: block;
+  margin-top: 15px;
+  transition: all 0.2s ease;
+}
+
+.auth-link:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.auth-link:hover {
+  color: #3498db;
+  text-decoration: none;
+}
+
+/* Style pour le bouton retour */
+.back-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.back-btn .pixel-btn {
+  font-family: "VT323", sans-serif;
+  font-size: 20px;
+  padding: 5px 12px;
+  background: transparent;
+  color: #666;
+  border: 2px solid #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.back-btn .pixel-btn i {
+  font-size: 16px;
+}
+
+.back-btn .pixel-btn:hover {
+  color: white;
+  border-color: white;
+  transform: translateX(-2px);
+}
+
+/* Effet pixel sur hover */
+.back-btn .pixel-btn:hover::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid #666;
+  pointer-events: none;
+}
+
+#baseMenu {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: -webkit-fill-available;
+  color: white;
+  text-align: center;
+}
+
+/* Style de base commun pour tous les boutons */
+.button {
+  font-family: "VT323", sans-serif;
+  font-size: 22px;
+  padding: 10px 25px;
+  border: none;
+  position: relative;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#choiceBtns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
+}
+
+#choiceBtns button {
+  padding: 5px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
+  border: none;
+  border-bottom: white 2px solid;
+}
+
+#connectDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+#connexion {
+  z-index: 100;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 400px;
+  width: 500px;
+  border: 1px solid #000;
+  padding: 20px;
+  background-color: #fff;
+}
+
+#connexion input {
+  padding: 10px;
+  font-size: 18px;
+  width: 50%;
+  margin-top: 10px;
+}
+
+.connexionBtns {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+/* Style pour le conteneur des boutons */
+.connexionBtns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+}
+
+#damageStats {
+  width: 100%;
+}
+
+#damageStats li {
+  position: relative;
+  width: 100%;
+  left: 0;
+  text-align: start;
+}
+
+#damageStats li span {
+  position: absolute;
+  right: 0;
+}
+
+#errorSection {
+  color: black;
+  font-weight: bolder;
+  position: fixed;
+  opacity: 0;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border: 2px solid red;
+  border-radius: 5px;
+  transition: all 0.5s ease-in-out;
+}
+
+#gameCanvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: darkgray;
+}
+
+#gameCanvas * {
+  font-family: "VT323", sans-serif !important;
+}
+
+/* Style de base pour tous les menus */
+#gameOverMenu {
+  background: rgba(44, 62, 80, 0.95);
+  border: 3px solid #3498db;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.3),
+    inset 0 0 15px rgba(52, 152, 219, 0.2);
+  color: white;
+  padding: 20px;
+}
+
+/* Style spécifique pour le menu de game over */
+#gameOverMenu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.hidden {
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+
+.joystick {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 100%;
+  cursor: pointer;
+  height: 20vh;
+  width: 20vh;
+  user-select: none;
+  z-index: 1000;
+}
+
+#leaderboard {
+  padding-left: 0;
+  min-height: 30vh;
+  max-height: 40vh;
+  width: 75%;
+  overflow-y: scroll;
+}
+
+#leaderboard .score-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid white;
+}
+
+#leaderboard .score-item:last-child {
+  border-bottom: none;
+}
+
+#leaderboard::-webkit-scrollbar {
+  width: 8px;
+}
+
+#leaderboard::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 1);
+  border: 2px solid rgba(0, 0, 0, 0);
+}
+
+#leaderboard::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0);
+}
+
+#leaderboardPlace {
+  padding: 15px;
+}
+
+/* Style pour le bouton de connexion de la page d'accueil */
+#loginButton {
+  background: #3498db;
+  color: white;
+  box-shadow: 0 4px 0 #2980b9, 0 0 20px rgba(52, 152, 219, 0.4);
+  margin: 10px 0;
+}
+
+#loginButton:hover {
+  background: #2980b9;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2472a4, 0 0 25px rgba(52, 152, 219, 0.6);
+}
+
+/* Style spécifique pour le menu de connexion/inscription */
+#loginRegisterMenu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 500px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Style pour le bouton de déconnexion */
+#logoutBtn {
+  background: #e74c3c;
+  color: white;
+  box-shadow: 0 4px 0 #c0392b, 0 0 20px rgba(231, 76, 60, 0.4);
+}
+
+#logoutBtn:hover {
+  background: #c0392b;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #a93226, 0 0 25px rgba(231, 76, 60, 0.6);
+}
+
+.menu {
+  z-index: 100;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  top: 50%;
+  left: 50%;
+  min-width: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(52, 73, 94, 0.95);
+  border: 3px solid #3498db;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.4),
+    inset 0 0 15px rgba(52, 152, 219, 0.3);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.menu form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.menu form input {
+  font-family: "VT323", sans-serif;
+  font-size: 24px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #3498db;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 10px rgba(52, 152, 219, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Style pour les inputs */
+.menu form input {
+  font-family: "VT323", sans-serif;
+  font-size: 24px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #3498db;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 10px rgba(52, 152, 219, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.menu form input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 22px;
+}
+
+.menu form input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 22px;
+}
+
+.menu form input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #2ecc71;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.3),
+    inset 0 0 10px rgba(46, 204, 113, 0.1);
+}
+
+.menu form input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #2ecc71;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.3),
+    inset 0 0 10px rgba(46, 204, 113, 0.1);
+}
+
+.menu form label {
+  color: #fff;
+  font-size: 22px;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  align-self: flex-start;
+}
+
+/* Style pour les labels */
+.menu form label {
+  color: #fff;
+  font-size: 22px;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  align-self: flex-start;
+}
+
+.menu input {
+  padding: 5px;
+  font-size: 15px;
+  width: 50%;
+  margin-bottom: 10px;
+}
+
+#mobileSwitch {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  gap: 20px;
+  transform: translate(-50%, -50%);
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+#pauseBtn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+/* Style spécifique pour le menu de pause */
+#pauseMenu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 50%;
+  text-align: center;
+}
+
+/* Bouton quitter */
+#quitButton {
+  background: #e74c3c;
+  color: white;
+  box-shadow: 0 4px 0 #c0392b, 0 0 20px rgba(231, 76, 60, 0.4);
+}
+
+#quitButton:hover {
+  background: #c0392b;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #a93226, 0 0 25px rgba(231, 76, 60, 0.6);
+}
+
+/* Style pour les formulaires de connexion et inscription */
+#registerForm {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#registerForm form {
+  width: 100%;
+  padding: 20px;
+}
+
+/* Bouton restart */
+#restartButton {
+  background: #3498db;
+  color: white;
+  box-shadow: 0 4px 0 #2980b9, 0 0 20px rgba(52, 152, 219, 0.4);
+}
+
+#restartButton:hover {
+  background: #2980b9;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2472a4, 0 0 25px rgba(52, 152, 219, 0.6);
+}
+
+/* Bouton pause/reprendre */
+#resumeButton {
+  background: #f1c40f;
+  color: white;
+  box-shadow: 0 4px 0 #f39c12, 0 0 20px rgba(241, 196, 15, 0.4);
+}
+
+#resumeButton:hover {
+  background: #f39c12;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #d68910, 0 0 25px rgba(241, 196, 15, 0.6);
+}
+
+.selected {
+  transform: scale(1.1);
+  border: 1px solid #000;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin-right: 0;
+}
+
+#shop h1 {
+  margin-top: 0;
+}
+
+#shop ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
+}
+
+/* Bouton fermer shop */
+#shopClose {
+  background: #9b59b6;
+  color: white;
+  box-shadow: 0 4px 0 #8e44ad, 0 0 20px rgba(155, 89, 182, 0.4);
+}
+
+#shopClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  margin: 0;
+}
+
+#shopClose:hover {
+  background: #8e44ad;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #6c3483, 0 0 25px rgba(155, 89, 182, 0.6);
+}
+
+.shopItem {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  min-width: 25%;
+  padding: 20px 10px;
+  margin: 20px 10px;
+  cursor: pointer;
+  background-color: white;
+  transition: all 0.1s ease-in-out;
+}
+
+.shopItem * {
+  color: black;
+}
+
+.shopItem div {
+  display: flex;
+  flex-direction: row;
+  font-size: 24px;
+}
+
+.shopItem h2 {
+  margin: 0;
+  font-size: 48px;
+}
+
+.shopItem h3 {
+  margin-top: 0;
+  font-size: 32px;
+}
+
+.shopItem svg {
+  width: 20px;
+}
+
+.shopItem:hover {
+  transform: scale(1.1);
+}
+
+/* Style pour les boutons du shop */
+#shopItems button {
+  background: #1abc9c;
+  color: white;
+  box-shadow: 0 4px 0 #16a085, 0 0 20px rgba(26, 188, 156, 0.4);
+}
+
+#shopItems button:hover {
+  background: #16a085;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #117a65, 0 0 25px rgba(26, 188, 156, 0.6);
+}
+
+#signIn {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+#signUp {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 17px;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  border-radius: 50%;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+/* Bouton de démarrage */
+#startButton {
+  background: #2ecc71;
+  color: white;
+  box-shadow: 0 4px 0 #27ae60, 0 0 20px rgba(46, 204, 113, 0.4);
+}
+
+#startButton:hover {
+  background: #27ae60;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #219a52, 0 0 25px rgba(46, 204, 113, 0.6);
+}
+
+.startMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(52, 73, 94, 0.95);
+  border: 3px solid #3498db;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.4),
+    inset 0 0 15px rgba(52, 152, 219, 0.3);
+  color: white;
+  min-height: 30vh;
+  max-height: 50vh;
+  width: 40%;
+  margin: 20px;
+  padding: 20px;
+}
+
+/* Style spécifique pour le menu de démarrage */
+.startMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  min-height: 30vh;
+  max-height: 50vh;
+  width: 40%;
+  margin: 20px;
+}
+
+/* Modifier les titres des menus */
+.menu h1,
+.startMenu h1,
+#statsMenu h1,
+#shop h1 {
+  color: #3498db;
+  text-shadow: 0 0 10px rgba(52, 152, 219, 0.7);
+  margin-top: 0;
+}
+
+#statsMenu {
+  position: absolute;
+  display: block;
+  text-align: center;
+  background: rgba(52, 73, 94, 0.95);
+  border: 3px solid #3498db;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.4),
+    inset 0 0 15px rgba(52, 152, 219, 0.3);
+  min-height: 30vh;
+  padding: 20px;
+  left: 0;
+  top: 50%;
+  transform: translate(0, -50%);
+  z-index: 100;
+}
+
+/* Style spécifique pour le menu de stats */
+#statsMenu {
+  position: absolute;
+  text-align: center;
+  min-height: 30vh;
+  left: 0;
+  top: 50%;
+  transform: translate(0, -50%);
+  z-index: 100;
+}
+
+#statsMenu * {
+  color: white;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  padding-left: 0;
+}
+
+#statsMenu h1 {
+  margin-top: 0;
+}
+
+#statsMenu h2 {
+  margin-bottom: 0;
+}
+
+#statsMenu ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.tab {
+  padding: 5px 10px;
+  font-size: 15px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0);
+  color: #fff;
+  border: rgba(0, 0, 0, 0) 2px solid;
+}
+
+/* Style pour les tabs de connexion/inscription */
+.tab-btn {
+  font-family: "VT323", sans-serif;
+  font-size: 24px;
+  padding: 8px 20px;
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
+  color: #666;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+/* Style pour les tabs */
+.tab-btn {
+  font-family: "VT323", sans-serif;
+  font-size: 24px;
+  padding: 10px 30px;
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
+  color: #888;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-btn.active {
+  color: grey;
+  border-bottom: 2px solid #3498db;
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.tab-btn.active {
+  color: #2ecc71;
+  border-bottom: 2px solid #2ecc71;
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #2ecc71;
+  box-shadow: 0 0 10px #2ecc71;
+}
+
+.tab-btn:hover {
+  color: grey;
+  border-bottom: 2px solid #3498db;
+}
+
+.tab-btn:hover {
+  color: #3498db;
+}
+
+/* Conteneur des tabs */
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.used {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+#userDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+#vignette {
+  position: fixed;
+  top: -10px;
+  left: -10px;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  pointer-events: none;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 10px solid rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.7) inset;
+  z-index: 1000;
+}
+
+.weapon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 50px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  margin: 0 10px 10px 0;
+  padding: 10px;
+}
+
+.weapon-acquired-anim {
+  position: relative;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 1000;
+  animation: zoomInFadeOut 3s ease-in-out;
+  overflow: hidden;
+}
+
+.weapon-acquired-anim img {
+  position: relative;
+  width: 75%;
+  z-index: 2;
+  animation: glow 3s ease-in-out, rotate 3s ease-in-out, float 3s ease-in-out;
+}
+
+.weapon-acquired-anim::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.5) 25%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  z-index: 1;
+}
+
+.weapon-acquired-anim::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("./assets/Sprites/Jsp.png") no-repeat center/85%;
+  z-index: 1;
+  animation: rotateBackground 10s linear infinite;
+}
+
+.weapon-name {
+  margin-top: 10px;
+  font-size: 62px;
+  color: #fff;
+  z-index: 2;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+#weaponsContainer {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  bottom: 10px;
+  right: 20px;
+  z-index: 100;
+}
+
+#wrapper {
+  position: absolute;
+  width: 20vh;
+  height: 20vh;
+  top: 50%;
+  left: 15%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+/* Animation pour le texte du score */
+@keyframes waveText {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-3px);
+  }
+  40% {
+    transform: translateY(0);
+  }
+}
+.wave-text {
+  display: inline-block;
+}
+
+.wave-text span {
+  display: inline-block;
+  animation: waveText 1s ease infinite;
+  margin-left: -10px;
+  letter-spacing: 1px;
 }
