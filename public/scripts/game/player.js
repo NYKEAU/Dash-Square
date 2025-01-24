@@ -266,7 +266,7 @@ export class Player {
 
     // Dessiner le contour de la barre de vie
     // console.log(context);
-    context.strokeStyle = "black";
+    context.strokeStyle = "white";
     if (this.maxHealth < this.maxBarWidth) {
       context.strokeRect(barX, barY, this.maxHealth, barHeight);
     } else {
@@ -285,7 +285,7 @@ export class Player {
     const textX = Math.max(barX + barWidth - textWidth - 5, barX + 5);
 
     // Dessiner le nombre de points de vie dans la barre de vie
-    context.fillStyle = "black"; // Couleur du texte
+    context.fillStyle = "white"; // Couleur du texte
     context.font = "12px VT323 !important"; // Taille et police du texte
     context.fillText(healthText, barX + 5, barY + 25); // Position du texte
   }
@@ -304,7 +304,7 @@ export class Player {
     const barY = 50; // La position y de la barre d'expérience (50 pixels depuis le haut de l'écran)
 
     // Dessiner le contour de la barre d'expérience
-    context.strokeStyle = "black";
+    context.strokeStyle = "white";
 
     if (this.maxHealth < this.maxBarWidth) {
       context.strokeRect(barX, barY, this.maxHealth, barHeight);
@@ -320,7 +320,7 @@ export class Player {
     const experienceText = this.experience + "/" + this.maxExperience;
 
     // Dessiner l'expérience du joueur dans la barre d'expérience
-    context.fillStyle = "black"; // Couleur du texte
+    context.fillStyle = "white"; // Couleur du texte
     context.font = "8px VT323 !important"; // Taille et police du texte
     context.textAlign = "right"; // Aligner le texte à droite
     if (this.maxHealth < this.maxBarWidth) {
@@ -347,7 +347,7 @@ export class Player {
     const levelText = "Niveau " + this.level;
 
     // Dessiner le niveau du joueur en haut de l'écran
-    context.fillStyle = "black"; // Couleur du texte
+    context.fillStyle = "white"; // Couleur du texte
     context.font = `${150 * this.levelPopupScale} VT323 !important`; // Taille et police du texte
     const textWidth = context.measureText(levelText).width;
     context.fillText(
@@ -368,7 +368,7 @@ export class Player {
     const moneyText = "Argent: " + this.money;
 
     // Dessiner l'argent du joueur en haut de l'écran
-    context.fillStyle = "black"; // Couleur du texte
+    context.fillStyle = "white"; // Couleur du texte
     context.font = "16px VT323 !important"; // Taille et police du texte
     context.fillText(moneyText, 10, 110); // Position du texte
   }
@@ -379,7 +379,7 @@ export class Player {
     const scoreText = "Score: " + this.score;
 
     // Dessiner le score du joueur en haut de l'écran
-    context.fillStyle = "black"; // Couleur du texte
+    context.fillStyle = "white"; // Couleur du texte
     context.font = "20px VT323 !important"; // Taille et police du texte
 
     const textWidth = context.measureText(scoreText).width;
@@ -654,9 +654,10 @@ export class Player {
     this.hitEffects.push(new HitEffect(this, reducedAmount, "player"));
 
     // Vérifier si le joueur est mort
-    if (this.health < 1) {
-      this.gameInstance.stopEnemyGeneration();
-      this.gameInstance.destroy();
+    if (this.health <= 0) {
+      this.gameInstance.destroy().catch((err) => {
+        console.warn("Game cleanup error:", err);
+      });
     }
 
     // Jouer l'animation de dégâts

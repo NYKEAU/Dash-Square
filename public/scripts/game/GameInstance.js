@@ -24,7 +24,7 @@ export class gameInstance {
     this.mapWidth = 2000;
     this.mapHeight = 1500;
     this.mapImage = new Image();
-    // this.mapImage.src = '../../assets/Sprites/test32.png';
+    this.mapImage.src = "../../assets/Sprites/test32.png";
 
     // Contrôles et pause
     this.keys = {};
@@ -482,7 +482,8 @@ export class gameInstance {
     }
   }
 
-  destroy() {
+  // Update the destroy method to return a Promise
+  async destroy() {
     if (!this.isRunning) return;
 
     // Mettre le jeu en pause
@@ -504,8 +505,13 @@ export class gameInstance {
     this.player.score += this.timerScore;
     document.getElementById("finalScore").textContent = this.player.score;
 
-    // Mettre à jour le score dans la bdd
-    setScore(this.player.score);
+    try {
+      // Mettre à jour le score dans la bdd
+      await setScore(this.player.score);
+    } catch (err) {
+      console.warn("Failed to update score:", err);
+      // Continue with cleanup even if score update fails
+    }
 
     this.isRunning = false;
 
@@ -1118,7 +1124,7 @@ export class gameInstance {
     );
 
     // Timer
-    this.ctx.fillStyle = "black";
+    this.ctx.fillStyle = "white";
     this.ctx.font = "30px VT323 !important";
     const timerText = this.getElapsedTime();
     const textWidth = this.ctx.measureText(timerText).width;
