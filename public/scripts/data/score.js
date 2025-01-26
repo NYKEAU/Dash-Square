@@ -18,16 +18,21 @@ export const board = {
 
   setScore: (bestscore) => {
     const token = localStorage.getItem("firebaseToken");
-    console.log("Attempting to update score with token:", token ? "Present" : "Missing");
-    
+    console.log(
+      "Attempting to update score with token:",
+      token ? "Present" : "Missing"
+    );
+
     if (!token) {
-      console.error("No Firebase token found. User might not be authenticated.");
+      console.error(
+        "No Firebase token found. User might not be authenticated."
+      );
       return Promise.reject(new Error("User not authenticated"));
     }
 
     return fetch("/api/score", {
       method: "PUT",
-      body: JSON.stringify({ bestscore }),
+      body: JSON.stringify({ score: bestscore }),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

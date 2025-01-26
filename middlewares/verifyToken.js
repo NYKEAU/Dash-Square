@@ -1,39 +1,31 @@
-require('dotenv').config();
-const admin = require('firebase-admin');
+require("dotenv").config();
+const admin = require("../config/firebase-admin");
 
-const serviceAccount = {
-    type: process.env.TYPE,
-    project_id: process.env.PROJECT_ID,
-    private_key_id: process.env.PRIVATE_KEY_ID,
-    private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.CLIENT_EMAIL,
-    client_id: process.env.CLIENT_ID,
-    auth_uri: process.env.AUTH_URI,
-    token_uri: process.env.TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_X509_CERT_URL,
-    client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
-    universe_domain: process.env.UNIVERSE_DOMAIN
-};
+const verifyToken = async (req, res, next) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    console.log("Auth Header:", authHeader);
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
+    const token = authHeader && authHeader.split(" ")[1];
+    console.log("Token exists:", !!token);
 
-const verifyToken = (req, res, next) => {
-    if (!req.cookies || !req.cookies.token) {
-        return res.status(401).send('Token manquant');
+    if (!token) {
+      return res.status(401).json({ error: "Token manquant" });
     }
 
-    const idToken = req.cookies.token;
+    console.log("Vérification du token...");
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    console.log("Token décodé:", decodedToken);
 
-    admin.auth().verifyIdToken(idToken)
-        .then(decodedToken => {
-            req.user = decodedToken;
-            next();
-        })
-        .catch(error => {
-            res.status(401).send('Token invalide');
-        });
+    req.user = decodedToken;
+    next();
+  } catch (error) {
+    console.error("Erreur d'authentification détaillée:", error);
+    return res.status(403).json({
+      error: "Token invalide",
+      details: error.message,
+    });
+  }
 };
 
 module.exports = verifyToken;

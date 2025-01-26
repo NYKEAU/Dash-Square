@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { authenticateToken } = require('../middleware/authMiddleware');
-const scoreController = require('../controllers/scoreController');
+const { authenticateToken } = require("../middlewares/authMiddleware");
+const scoreController = require("../controllers/scoreController");
 
-router.get('/scores', scoreController.getScores);  // public
-router.put('/score', authenticateToken, scoreController.setScore);  // protégé
+router.get("/scores", scoreController.getScores); // public
+router.put("/score", authenticateToken, scoreController.setScore); // protégé
 
-module.exports = router; 
+module.exports = router;

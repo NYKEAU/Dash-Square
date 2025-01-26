@@ -6,6 +6,7 @@ const {
   getDocs,
   updateDoc,
   where,
+  doc,
 } = require("firebase/firestore");
 const { db } = require("../models/firebaseModel");
 
@@ -36,93 +37,97 @@ const getScores = async (req, res) => {
 
 const setScore = async (req, res) => {
   try {
-    const { uid } = req.user;
-    const { bestscore } = req.body;
+    const { score } = req.body;
+    const { uid, email } = req.user;
 
-    console.log("=== Debug setScore ===");
-    console.log("1. User data:", {
-      uid,
-      bestscore,
-      userObject: req.user,
+    console.log("Score reçu (brut):", {
+      body: req.body,
+      score: score,
+      type: typeof score,
     });
-    console.log("2. Request headers:", req.headers);
 
-    if (!uid) {
-      console.log("3. Error: No UID found");
-      return res.status(401).json({ error: "Utilisateur non authentifié" });
+    // Conversion du score en nombre
+    let newScore = score;
+    if (typeof score === "string") {
+      newScore = parseInt(score, 10);
+    } else if (typeof score === "number") {
+      newScore = score;
+    } else {
+      console.error("Type de score inattendu:", typeof score);
+      return res.status(400).json({
+        error: "Score invalide",
+        details: `Type inattendu: ${typeof score}`,
+        recu: score,
+      });
+    }
+
+    // Vérification du score après conversion
+    if (isNaN(newScore)) {
+      console.error("Score invalide après conversion:", {
+        original: score,
+        converti: newScore,
+      });
+      return res.status(400).json({
+        error: "Score invalide",
+        details: "Conversion impossible en nombre",
+        recu: score,
+      });
     }
 
     const usersRef = collection(db, "users");
-    console.log("4. Collection reference created");
+    let querySnapshot;
 
-    const q = query(usersRef, where("uid", "==", uid));
-    console.log("5. Query created:", q);
+    // Chercher d'abord par uid
+    if (uid) {
+      querySnapshot = await getDocs(query(usersRef, where("uid", "==", uid)));
+    }
 
-    try {
-      const querySnapshot = await getDocs(q);
-      console.log("6. Query executed, empty?", querySnapshot.empty);
-      console.log("7. Number of docs found:", querySnapshot.size);
+    // Si pas trouvé et qu'on a un email (pour les comptes Google), chercher par email
+    if ((!querySnapshot || querySnapshot.empty) && email) {
+      querySnapshot = await getDocs(
+        query(usersRef, where("email", "==", email))
+      );
+    }
 
-      if (querySnapshot.empty) {
-        console.log("8. No user document found for uid:", uid);
-        return res.status(404).json({ error: "Utilisateur non trouvé" });
-      }
+    if (!querySnapshot || querySnapshot.empty) {
+      console.log("Utilisateur non trouvé pour:", { uid, email });
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
 
-      const userDoc = querySnapshot.docs[0];
-      console.log("9. User document found:", {
-        id: userDoc.id,
-        path: userDoc.ref.path,
-        exists: userDoc.exists(),
+    const userDoc = querySnapshot.docs[0];
+    const userData = userDoc.data();
+    const currentScore = Number(userData.bestscore || 0);
+
+    console.log("Comparaison des scores:", {
+      nouveau: newScore,
+      nouveauType: typeof newScore,
+      actuel: currentScore,
+      actuelType: typeof currentScore,
+    });
+
+    if (newScore > currentScore) {
+      await updateDoc(doc(db, "users", userDoc.id), {
+        bestscore: newScore,
       });
-
-      const userData = userDoc.data();
-      console.log("10. Current user data:", userData);
-
-      const currentScore = userData.bestscore || 0;
-      console.log("11. Score comparison:", {
-        current: currentScore,
-        new: bestscore,
-        willUpdate: bestscore > currentScore
+      console.log("Score mis à jour avec succès");
+      res.status(200).json({
+        message: "Score mis à jour avec succès",
+        oldScore: currentScore,
+        newScore: newScore,
       });
-
-      if (bestscore > currentScore) {
-        try {
-          await updateDoc(userDoc.ref, { bestscore });
-          console.log("12. Score updated successfully");
-          res.status(200).json({ message: "Score mis à jour", bestscore });
-        } catch (updateError) {
-          console.error("13. Update error:", updateError);
-          console.error("14. Update error details:", {
-            code: updateError.code,
-            message: updateError.message,
-            stack: updateError.stack
-          });
-          throw updateError;
-        }
-      } else {
-        console.log("12. Score not updated (new score not higher)");
-        res.status(200).json({ 
-          message: "Score non mis à jour", 
-          bestscore: currentScore 
-        });
-      }
-    } catch (queryError) {
-      console.error("Error during query:", queryError);
-      throw queryError;
+    } else {
+      console.log("Score non mis à jour car pas meilleur");
+      res.status(200).json({
+        message: "Score non mis à jour (pas meilleur que le précédent)",
+        currentScore: currentScore,
+        tentativeScore: newScore,
+      });
     }
   } catch (error) {
-    console.error("=== Error in setScore ===");
-    console.error("Error object:", {
-      code: error.code,
-      message: error.message,
-      name: error.name,
-      stack: error.stack
-    });
-    res.status(500).json({
-      error: "Erreur serveur",
-      details: error.message,
-      stack: error.stack,
-    });
+    console.error("Erreur lors de la mise à jour du score:", error);
+    res
+      .status(500)
+      .json({ error: "Erreur serveur lors de la mise à jour du score" });
   }
 };
 

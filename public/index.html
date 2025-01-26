@@ -17,6 +17,7 @@
     ></script>
     <script type="module" src="main.js"></script>
     <script type="module" src="./scripts/data/index.js"></script>
+    <script type="module" src="./scripts/data/settings.js"></script>
     <script type="module" src="./scripts/game/pleaseRotate.js"></script>
     <link
       rel="stylesheet"
@@ -26,6 +27,9 @@
 
   <body>
     <div id="ath">
+      <button id="settings-button" class="button icon-button">
+        <i class="fas fa-cog"></i>
+      </button>
       <div id="vignette"></div>
       <div id="errorSection" style="opacity: 0">
         <p>Erreur de connexion</p>
@@ -188,7 +192,7 @@
       <div class="menu" id="shop" style="display: none">
         <h1>Magasin</h1>
         <ul id="shopItems"></ul>
-        <button id="shopClose">Fermer</button>
+        <button class="button" id="shopClose">Fermer</button>
       </div>
       <div class="menu" id="gameOverMenu" style="display: none">
         <h1>Game Over</h1>
@@ -212,54 +216,116 @@
         </h3>
         <button class="button" id="restartButton">Quitter</button>
       </div>
+      <div id="settings-menu" class="menu" style="display: none">
+        <h2>Paramètres</h2>
+        <div class="settings-content">
+          <div class="settings-section">
+            <h3>Modifier le pseudo</h3>
+            <form id="change-username-form">
+              <input
+                type="text"
+                id="new-username"
+                placeholder="Nouveau pseudo"
+                required
+                minlength="3"
+                maxlength="20"
+              />
+              <button type="submit" class="button">Modifier</button>
+            </form>
+            <p id="username-status" class="status-message"></p>
+          </div>
+        </div>
+        <button id="close-settings" class="button">Retour</button>
+      </div>
     </div>
   </body>
 
-  <script type="text/javascript">
-    const loginButton = document.getElementById("loginButton");
-    const loginMenu = document.getElementById("loginRegisterMenu");
-    const startMenu = document.getElementById("startMenu");
-    const leaderboardMenu = document.getElementById("leaderboardMenu");
-    const mobileSwitch = document.getElementById("mobileSwitch");
+  <script type="module">
+    import { user } from "./scripts/data/user.js";
 
-    loginButton.addEventListener("click", () => {
-      loginMenu.style.display = "block";
-      startMenu.style.display = "none";
-      leaderboardMenu.style.display = "none";
-      mobileSwitch.style.display = "none";
-    });
+    document.addEventListener("DOMContentLoaded", () => {
+      const changeUsernameForm = document.getElementById(
+        "change-username-form"
+      );
+      const usernameStatus = document.getElementById("username-status");
 
-    const loginTab = document.getElementById("loginTab");
-    const registerTab = document.getElementById("registerTab");
-    const forgotPasswordTab = document.getElementById("forgotPasswordTab");
-    const connectForm = document.getElementById("loginForm");
-    const registerForm = document.getElementById("registerForm");
+      if (changeUsernameForm) {
+        changeUsernameForm.addEventListener("submit", (e) =>
+          user.auth.handleUsernameChange(e, usernameStatus)
+        );
+      }
 
-    loginTab.addEventListener("click", () => {
-      loginTab.classList.add("activeTab");
-      registerTab.classList.remove("activeTab");
-      forgotPasswordTab.classList.remove("activeTab");
-      connectForm.style.display = "block";
-      registerForm.style.display = "none";
-      forgotPasswordForm.style.display = "none";
-    });
+      const loginButton = document.getElementById("loginButton");
+      const loginMenu = document.getElementById("loginRegisterMenu");
+      const startMenu = document.getElementById("startMenu");
+      const leaderboardMenu = document.getElementById("leaderboardMenu");
+      const mobileSwitch = document.getElementById("mobileSwitch");
 
-    registerTab.addEventListener("click", () => {
-      loginTab.classList.remove("activeTab");
-      registerTab.classList.add("activeTab");
-      forgotPasswordTab.classList.remove("activeTab");
-      connectForm.style.display = "none";
-      registerForm.style.display = "block";
-      forgotPasswordForm.style.display = "none";
-    });
+      loginButton.addEventListener("click", () => {
+        loginMenu.style.display = "block";
+        startMenu.style.display = "none";
+        leaderboardMenu.style.display = "none";
+        mobileSwitch.style.display = "none";
+      });
 
-    forgotPasswordTab.addEventListener("click", () => {
-      loginTab.classList.remove("activeTab");
-      registerTab.classList.remove("activeTab");
-      forgotPasswordTab.classList.add("activeTab");
-      connectForm.style.display = "none";
-      registerForm.style.display = "none";
-      forgotPasswordForm.style.display = "block";
+      const loginTab = document.getElementById("loginTab");
+      const registerTab = document.getElementById("registerTab");
+      const forgotPasswordTab = document.getElementById("forgotPasswordTab");
+      const connectForm = document.getElementById("loginForm");
+      const registerForm = document.getElementById("registerForm");
+
+      loginTab.addEventListener("click", () => {
+        loginTab.classList.add("activeTab");
+        registerTab.classList.remove("activeTab");
+        forgotPasswordTab.classList.remove("activeTab");
+        connectForm.style.display = "block";
+        registerForm.style.display = "none";
+        forgotPasswordForm.style.display = "none";
+      });
+
+      registerTab.addEventListener("click", () => {
+        loginTab.classList.remove("activeTab");
+        registerTab.classList.add("activeTab");
+        forgotPasswordTab.classList.remove("activeTab");
+        connectForm.style.display = "none";
+        registerForm.style.display = "block";
+        forgotPasswordForm.style.display = "none";
+      });
+
+      forgotPasswordTab.addEventListener("click", () => {
+        loginTab.classList.remove("activeTab");
+        registerTab.classList.remove("activeTab");
+        forgotPasswordTab.classList.add("activeTab");
+        connectForm.style.display = "none";
+        registerForm.style.display = "none";
+        forgotPasswordForm.style.display = "block";
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const settingsButton = document.getElementById("settings-button");
+        const settingsMenu = document.getElementById("settings-menu");
+        let isSettingsOpen = false;
+
+        settingsButton.addEventListener("click", () => {
+          isSettingsOpen = !isSettingsOpen;
+          settingsMenu.style.display = isSettingsOpen ? "block" : "none";
+          settingsButton.style.transform = isSettingsOpen
+            ? "rotate(90deg)"
+            : "rotate(0)";
+        });
+
+        document.addEventListener("click", (event) => {
+          if (
+            !settingsMenu.contains(event.target) &&
+            !settingsButton.contains(event.target) &&
+            isSettingsOpen
+          ) {
+            isSettingsOpen = false;
+            settingsMenu.style.display = "none";
+            settingsButton.style.transform = "rotate(0)";
+          }
+        });
+      });
     });
   </script>
 </html>
