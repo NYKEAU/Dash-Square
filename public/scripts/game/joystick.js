@@ -29,7 +29,6 @@ export function createJoystick(parent) {
             x: event.clientX,
             y: event.clientY,
         };
-
     }
 
     function handleMouseMove(event) {

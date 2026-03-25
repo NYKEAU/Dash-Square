@@ -185,14 +185,14 @@ let coin4 = new Item(32, "Bourse", "", { Argent: 0 }, 4, 0, "Pièces");
 // Créer des items pour les stats de santé
 let potionTemp1 = new Item(33, "Fiole de vie", "", { Vie: 0 }, 1, 0, "PV");
 let potionTemp2 = new Item(34, "Fiole de vie", "", { Vie: 0 }, 2, 0, "PV");
-let potionTemp3 = new Item(35, "Potion instantanée", "", { Vie: 0 }, 3, 0, "PV");
-let potionTemp4 = new Item(36, "Potion instantanée", "", { Vie: 0 }, 4, 0, "PV");
+let potionTemp3 = new Item(35, "Potion instant.", "", { Vie: 0 }, 3, 0, "PV");
+let potionTemp4 = new Item(36, "Potion instant.", "", { Vie: 0 }, 4, 0, "PV");
 
 // Créer des items pour les stats d'expérience
-let expTemp1 = new Item(37, "Echantillon d'exp", "", { Exp: 0 }, 1, 0, "Exp");
-let expTemp2 = new Item(38, "Echantillon d'exp", "", { Exp: 0 }, 2, 0, "Exp");
-let expTemp3 = new Item(39, "Expérience instantanée", "", { Exp: 0 }, 3, 0, "Exp");
-let expTemp4 = new Item(40, "Expérience instantanée", "", { Exp: 0 }, 4, 0, "Exp");
+let expTemp1 = new Item(37, "Fiole d'exp", "", { Exp: 0 }, 1, 0, "Exp");
+let expTemp2 = new Item(38, "Fiole d'exp", "", { Exp: 0 }, 2, 0, "Exp");
+let expTemp3 = new Item(39, "Exp instantanée", "", { Exp: 0 }, 3, 0, "Exp");
+let expTemp4 = new Item(40, "Exp instantanée", "", { Exp: 0 }, 4, 0, "Exp");
 
 // Ajouter les items à la liste des items
 allItems.push(potion1, potion2, potion3, potion4, heart1, heart2, heart3, heart4, exp1, exp2, exp3, exp4, bow1, bow2, bow3, bow4, shield1, shield2, shield3, shield4, boots1, boots2, boots3, boots4, drumLoader1, drumLoader2, drumLoader3, drumLoader4, coin1, coin2, coin3, coin4, potionTemp1, potionTemp2, potionTemp3, potionTemp4, expTemp1, expTemp2, expTemp3, expTemp4);

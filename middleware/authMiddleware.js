@@ -1,7 +1,10 @@
-require("dotenv").config();
 const admin = require("../config/firebase-admin");
 
 const verifyToken = async (req, res, next) => {
+  console.log("Middleware verifyToken appelé");
+  console.log("URL appelée:", req.originalUrl);
+  console.log("Méthode:", req.method);
+
   try {
     const authHeader = req.headers["authorization"];
     console.log("Auth Header:", authHeader);
@@ -28,4 +31,4 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-module.exports = verifyToken;
+module.exports = { verifyToken };
