@@ -1,7 +1,6 @@
 const admin = require("firebase-admin");
 require("dotenv").config();
 
-// Vérifier que les variables d'environnement sont bien chargées
 if (
   !process.env.PROJECT_ID ||
   !process.env.CLIENT_EMAIL ||
@@ -24,27 +23,11 @@ const serviceAccount = {
   client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
 };
 
-console.log("Configuration Firebase Admin:", {
-  projectId: serviceAccount.project_id,
-  clientEmail: serviceAccount.client_email,
-  privateKeyExists: !!serviceAccount.private_key,
-});
-
 if (!admin.apps.length) {
   try {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
-    console.log("Firebase Admin initialisé avec succès");
-
-    // Tester la connexion
-    admin
-      .auth()
-      .listUsers(1)
-      .then(() => console.log("Connexion Firebase Admin vérifiée avec succès"))
-      .catch((error) =>
-        console.error("Erreur de connexion Firebase Admin:", error)
-      );
   } catch (error) {
     console.error("Erreur d'initialisation Firebase Admin:", error);
     process.exit(1);

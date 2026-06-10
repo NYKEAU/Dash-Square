@@ -11,6 +11,7 @@ const {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } = require("firebase/auth");
 const { db } = require("../models/firebaseModel");
 
@@ -65,14 +66,7 @@ const login = async (req, res) => {
 const loginWithGoogle = async (req, res) => {
   try {
     const { idToken, email, suggestedUsername, displayName } = req.body;
-    console.log("Données reçues:", {
-      idToken,
-      email,
-      suggestedUsername,
-      displayName,
-    });
 
-    // Vérifier si l'utilisateur existe déjà
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("email", "==", email));
     const querySnapshot = await getDocs(q);
@@ -106,11 +100,9 @@ const loginWithGoogle = async (req, res) => {
         pseudo: finalUsername,
         bestscore: 0,
       };
-      console.log("Création nouvel utilisateur:", userData);
       await addDoc(collection(db, "users"), userData);
     } else {
       userData = querySnapshot.docs[0].data();
-      console.log("Utilisateur existant:", userData);
     }
 
     // Créer le token de session
@@ -179,7 +171,6 @@ const register = async (req, res) => {
       email: email,
       bestscore: score ?? 0,
     };
-    console.log("Création d'un nouvel utilisateur:", userData);
     await addDoc(collection(db, "users"), userData);
 
     const loginReq = {
@@ -246,22 +237,15 @@ const getUser = async (req, res) => {
 
 const updateUsername = async (req, res) => {
   try {
-    console.log("Début de updateUsername");
-    console.log("Body reçu:", req.body);
-    console.log("User:", req.user);
-
     const { pseudo } = req.body;
     const { user_id, email } = req.user;
 
-    // Vérifier si le pseudo est valide
     if (!pseudo || pseudo.length < 3 || pseudo.length > 20) {
       return res.status(400).json({
         error: "Le pseudo doit contenir entre 3 et 20 caractères",
       });
     }
 
-    console.log("Recherche de l'utilisateur...");
-    // Vérifier si le pseudo est déjà pris
     const usersRef = collection(db, "users");
     const pseudoQuery = query(usersRef, where("pseudo", "==", pseudo));
     const pseudoSnapshot = await getDocs(pseudoQuery);
@@ -272,19 +256,14 @@ const updateUsername = async (req, res) => {
       });
     }
 
-    // Trouver l'utilisateur actuel
     let userQuery;
     let userSnapshot;
 
-    // Chercher d'abord par email car c'est la donnée la plus fiable
-    console.log("Recherche par email:", email);
     userQuery = query(usersRef, where("email", "==", email));
     userSnapshot = await getDocs(userQuery);
 
     if (userSnapshot.empty) {
-      // Si pas trouvé par email, essayer avec user_id
       if (user_id) {
-        console.log("Recherche par user_id:", user_id);
         userQuery = query(usersRef, where("uid", "==", user_id));
         userSnapshot = await getDocs(userQuery);
       }

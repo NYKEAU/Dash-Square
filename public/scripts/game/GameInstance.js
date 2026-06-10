@@ -5,6 +5,7 @@ import { Slime, Ghost, Shooter, Tank } from "./enemy.js";
 import { IceBoss, EarthBoss, WindBoss, FireBoss, VoidBoss } from "./bosses.js";
 import { SniperProjectile } from "./projectile.js";
 import { Item } from "./item.js";
+import { Pistol, Shotgun, SMG, P90, Sniper } from "./weapon.js";
 import { getScores, setScore } from "../data/index.js";
 
 export class gameInstance {
@@ -55,15 +56,128 @@ export class gameInstance {
 
     // Evénements
     this.alreadyUpdated = false;
+    this.bossGenerated = false;
     this.addEnemyInterval = null;
     this.isBossLevel = false;
     this.bossCount = 1;
     this.timerScore = 0;
+    this.isSandbox = false;
+    this.godMode = false;
     this.addEventListeners();
 
     // Gestion des FPS
     this.fps = 120;
     this.then = Date.now();
+  }
+
+  static computeStatsAtLevel(targetLevel) {
+    let maxHealth = 100;
+    let damage = 8;
+    let maxExperience = 100;
+    let score = 0;
+
+    for (let level = 2; level <= targetLevel; level++) {
+      let increment = 10 ** Math.floor(Math.log10(maxHealth));
+      maxHealth += increment / 10;
+      score += level * 10;
+
+      if (level % 10 === 0) {
+        maxHealth = Math.ceil((maxHealth * 1.025) / 10) * 10;
+        maxExperience += 50;
+      }
+
+      damage = damage * 1.01;
+    }
+
+    return { maxHealth, damage: Math.floor(damage), maxExperience, score };
+  }
+
+  setupSandbox(config) {
+    this.isSandbox = true;
+    this.godMode = config.godMode;
+    this.player.godMode = config.godMode;
+
+    const stats = gameInstance.computeStatsAtLevel(config.level);
+
+    this.player.level = config.level;
+    this.player.maxHealth = Math.round(stats.maxHealth);
+    this.player.health = config.health;
+    this.player.maxExperience = stats.maxExperience;
+    this.player.score = stats.score;
+    this.player.baseDamageMultiplier = stats.damage / 8; // 8 = dégâts de base du Pistol
+    this.player.money = config.level * 20;
+
+    this.player.weapons = [
+      new Pistol(this.player),
+      new Shotgun(this.player),
+      new SMG(this.player),
+      new P90(this.player),
+      new Sniper(this.player),
+    ];
+    this.player.weapon = this.player.weapons[0];
+    this.player.currentWeaponIndex = 0;
+    this.player.currentWeaponImage.src = this.player.weapon.image.src;
+    this.player.damage = Math.floor(this.player.weapon.damage * this.player.baseDamageMultiplier);
+
+    if (config.level % 10 === 0) {
+      this.isBossLevel = true;
+      this.alreadyUpdated = true;
+      this.bossCount = Math.floor((config.level - 1) / 50) + 1;
+    }
+
+    let spawnFreq = 200;
+    let maxEn = 5;
+    for (let i = 10; i <= config.level; i += 10) {
+      spawnFreq = spawnFreq + Math.floor(spawnFreq * 0.1);
+      maxEn += 1;
+    }
+    this.spawnFrequency = Math.min(spawnFreq, 2000);
+    this.maxEnemies = maxEn;
+
+    if (config.bonuses) {
+      this.applySandboxBonuses(config.bonuses);
+    }
+  }
+
+  applySandboxBonuses(bonuses) {
+    const player = this.player;
+    
+    if (bonuses.VieMax > 0) {
+      player.maxHealth = player.maxHealth + (player.maxHealth * bonuses.VieMax) / 100;
+    }
+    
+    if (bonuses.Vie > 0) {
+      player.health = player.health + (player.health * bonuses.Vie) / 100;
+      if (player.health > player.maxHealth) player.health = player.maxHealth;
+    }
+    
+    if (bonuses.Dégâts > 0) {
+      player.permanentStats.Dégâts += bonuses.Dégâts * 10;
+    }
+    
+    if (bonuses.Cadence > 0) {
+      player.permanentStats.Cadence += bonuses.Cadence * 10;
+    }
+    
+    if (bonuses.Vitesse > 0) {
+      player.speed = player.speed + (player.speed * bonuses.Vitesse) / 100;
+    }
+    
+    if (bonuses.Défense > 0) {
+      player.defense = player.defense + bonuses.Défense;
+    }
+    
+    if (bonuses.Exp > 0) {
+      player.maxExperience = player.maxExperience + (player.maxExperience * bonuses.Exp) / 100;
+    }
+    
+    if (bonuses.Argent > 0) {
+      player.money = player.money + (player.money * bonuses.Argent) / 100;
+    }
+    
+    player.recalculateDamage();
+    player.recalculateRof();
+    player.updateStatsDisplay();
   }
 
   wait(ms) {
@@ -87,6 +201,11 @@ export class gameInstance {
 
     document.addEventListener("keyup", (event) => {
       this.keys[event.key] = false;
+    });
+
+    // Réinitialiser les touches quand le jeu perd le focus
+    window.addEventListener("blur", () => {
+      this.keys = {};
     });
 
     // Ajouter un écouteur d'événements pour visibilitychange
@@ -157,22 +276,13 @@ export class gameInstance {
     // Ajouter différents types d'ennemis en fonction des ennemis déjà présents
     this.addEnemyInterval = setInterval(() => {
       if (this.isBossLevel && this.enemies.length < this.bossCount) {
-        // Ajouter des boss
         let bossIndex =
           Math.floor(this.player.level / 10 - 1) % this.bossTypes.length;
         let enemyType = this.bossTypes[bossIndex];
         this.addEnemy(enemyType);
       } else if (!this.isBossLevel && this.enemies.length < this.maxEnemies) {
-        // Ajouter des ennemis normaux
         let enemyType = this.getEnemyTypeByLevel(this.player.level);
         this.addEnemy(enemyType);
-      } else if (this.player.level % 10 > 0 && !this.bossGenerated) {
-        // Si le joueur a atteint le niveau suivant sans avoir rencontré le boss, le générer
-        let bossIndex =
-          Math.floor(this.player.level / 10 - 1) % this.bossTypes.length;
-        let enemyType = this.bossTypes[bossIndex];
-        this.addEnemy(enemyType);
-        this.bossGenerated = true;
       }
     }, this.spawnFrequency);
   }
@@ -299,22 +409,31 @@ export class gameInstance {
             " " +
             items[i].type;
         } else if (items[i].rarete === 3 || items[i].rarete === 4) {
+          const stat1Key = Object.keys(items[i].stats)[0];
+          const stat2Key = Object.keys(items[i].stats)[1];
+          const stat1Value = stat1Key === "Défense" 
+            ? items[i].stats[stat1Key] 
+            : items[i].stats[stat1Key] / 10 + "%";
+          const stat2Value = stat2Key === "Défense" 
+            ? items[i].stats[stat2Key] 
+            : items[i].stats[stat2Key] / 10 + "%";
           stats.innerHTML =
-            Object.keys(items[i].stats)[0] +
+            stat1Key +
             ": +" +
-            items[i].stats[Object.keys(items[i].stats)[0]] / 10 +
-            "%" +
+            stat1Value +
             "<br>" +
-            Object.keys(items[i].stats)[1] +
+            stat2Key +
             ": +" +
-            items[i].stats[Object.keys(items[i].stats)[1]] / 10 +
-            "%";
+            stat2Value;
         } else if (items[i].rarete === 2 || items[i].rarete === 1) {
+          const stat1Key = Object.keys(items[i].stats)[0];
+          const stat1Value = stat1Key === "Défense" 
+            ? items[i].stats[stat1Key] 
+            : items[i].stats[stat1Key] / 10 + "%";
           stats.innerHTML =
-            Object.keys(items[i].stats)[0] +
+            stat1Key +
             ": +" +
-            items[i].stats[Object.keys(items[i].stats)[0]] / 10 +
-            "%";
+            stat1Value;
         } else {
           stats.innerHTML = items[i].type + " : +" + items[i].damage;
         }
@@ -506,11 +625,11 @@ export class gameInstance {
     document.getElementById("finalScore").textContent = this.player.score;
 
     try {
-      // Mettre à jour le score dans la bdd
-      await setScore(this.player.score);
+      if (!this.isSandbox) {
+        await setScore(this.player.score);
+      }
     } catch (err) {
       console.warn("Failed to update score:", err);
-      // Continue with cleanup even if score update fails
     }
 
     this.isRunning = false;
@@ -612,54 +731,10 @@ export class gameInstance {
 
   // Méthode pour quitter le jeu
   quitGame() {
-    // // Cacher le menu de pause
-    // document.getElementById('pauseMenu').style.display = 'none';
-    // document.getElementById('gameOverMenu').style.display = 'none';
-    // document.getElementById('statsMenu').style.display = 'none';
-
-    // // Supprimer les items que le joueur possède et réinitialiser leur affichage
-    // this.player.removeItems();
-
-    // // Arrêter la boucle de jeu
-    // cancelAnimationFrame(() => this.update());
-    // cancelAnimationFrame(() => this.draw());
-
-    // // Supprimer tous les objets de jeu
-    // this.enemies = [];
-    // this.projectiles = [];
-
-    // // Réinitialiser l'état du jeu
-    // this.isStarted = false;
-    // this.isPaused = false;
-
-    // // Afficher le menu de démarrage
-    // document.getElementById('startMenu').style.display = 'flex';
-    // document.getElementById('leaderboardMenu').style.display = 'flex';
-    // this.isStarted = false;
-
-    // // Effacer le joystick
-    // document.getElementById('wrapper').style.display = 'none';
-
-    // // Effacer les items
-    // let itemDivs = document.getElementsByClassName('itemDiv');
-    // for (let i = 0; i < itemDivs.length; i++) {
-    //     itemDivs[i].remove();
-    // }
-
-    // // Effacer les armes (supprimer les divs des armes)
-    // document.getElementById('weaponsContainer').innerHTML = '';
-
-    // // Réinitialiser le joueur
-    // this.player.resetStats();
-
-    // // Cacher le jeu
-    // this.canvas.style.display = 'none';
-
-    // Mettre à jour le score du joueur
-    setScore(this.player.score);
-
-    // Mettre à jour le leaderboard
-    getScores();
+    if (!this.isSandbox) {
+      setScore(this.player.score);
+      getScores();
+    }
 
     // this.isRunning = false;
 
@@ -985,7 +1060,6 @@ export class gameInstance {
                     this.resumeGame();
                   }, 3000);
                 }
-                this.isBossLevel = false;
                 if (enemy.constructor.name.includes("Void")) {
                   let expectedBossCount =
                     Math.floor(this.player.level / 50) + 1;
@@ -993,10 +1067,18 @@ export class gameInstance {
                     this.bossCount++;
                   }
                 }
+                let aliveBossCount = this.enemies.filter(
+                  (e) => e.constructor.name.includes("Boss") && !e.isDead
+                ).length;
+                if (aliveBossCount <= 0) {
+                  this.isBossLevel = false;
+                  this.bossGenerated = false;
+                  this.player.levelUp();
+                }
               }
+            } else {
+              this.player.increaseExperience(enemy.xpGived, this.context);
             }
-
-            this.player.increaseExperience(enemy.xpGived, this.context);
             i--;
           }
 

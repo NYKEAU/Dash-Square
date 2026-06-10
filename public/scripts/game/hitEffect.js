@@ -4,7 +4,7 @@ export class HitEffect {
         this.targetType = targetType;
         this.x = target.x;
         this.y = target.y;
-        this.damage = damage;
+        this.damage = damage % 1 === 0 ? damage : damage.toFixed(2);
         this.duration = 60; // Durée de l'effet en frames, augmentée à 120
         this.fontSize = 20; // Taille de la police
         this.maxFontSize = 40; // Taille maximale de la police
@@ -36,10 +36,22 @@ export class HitEffect {
             if (this.fontSize < 20) this.fontSize = 20;
             context.font = `${this.fontSize}px VT323 !important`;
 
+            // Ajouter un contour pour améliorer la visibilité
+            context.lineWidth = 3;
+            if (this.targetType === 'player') {
+                // Contour rouge pour les dégâts subis par le joueur
+                context.strokeStyle = `rgba(255, 0, 0, ${this.opacity * normalizedDuration})`;
+            } else {
+                // Contour bleu pour les dégâts infligés aux ennemis
+                context.strokeStyle = `rgba(52, 152, 219, ${this.opacity * normalizedDuration})`;
+            }
+
             // Dessiner le texte et afficher en négatif si la cible est le joueur
             if (this.targetType === 'player') {
+                context.strokeText("-" + this.damage, textX, textY);
                 context.fillText("-" + this.damage, textX, textY);
             } else {
+                context.strokeText(this.damage, textX, textY);
                 context.fillText(this.damage, textX, textY);
             }
 

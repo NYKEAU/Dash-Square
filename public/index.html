@@ -1,329 +1,442 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+        <meta name="description" content="Simple jeu de type rogue-like" />
+        <meta name="keywords" content="rogue-lite, jeu, simple, javascript" />
+        <title>Dash Square</title>
+        <link rel="stylesheet" href="index.css" />
+        <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8486363630416927"
+            crossorigin="anonymous"
+        ></script>
+        <script type="module" src="main.js"></script>
+        <script type="module" src="./scripts/data/index.js"></script>
+        <script type="module" src="./scripts/data/settings.js"></script>
+        <script type="module" src="./scripts/game/pleaseRotate.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="description" content="Simple jeu de type rogue-like">
-    <meta name="keywords" content="rogue-lite, jeu, simple, javascript">
-    <title>Dash Square</title>
-    <link rel="stylesheet" href="index.css" />
-    <script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8486363630416927"
-      crossorigin="anonymous"
-    ></script>
-    <script type="module" src="main.js"></script>
-    <script type="module" src="./scripts/data/index.js"></script>
-    <script type="module" src="./scripts/data/settings.js"></script>
-    <script type="module" src="./scripts/game/pleaseRotate.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
-  </head>
-
-  <body>
-    <div id="ath">
-      <button id="settings-button" class="button icon-button">
-        <i class="fas fa-cog"></i>
-      </button>
-      <div id="vignette"></div>
-      <div id="errorSection" style="opacity: 0">
-        <p>Erreur de connexion</p>
-      </div>
-      <div id="baseMenu">
-        <div class="startMenu" id="startMenu">
-          <h1 style="margin-top: 0">Dash Square</h1>
-          <button id="startButton" class="button">Commencer</button>
-          <div id="connectDiv">
-            <h3 style="margin-top: 0px">OU</h3>
-            <a id="loginButton" class="button">Se connecter</a>
-            <p style="margin-top: 0px">pour enregistrer votre score !</p>
-          </div>
-          <div id="userDiv" style="display: none">
-            <div id="leaderboardPlace"></div>
-            <a class="button" id="logoutBtn">Se déconnecter</a>
-          </div>
-        </div>
-        <div class="startMenu" id="leaderboardMenu">
-          <h1>Classement</h1>
-          <ul id="leaderboard"></ul>
-        </div>
-      </div>
-
-      <div id="mobileSwitch">
-        <label for="mobileMode">Mode mobile</label>
-        <label class="switch">
-          <input id="mobileMode" type="checkbox" />
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div
-        id="loginRegisterMenu"
-        class="menu"
-        style="display: none; height: 45vh; padding-top: 0"
-      >
-        <div class="tabs-container">
-          <button id="loginTab" class="tab-btn active">Connexion</button>
-          <button id="registerTab" class="tab-btn">Inscription</button>
-        </div>
-        <div id="backArrow" class="back-btn">
-          <button class="pixel-btn">
-            <i class="fas fa-chevron-left"></i>
-            Retour
-          </button>
-        </div>
-        <div id="loginForm">
-          <form id="login-form">
-            <label for="login">Pseudo / Email</label>
-            <input type="text" id="login-text" name="login" required />
-            <label for="password">Mot de passe</label>
-            <input
-              type="password"
-              id="login-password"
-              name="passwordLogin"
-              required
-            />
-            <div class="connexionBtns">
-              <button type="submit" class="auth-btn primary">
-                Se connecter
-              </button>
-              <button
-                type="button"
-                id="googleLoginButton"
-                class="auth-btn google-btn"
-              >
-                <i class="fab fa-google"></i>
-              </button>
+    <body>
+        <div id="ath">
+            <button id="settings-button" class="button icon-button">
+                <i class="fas fa-cog"></i>
+            </button>
+            <div id="vignette"></div>
+            <div id="errorSection" style="opacity: 0">
+                <p>Erreur de connexion</p>
             </div>
-            <a id="forgotPasswordTab" class="auth-link">Mot de passe oublié</a>
-          </form>
-        </div>
-        <div id="forgotPasswordForm" style="display: none">
-          <form id="forgot-password-form">
-            <label for="emailRecover">Adresse e-mail</label>
-            <input
-              type="email"
-              id="emailRecover"
-              name="emailRecover"
-              required
-            />
-            <button id="forgotPasswordButton" type="submit">Envoyer</button>
-          </form>
-        </div>
-        <div id="registerForm" style="display: none">
-          <form id="register-form">
-            <label for="login">Pseudo</label>
-            <input type="text" id="text" name="login" required />
-            <label for="email">Adresse e-mail</label>
-            <input type="email" id="email" name="email" required />
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password" name="password" required />
-            <div class="connexionBtns">
-              <button type="submit" class="auth-btn register">
-                S'inscrire
-              </button>
-              <button
-                type="button"
-                id="googleRegisterButton"
-                class="auth-btn google-btn"
-              >
-                <i class="fab fa-google"></i>
-              </button>
+            <div id="baseMenu">
+                <div class="startMenu" id="startMenu">
+                    <h1 style="margin-top: 0">Dash Square</h1>
+                    <button id="startButton" class="button">Commencer</button>
+                    <button id="sandboxButton" class="button">
+                        Mode Sandbox
+                    </button>
+                    <div id="connectDiv">
+                        <h3 style="margin-top: 0px">OU</h3>
+                        <a id="loginButton" class="button">Se connecter</a>
+                        <p style="margin-top: 0px">
+                            pour enregistrer votre score !
+                        </p>
+                    </div>
+                    <div id="userDiv" style="display: none">
+                        <div id="leaderboardPlace"></div>
+                        <a class="button" id="logoutBtn">Se déconnecter</a>
+                    </div>
+                </div>
+                <div class="startMenu" id="sandboxMenu" style="display: none">
+                    <h1 style="margin-top: 0">Mode Sandbox</h1>
+                    <div id="sandboxOptions">
+                        <div class="sandbox-option">
+                            <label>Niveau</label>
+                            <button id="sandboxLevelBtn" class="button">
+                                50
+                            </button>
+                        </div>
+                        <div class="sandbox-option">
+                            <label for="sandboxHealth"
+                                >Vie :
+                                <span id="sandboxHealthValue">100</span> /
+                                <span id="sandboxMaxHealth">100</span></label
+                            >
+                            <input
+                                type="range"
+                                id="sandboxHealth"
+                                min="1"
+                                max="100"
+                                value="100"
+                            />
+                        </div>
+                        <div class="sandbox-option">
+                            <label for="sandboxGodMode"
+                                >God Mode (Invincibilité)</label
+                            >
+                            <label class="switch">
+                                <input id="sandboxGodMode" type="checkbox" />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="sandbox-option">
+                            <button id="sandboxBonusBtn" class="button">
+                                Ajouter des bonus
+                            </button>
+                            <div id="sandboxBonusSummary"></div>
+                        </div>
+                        <div id="sandboxStats">
+                            <p>Dégâts : <span id="sandboxDamage">8</span></p>
+                            <p>Exp max : <span id="sandboxMaxExp">100</span></p>
+                            <p>Argent : <span id="sandboxMoney">100</span></p>
+                        </div>
+                    </div>
+                    <button id="sandboxStart" class="button">Commencer</button>
+                    <button id="sandboxBack" class="button">Retour</button>
+                </div>
+                <div id="levelPickerOverlay" style="display: none">
+                    <div id="levelPicker">
+                        <h2>Choisir le niveau</h2>
+                        <div id="levelGrid"></div>
+                        <button id="levelPickerClose" class="button">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+                <div id="bonusPickerOverlay" style="display: none">
+                    <div id="bonusPicker">
+                        <h2>Ajouter des bonus</h2>
+                        <div id="bonusGrid"></div>
+                        <button id="bonusPickerClose" class="button">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+                <div class="startMenu" id="leaderboardMenu">
+                    <h1>Classement</h1>
+                    <ul id="leaderboard"></ul>
+                </div>
             </div>
-          </form>
+
+            <div id="mobileSwitch">
+                <label for="mobileMode">Mode mobile</label>
+                <label class="switch">
+                    <input id="mobileMode" type="checkbox" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div
+                id="loginRegisterMenu"
+                class="menu"
+                style="display: none; padding-top: 0"
+            >
+                <div class="tabs-container">
+                    <button id="loginTab" class="tab-btn active">
+                        Connexion
+                    </button>
+                    <button id="registerTab" class="tab-btn">
+                        Inscription
+                    </button>
+                </div>
+                <div id="backArrow" class="back-btn">
+                    <button class="pixel-btn">
+                        <i class="fas fa-chevron-left"></i>
+                        Retour
+                    </button>
+                </div>
+                <div id="loginForm">
+                    <form id="login-form">
+                        <label for="login">Pseudo / Email</label>
+                        <input
+                            type="text"
+                            id="login-text"
+                            name="login"
+                            required
+                        />
+                        <label for="password">Mot de passe</label>
+                        <input
+                            type="password"
+                            id="login-password"
+                            name="passwordLogin"
+                            required
+                        />
+                        <div class="connexionBtns">
+                            <button type="submit" class="auth-btn primary">
+                                Se connecter
+                            </button>
+                            <button
+                                type="button"
+                                id="googleLoginButton"
+                                class="auth-btn google-btn"
+                            >
+                                <i class="fab fa-google"></i>
+                            </button>
+                        </div>
+                        <a id="forgotPasswordTab" class="auth-link"
+                            >Mot de passe oublié</a
+                        >
+                    </form>
+                </div>
+                <div id="forgotPasswordForm" style="display: none">
+                    <form id="forgot-password-form">
+                        <label for="emailRecover">Adresse e-mail</label>
+                        <input
+                            type="email"
+                            id="emailRecover"
+                            name="emailRecover"
+                            required
+                        />
+                        <button id="forgotPasswordButton" type="submit">
+                            Envoyer
+                        </button>
+                    </form>
+                </div>
+                <div id="registerForm" style="display: none">
+                    <form id="register-form">
+                        <label for="login">Pseudo</label>
+                        <input type="text" id="text" name="login" required />
+                        <label for="email">Adresse e-mail</label>
+                        <input type="email" id="email" name="email" required />
+                        <label for="password">Mot de passe</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                        />
+                        <div class="connexionBtns">
+                            <button type="submit" class="auth-btn register">
+                                S'inscrire
+                            </button>
+                            <button
+                                type="button"
+                                id="googleRegisterButton"
+                                class="auth-btn google-btn"
+                            >
+                                <i class="fab fa-google"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="pauseBtn" style="display: none">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="48"
+                    viewBox="0 0 48 48"
+                    width="48"
+                >
+                    <path d="M0 0h48v48H0V0z" fill="none" />
+                    <path
+                        fill="black"
+                        d="M12 38h8V10h-8v28zm16-28v28h8V10h-8z"
+                    />
+                </svg>
+            </div>
+            <div id="wrapper" style="display: none"></div>
+            <div id="weaponsContainer"></div>
+            <div class="menu" id="pauseMenu" style="display: none">
+                <h1>Pause</h1>
+                <button class="button" id="resumeButton">Reprendre</button>
+                <button class="button" id="quitButton">Quitter</button>
+                <div id="statsSwitch" style="margin-top: 10px">
+                    <label for="constantStats"
+                        >Affichage constant des statistiques</label
+                    >
+                    <label class="switch">
+                        <input id="constantStats" type="checkbox" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div id="statsMenu" style="display: none">
+                <h1>Statistiques</h1>
+                <ul id="statsList">
+                    <li id="healthStats">
+                        <br />
+                        <ul id="healthStatsList">
+                            <li>Vie: <span id="health"></span></li>
+                            <li>Vitesse: <span id="speed"></span></li>
+                            <li>Exp: <span id="exp"></span></li>
+                            <li>Argent: <span id="money"></span></li>
+                        </ul>
+                        <br />
+                    </li>
+
+                    <li id="damageStats">
+                        <br />
+                        <ul id="damageStatsList">
+                            <li>Défense: <span id="defense"></span></li>
+                            <li>Dégâts: <span id="damage"></span></li>
+                            <li>Cadence: <span id="cadence"></span></li>
+                        </ul>
+                        <br />
+                    </li>
+                </ul>
+            </div>
+            <canvas id="gameCanvas" style="display: none"></canvas>
+            <div class="menu" id="shop" style="display: none">
+                <h1>Magasin</h1>
+                <ul id="shopItems"></ul>
+                <button class="button" id="shopClose">Fermer</button>
+            </div>
+            <div class="menu" id="gameOverMenu" style="display: none">
+                <h1>Game Over</h1>
+                <p>Score: <span id="score"></span></p>
+                <p>Timer: <span id="timerScore"></span></p>
+                <h3>
+                    <span class="wave-text">
+                        <span>S</span>
+                        <span>C</span>
+                        <span>O</span>
+                        <span>R</span>
+                        <span>E</span>
+                        <span>&nbsp;</span>
+                        <span>F</span>
+                        <span>I</span>
+                        <span>N</span>
+                        <span>A</span>
+                        <span>L</span> </span
+                    >:
+                    <span id="finalScore"></span>
+                </h3>
+                <button class="button" id="restartButton">Quitter</button>
+            </div>
+            <div id="settings-menu" class="menu" style="display: none">
+                <h2>Paramètres</h2>
+                <div class="settings-content">
+                    <div class="settings-section" id="username-section">
+                        <h3>Modifier le pseudo</h3>
+                        <form id="change-username-form">
+                            <input
+                                type="text"
+                                id="new-username"
+                                placeholder="Nouveau pseudo"
+                                required
+                                minlength="3"
+                                maxlength="20"
+                            />
+                            <button type="submit" class="button">
+                                Modifier
+                            </button>
+                        </form>
+                        <p id="username-status" class="status-message"></p>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Interface de jeu</h3>
+                        <div class="settings-option">
+                            <label for="showStatsToggle"
+                                >Afficher les statistiques en jeu</label
+                            >
+                            <label class="switch">
+                                <input id="showStatsToggle" type="checkbox" />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button id="close-settings" class="button">Retour</button>
+            </div>
         </div>
-      </div>
-      <div id="pauseBtn" style="display: none">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="48"
-          viewBox="0 0 48 48"
-          width="48"
-        >
-          <path d="M0 0h48v48H0V0z" fill="none" />
-          <path fill="black" d="M12 38h8V10h-8v28zm16-28v28h8V10h-8z" />
-        </svg>
-      </div>
-      <div id="wrapper" style="display: none"></div>
-      <div id="weaponsContainer"></div>
-      <div class="menu" id="pauseMenu" style="display: none">
-        <h1>Pause</h1>
-        <button class="button" id="resumeButton">Reprendre</button>
-        <button class="button" id="quitButton">Quitter</button>
-        <div id="statsSwitch" style="margin-top: 10px">
-          <label for="constantStats">Affichage constant des statistiques</label>
-          <label class="switch">
-            <input id="constantStats" type="checkbox" />
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
-      <div id="statsMenu" style="display: none">
-        <h1>Statistiques</h1>
-        <ul id="statsList">
-          <li id="healthStats">
-            <br />
-            <ul id="healthStatsList">
-              <li>Vie: <span id="health"></span></li>
-              <li>Vitesse: <span id="speed"></span></li>
-              <li>Exp: <span id="exp"></span></li>
-              <li>Argent: <span id="money"></span></li>
-            </ul>
-            <br />
-          </li>
+    </body>
 
-          <li id="damageStats">
-            <br />
-            <ul id="damageStatsList">
-              <li>Défense: <span id="defense"></span></li>
-              <li>Dégâts: <span id="damage"></span></li>
-              <li>Cadence: <span id="cadence"></span></li>
-            </ul>
-            <br />
-          </li>
-        </ul>
-      </div>
-      <canvas id="gameCanvas" style="display: none"></canvas>
-      <div class="menu" id="shop" style="display: none">
-        <h1>Magasin</h1>
-        <ul id="shopItems"></ul>
-        <button class="button" id="shopClose">Fermer</button>
-      </div>
-      <div class="menu" id="gameOverMenu" style="display: none">
-        <h1>Game Over</h1>
-        <p>Score: <span id="score"></span></p>
-        <p>Timer: <span id="timerScore"></span></p>
-        <h3>
-          <span class="wave-text">
-            <span>S</span>
-            <span>C</span>
-            <span>O</span>
-            <span>R</span>
-            <span>E</span>
-            <span>&nbsp;</span>
-            <span>F</span>
-            <span>I</span>
-            <span>N</span>
-            <span>A</span>
-            <span>L</span> </span
-          >:
-          <span id="finalScore"></span>
-        </h3>
-        <button class="button" id="restartButton">Quitter</button>
-      </div>
-      <div id="settings-menu" class="menu" style="display: none">
-        <h2>Paramètres</h2>
-        <div class="settings-content">
-          <div class="settings-section">
-            <h3>Modifier le pseudo</h3>
-            <form id="change-username-form">
-              <input
-                type="text"
-                id="new-username"
-                placeholder="Nouveau pseudo"
-                required
-                minlength="3"
-                maxlength="20"
-              />
-              <button type="submit" class="button">Modifier</button>
-            </form>
-            <p id="username-status" class="status-message"></p>
-          </div>
-        </div>
-        <button id="close-settings" class="button">Retour</button>
-      </div>
-    </div>
-  </body>
+    <script type="module">
+        import { user } from "./scripts/data/user.js";
 
-  <script type="module">
-    import { user } from "./scripts/data/user.js";
+        document.addEventListener("DOMContentLoaded", () => {
+            const changeUsernameForm = document.getElementById(
+                "change-username-form",
+            );
+            const usernameStatus = document.getElementById("username-status");
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const changeUsernameForm = document.getElementById(
-        "change-username-form"
-      );
-      const usernameStatus = document.getElementById("username-status");
+            if (changeUsernameForm) {
+                changeUsernameForm.addEventListener("submit", (e) =>
+                    user.auth.handleUsernameChange(e, usernameStatus),
+                );
+            }
 
-      if (changeUsernameForm) {
-        changeUsernameForm.addEventListener("submit", (e) =>
-          user.auth.handleUsernameChange(e, usernameStatus)
-        );
-      }
+            const loginButton = document.getElementById("loginButton");
+            const loginMenu = document.getElementById("loginRegisterMenu");
+            const startMenu = document.getElementById("startMenu");
+            const leaderboardMenu = document.getElementById("leaderboardMenu");
+            const mobileSwitch = document.getElementById("mobileSwitch");
 
-      const loginButton = document.getElementById("loginButton");
-      const loginMenu = document.getElementById("loginRegisterMenu");
-      const startMenu = document.getElementById("startMenu");
-      const leaderboardMenu = document.getElementById("leaderboardMenu");
-      const mobileSwitch = document.getElementById("mobileSwitch");
+            loginButton.addEventListener("click", () => {
+                loginMenu.style.display = "block";
+                startMenu.style.display = "none";
+                leaderboardMenu.style.display = "none";
+                mobileSwitch.style.display = "none";
+            });
 
-      loginButton.addEventListener("click", () => {
-        loginMenu.style.display = "block";
-        startMenu.style.display = "none";
-        leaderboardMenu.style.display = "none";
-        mobileSwitch.style.display = "none";
-      });
+            const loginTab = document.getElementById("loginTab");
+            const registerTab = document.getElementById("registerTab");
+            const forgotPasswordTab =
+                document.getElementById("forgotPasswordTab");
+            const connectForm = document.getElementById("loginForm");
+            const registerForm = document.getElementById("registerForm");
 
-      const loginTab = document.getElementById("loginTab");
-      const registerTab = document.getElementById("registerTab");
-      const forgotPasswordTab = document.getElementById("forgotPasswordTab");
-      const connectForm = document.getElementById("loginForm");
-      const registerForm = document.getElementById("registerForm");
+            loginTab.addEventListener("click", () => {
+                loginTab.classList.add("activeTab");
+                registerTab.classList.remove("activeTab");
+                forgotPasswordTab.classList.remove("activeTab");
+                connectForm.style.display = "block";
+                registerForm.style.display = "none";
+                forgotPasswordForm.style.display = "none";
+            });
 
-      loginTab.addEventListener("click", () => {
-        loginTab.classList.add("activeTab");
-        registerTab.classList.remove("activeTab");
-        forgotPasswordTab.classList.remove("activeTab");
-        connectForm.style.display = "block";
-        registerForm.style.display = "none";
-        forgotPasswordForm.style.display = "none";
-      });
+            registerTab.addEventListener("click", () => {
+                loginTab.classList.remove("activeTab");
+                registerTab.classList.add("activeTab");
+                forgotPasswordTab.classList.remove("activeTab");
+                connectForm.style.display = "none";
+                registerForm.style.display = "block";
+                forgotPasswordForm.style.display = "none";
+            });
 
-      registerTab.addEventListener("click", () => {
-        loginTab.classList.remove("activeTab");
-        registerTab.classList.add("activeTab");
-        forgotPasswordTab.classList.remove("activeTab");
-        connectForm.style.display = "none";
-        registerForm.style.display = "block";
-        forgotPasswordForm.style.display = "none";
-      });
+            forgotPasswordTab.addEventListener("click", () => {
+                loginTab.classList.remove("activeTab");
+                registerTab.classList.remove("activeTab");
+                forgotPasswordTab.classList.add("activeTab");
+                connectForm.style.display = "none";
+                registerForm.style.display = "none";
+                forgotPasswordForm.style.display = "block";
+            });
 
-      forgotPasswordTab.addEventListener("click", () => {
-        loginTab.classList.remove("activeTab");
-        registerTab.classList.remove("activeTab");
-        forgotPasswordTab.classList.add("activeTab");
-        connectForm.style.display = "none";
-        registerForm.style.display = "none";
-        forgotPasswordForm.style.display = "block";
-      });
+            document.addEventListener("DOMContentLoaded", function () {
+                const settingsButton =
+                    document.getElementById("settings-button");
+                const settingsMenu = document.getElementById("settings-menu");
+                let isSettingsOpen = false;
 
-      document.addEventListener("DOMContentLoaded", function () {
-        const settingsButton = document.getElementById("settings-button");
-        const settingsMenu = document.getElementById("settings-menu");
-        let isSettingsOpen = false;
+                settingsButton.addEventListener("click", () => {
+                    isSettingsOpen = !isSettingsOpen;
+                    settingsMenu.style.display = isSettingsOpen
+                        ? "block"
+                        : "none";
+                    settingsButton.style.transform = isSettingsOpen
+                        ? "rotate(90deg)"
+                        : "rotate(0)";
+                });
 
-        settingsButton.addEventListener("click", () => {
-          isSettingsOpen = !isSettingsOpen;
-          settingsMenu.style.display = isSettingsOpen ? "block" : "none";
-          settingsButton.style.transform = isSettingsOpen
-            ? "rotate(90deg)"
-            : "rotate(0)";
+                document.addEventListener("click", (event) => {
+                    if (
+                        !settingsMenu.contains(event.target) &&
+                        !settingsButton.contains(event.target) &&
+                        isSettingsOpen
+                    ) {
+                        isSettingsOpen = false;
+                        settingsMenu.style.display = "none";
+                        settingsButton.style.transform = "rotate(0)";
+                    }
+                });
+            });
         });
-
-        document.addEventListener("click", (event) => {
-          if (
-            !settingsMenu.contains(event.target) &&
-            !settingsButton.contains(event.target) &&
-            isSettingsOpen
-          ) {
-            isSettingsOpen = false;
-            settingsMenu.style.display = "none";
-            settingsButton.style.transform = "rotate(0)";
-          }
-        });
-      });
-    });
-  </script>
+    </script>
 </html>

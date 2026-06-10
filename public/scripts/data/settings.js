@@ -7,10 +7,51 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameCanvas = document.getElementById("gameCanvas");
   const usernameInput = document.getElementById("new-username");
   const changeUsernameForm = document.getElementById("change-username-form");
-  const usernameSection = document.querySelector(".settings-section");
+  const usernameSection = document.getElementById("username-section");
+  const showStatsToggle = document.getElementById("showStatsToggle");
+  const constantStatsToggle = document.getElementById("constantStats");
+
+  // Charger la préférence de l'utilisateur depuis localStorage
+  const savedShowStats = localStorage.getItem("showStatsInGame");
+  if (savedShowStats !== null) {
+    const isChecked = savedShowStats === "true";
+    showStatsToggle.checked = isChecked;
+    if (constantStatsToggle) {
+      constantStatsToggle.checked = isChecked;
+    }
+  }
+
+  // Sauvegarder la préférence quand le toggle change
+  showStatsToggle.addEventListener("change", () => {
+    localStorage.setItem("showStatsInGame", showStatsToggle.checked);
+    if (constantStatsToggle) {
+      constantStatsToggle.checked = showStatsToggle.checked;
+    }
+  });
+
+  // Synchroniser le toggle in-game vers le toggle paramètres
+  if (constantStatsToggle) {
+    constantStatsToggle.addEventListener("change", () => {
+      showStatsToggle.checked = constantStatsToggle.checked;
+      localStorage.setItem("showStatsInGame", constantStatsToggle.checked);
+    });
+  }
+
+  // Vérifier si l'utilisateur est connecté
+  const isUserLoggedIn = () => {
+    const userDiv = document.getElementById("userDiv");
+    const connectDiv = document.getElementById("connectDiv");
+    return userDiv && userDiv.style.display !== "none" && connectDiv && connectDiv.style.display === "none";
+  };
 
   // Fonction pour gérer la visibilité du bouton des paramètres
   const updateSettingsButtonVisibility = () => {
+    // Cacher le bouton si l'utilisateur n'est pas connecté
+    if (!isUserLoggedIn()) {
+      settingsButton.style.display = "none";
+      return;
+    }
+
     // Si le jeu est en cours (canvas visible) et pas en pause
     if (
       gameCanvas.style.display === "block" &&
@@ -41,6 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  // Observer aussi les changements de userDiv et connectDiv
+  const userDiv = document.getElementById("userDiv");
+  const connectDiv = document.getElementById("connectDiv");
+  if (userDiv) observer.observe(userDiv, { attributes: true });
+  if (connectDiv) observer.observe(connectDiv, { attributes: true });
 
   // Observer les deux éléments
   observer.observe(gameCanvas, { attributes: true });

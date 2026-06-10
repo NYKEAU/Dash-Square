@@ -163,6 +163,12 @@ let shield2 = new Item(18, "Bouclier", "Shield", { Défense: 0 }, 2, 0);
 let shield3 = new Item(19, "Bouclier", "Shield", { Défense: 0, [randomItem(damageStatsPossibles, "Défense")]: 0 }, 3, 0);
 let shield4 = new Item(20, "Bouclier", "Shield", { Défense: 0, [randomItem(damageStatsPossibles, "Défense")]: 0 }, 4, 0);
 
+// Ajuster les valeurs de défense (divisées par 10 pour équilibrage)
+shield1.stats.Défense = Math.floor(shield1.stats.Défense / 10);
+shield2.stats.Défense = Math.floor(shield2.stats.Défense / 10);
+shield3.stats.Défense = Math.floor(shield3.stats.Défense / 10);
+shield4.stats.Défense = Math.floor(shield4.stats.Défense / 10);
+
 // Créer des items pour les stats de vitesse
 let boots1 = new Item(21, "Bottes", "Speed", { Vitesse: 0 }, 1, 0);
 let boots2 = new Item(22, "Bottes", "Speed", { Vitesse: 0 }, 2, 0);

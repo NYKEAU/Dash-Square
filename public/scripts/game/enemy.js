@@ -29,7 +29,6 @@ export class Enemy {
     // Apparence
     this.enemyColor = "green";
     this.image = new Image();
-    // this.image.src = `../assets/Sprites/${this.constructor.name}.png`;
     this.hitEffects = [];
     this.particles = [];
     this.hitFlashDuration = 0;
@@ -64,14 +63,15 @@ export class Enemy {
 
   // Méthode pour calculer la santé de l'ennemi en fonction du niveau du joueur
   calculateHealth(baseHealth, playerLevel) {
-    const health = baseHealth + 2 * Math.exp(playerLevel * 0.075);
-    return Math.round(health); // Arrondit à l'entier le plus proche
+    const expValue = Math.min(Math.exp(playerLevel * 0.075), 500000);
+    const health = baseHealth + 2 * expValue;
+    return Math.round(health);
   }
 
-  // Méthode pour calculer les dégâts de l'ennemi en fonction du niveau du joueur
   calculateDamage(baseDamage, playerLevel) {
-    const damage = baseDamage + 2 * Math.exp(playerLevel * 0.075);
-    return Math.round(damage); // Arrondit à l'entier le plus proche
+    const expValue = Math.min(Math.exp(playerLevel * 0.075), 500000);
+    const damage = baseDamage + 2 * expValue;
+    return Math.round(damage);
   }
 
   // Méthode pour créer des ondes de spawn

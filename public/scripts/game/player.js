@@ -9,7 +9,7 @@ export class Player {
     this.x = x; // La position x du joueur
     this.y = y; // La position y du joueur
     this.width = 30; // La largeur du joueur
-    this.maxBarWidth = document.getElementById("gameCanvas").width * 0.4; // La largeur maximale de la barre de vie
+    this.maxBarWidth = Math.max(document.getElementById("gameCanvas").width * 0.4, 150); // La largeur maximale de la barre de vie (minimum 150px pour contenir le texte)
     this.height = 30; // La hauteur du joueur
     this.items = []; // Les items du joueur
     this.score = 0; // Le score du joueur
@@ -44,6 +44,7 @@ export class Player {
 
     // Dégâts et Attaque
     this.damage = this.weapon.damage; // Les dégâts du joueur
+    this.baseDamageMultiplier = 1.0; // Multiplicateur de dégâts de base (augmente avec les niveaux)
     this.defense = 0; // La défense du joueur
     this.rof = this.weapon.fireRate; // La cadence de tir du joueur
 
@@ -51,6 +52,7 @@ export class Player {
     this.hitEffects = []; // Tableau des hitmarkers
     this.duration = 100; // La durée de l'effet de flash quand le joueur subit des dégâts
     this.hitFlash = false; // Si le joueur subit des dégâts
+    this.godMode = false;
 
     this.permanentStats = {
       Vie: 0,
@@ -62,11 +64,6 @@ export class Player {
       Cadence: 0,
       Vitesse: 0,
     };
-  }
-
-  draw(ctx) {
-    // Remplacer le dessin du carré par le dessin de l'image
-    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
   }
 
   // Méthode pour ajouter une arme
@@ -110,20 +107,27 @@ export class Player {
       : true;
   }
 
+  // Méthode pour recalculer les dégâts (appelée après levelUp, changeWeapon, etc.)
+  recalculateDamage() {
+    this.damage = this.weapon.damage * this.baseDamageMultiplier;
+    this.damage = this.damage + (this.damage * this.permanentStats.Dégâts) / 1000;
+  }
+
+  // Méthode pour recalculer la cadence de tir
+  recalculateRof() {
+    this.rof = this.weapon.fireRate;
+    this.rof = this.rof + (this.rof * this.permanentStats.Cadence) / 1000;
+  }
+
   // Méthode pour changer d'arme
   changeWeapon(newWeapon) {
     if (newWeapon instanceof Weapon) {
       this.weapon.stopShooting();
       this.weapon = newWeapon; // Mettre à jour l'arme actuellement utilisée
       this.weapon.startShooting();
-      this.damage = this.weapon.damage; // Mettre à jour les dégâts du joueur
-      this.rof = this.weapon.fireRate; // Mettre à jour la cadence de tir du joueur
-
-      this.damage =
-        this.damage +
-        Math.ceil((this.damage * this.permanentStats.Dégâts) / 1000);
-      this.rof =
-        this.rof + Math.ceil((this.rof * this.permanentStats.Cadence) / 1000);
+      
+      this.recalculateDamage();
+      this.recalculateRof();
 
       this.updateStatsDisplay();
 
@@ -278,7 +282,7 @@ export class Player {
     context.fillRect(barX, barY, barWidth, barHeight);
 
     // Préparer le texte
-    const healthText = this.health + "/" + this.maxHealth;
+    const healthText = (this.health % 1 === 0 ? this.health : this.health.toFixed(2)) + "/" + this.maxHealth;
     const textWidth = context.measureText(healthText).width;
 
     // Calculer la position x du texte
@@ -317,7 +321,9 @@ export class Player {
     context.fillRect(barX, barY, barWidth, barHeight);
 
     // Préparer le texte
-    const experienceText = this.experience + "/" + this.maxExperience;
+    const experienceText = this.gameInstance.isBossLevel
+      ? "NIVEAU BOSS"
+      : this.experience + "/" + this.maxExperience;
 
     // Dessiner l'expérience du joueur dans la barre d'expérience
     context.fillStyle = "white"; // Couleur du texte
@@ -463,6 +469,7 @@ export class Player {
     this.totalExp = 0;
     this.money = 0;
     this.score = 0;
+    this.baseDamageMultiplier = 1.0;
     this.damage = this.weapon.damage;
     this.defense = 0;
     this.rof = this.weapon.fireRate;
@@ -481,7 +488,7 @@ export class Player {
   // Méthode pour initialiser les statistiques du joueur dans le tableau de stats
   initStats() {
     document.getElementById("health").innerText =
-      this.health + "/" + this.maxHealth;
+      (this.health % 1 === 0 ? this.health : this.health.toFixed(2)) + "/" + this.maxHealth;
     document.getElementById("speed").innerText = this.speed;
     document.getElementById("exp").innerText = this.experience;
     document.getElementById("money").innerText = this.money;
@@ -497,26 +504,25 @@ export class Player {
 
       if (stat === "Vie") {
         this.health =
-          this.health + Math.ceil((this.health * stats[stat]) / 1000);
+          this.health + (this.health * stats[stat]) / 1000;
         if (this.health > this.maxHealth) this.health = this.maxHealth;
       } else if (stat === "VieMax") {
         this.maxHealth =
-          this.maxHealth + Math.ceil((this.maxHealth * stats[stat]) / 1000);
+          this.maxHealth + (this.maxHealth * stats[stat]) / 1000;
       } else if (stat === "Vitesse") {
-        this.speed = this.speed + Math.ceil((this.speed * stats[stat]) / 1000);
+        this.speed = this.speed + (this.speed * stats[stat]) / 1000;
       } else if (stat === "Exp") {
         this.experience =
-          this.experience + Math.ceil((this.experience * stats[stat]) / 1000);
+          this.experience + (this.experience * stats[stat]) / 1000;
       } else if (stat === "Argent") {
-        this.money = this.money + Math.ceil((this.money * stats[stat]) / 1000);
+        this.money = this.money + (this.money * stats[stat]) / 1000;
       } else if (stat === "Défense") {
-        this.defense =
-          this.defense + Math.ceil((this.defense * stats[stat]) / 1000);
+        this.defense += stats[stat]; // Ajouter directement (valeur absolue)
       } else if (stat === "Dégâts") {
         this.damage =
-          this.damage + Math.ceil((this.damage * stats[stat]) / 1000);
+          this.damage + (this.damage * stats[stat]) / 1000;
       } else if (stat === "Cadence") {
-        this.rof = this.rof + Math.ceil((this.rof * stats[stat]) / 1000);
+        this.rof = this.rof + (this.rof * stats[stat]) / 1000;
       }
     }
   }
@@ -524,14 +530,14 @@ export class Player {
   // Mettre à jour l'affichage des statistiques du joueur
   updateStatsDisplay() {
     document.getElementById("health").innerText =
-      this.health + "/" + this.maxHealth + " PV";
-    document.getElementById("speed").innerText = this.speed + " m/s";
+      (this.health % 1 === 0 ? this.health : this.health.toFixed(2)) + "/" + (this.maxHealth % 1 === 0 ? this.maxHealth : this.maxHealth.toFixed(2)) + " PV";
+    document.getElementById("speed").innerText = (this.speed % 1 === 0 ? this.speed : this.speed.toFixed(2)) + " m/s";
     document.getElementById("exp").innerText = this.totalExp;
     document.getElementById("money").innerText = this.money;
-    document.getElementById("defense").innerText = this.defense;
+    document.getElementById("defense").innerText = (this.defense % 1 === 0 ? this.defense : this.defense.toFixed(2)) + " (-" + ((this.defense / (this.defense + 100)) * 100).toFixed(2) + "%)";
     document.getElementById("damage").innerText =
-      this.damage * this.rof + " dgts/s";
-    document.getElementById("cadence").innerText = this.rof + " tirs/s";
+      ((this.damage * this.rof) % 1 === 0 ? this.damage * this.rof : (this.damage * this.rof).toFixed(2)) + " dgts/s";
+    document.getElementById("cadence").innerText = (this.rof % 1 === 0 ? this.rof : this.rof.toFixed(2)) + " tirs/s";
   }
 
   // Méthode pour déplacer le joueur
@@ -623,8 +629,9 @@ export class Player {
 
   // Méthode pour réduire la santé du joueur
   decreaseHealth(amount) {
-    // Calculer les dégâts réduits en fonction de la défense
-    const effectiveDefense = 1 - Math.pow(1 - this.defense / 100, 1);
+    if (this.godMode) return;
+    // Calculer les dégâts réduits en fonction de la défense (formule à rendements décroissants)
+    const effectiveDefense = this.defense / (this.defense + 100);
     const reducedAmount = amount * (1 - effectiveDefense);
 
     // Définir la nouvelle valeur cible de la santé
@@ -639,6 +646,13 @@ export class Player {
       } else {
         this.health = targetHealth;
         this.drawHealthBar(this.gameInstance.ctx);
+        
+        // Vérifier si le joueur est mort APRÈS l'animation
+        if (this.health <= 0) {
+          this.gameInstance.destroy().catch((err) => {
+            console.warn("Game cleanup error:", err);
+          });
+        }
       }
     };
 
@@ -652,13 +666,6 @@ export class Player {
 
     // Afficher le nombre de dégâts subis
     this.hitEffects.push(new HitEffect(this, reducedAmount, "player"));
-
-    // Vérifier si le joueur est mort
-    if (this.health <= 0) {
-      this.gameInstance.destroy().catch((err) => {
-        console.warn("Game cleanup error:", err);
-      });
-    }
 
     // Jouer l'animation de dégâts
     document.getElementById("ath").style.animation = "hit 0.25s";
@@ -693,10 +700,11 @@ export class Player {
     }
 
     // Augmenter les dégâts du joueur (sans décimales et arrondi au chiffre supérieur)
-    this.damage = Math.floor(this.damage * 1.01);
-    this.permanentStats.Dégâts = Math.floor(this.permanentStats.Dégâts * 1.01);
+    this.baseDamageMultiplier *= 1.01;
+    this.permanentStats.Dégâts = this.permanentStats.Dégâts * 1.01;
+    this.recalculateDamage();
     this.health = Math.floor((this.maxHealth * healthPercent) / 10) * 10;
-    this.permanentStats.Vie = Math.floor(this.permanentStats.Vie * 1.01);
+    this.permanentStats.Vie = this.permanentStats.Vie * 1.01;
 
     // Modifier la génération des ennemis et afficher la boutique tous les 5 niveaux
     if (this.level % 5 === 0) {

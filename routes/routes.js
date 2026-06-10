@@ -25,13 +25,11 @@ router.post("/loginWithGoogle", userController.loginWithGoogle);
 router.post("/forgot-password", userController.forgotPassword);
 router.post("/register", userController.register);
 router.post("/logout", userController.logout);
-console.log("Route /update-user avant");
 router.post(
   "/update-user",
   middleware.verifyToken,
   userController.updateUsername
 );
-console.log("Route /update-user après");
 
 router.get("/scores", scoreController.getScores);
 router.put("/score", middleware.verifyToken, scoreController.setScore);
