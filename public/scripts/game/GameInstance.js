@@ -63,6 +63,7 @@ export class gameInstance {
     this.timerScore = 0;
     this.isSandbox = false;
     this.godMode = false;
+    this._eventListeners = [];
     this.addEventListeners();
 
     // Gestion des FPS
@@ -188,37 +189,50 @@ export class gameInstance {
     }
   }
 
-  // Méthode pour ajouter les écouteurs d'événements
   addEventListeners() {
-    document.addEventListener("keydown", (event) => {
+    this._onKeyDown = (event) => {
       this.keys[event.key] = true;
 
       // Si la touche Echap est enfoncée, basculer la pause
       if (event.key === "Escape" && this.player.health > 0 && this.isStarted) {
         this.togglePause();
       }
-    });
-
-    document.addEventListener("keyup", (event) => {
+    };
+    this._onKeyUp = (event) => {
       this.keys[event.key] = false;
-    });
-
-    // Réinitialiser les touches quand le jeu perd le focus
-    window.addEventListener("blur", () => {
+    };
+    this._onBlur = () => {
       this.keys = {};
-    });
-
-    // Ajouter un écouteur d'événements pour visibilitychange
-    document.addEventListener("visibilitychange", () => {
+    };
+    this._onVisibilityChange = () => {
       // Si l'onglet est devenu invisible, mettre le jeu en pause
       if (document.hidden && !this.isPaused) {
         this.togglePause();
       }
-    });
-
-    document.getElementById("pauseBtn").addEventListener("click", () => {
+    };
+    this._onPauseBtnClick = () => {
       this.togglePause();
-    });
+    };
+
+    document.addEventListener("keydown", this._onKeyDown);
+    document.addEventListener("keyup", this._onKeyUp);
+    window.addEventListener("blur", this._onBlur);
+    document.addEventListener("visibilitychange", this._onVisibilityChange);
+    document.getElementById("pauseBtn").addEventListener("click", this._onPauseBtnClick);
+
+    this._eventListeners = [
+      { target: document, type: "keydown", handler: this._onKeyDown },
+      { target: document, type: "keyup", handler: this._onKeyUp },
+      { target: window, type: "blur", handler: this._onBlur },
+      { target: document, type: "visibilitychange", handler: this._onVisibilityChange },
+    ];
+  }
+
+  _cleanupEventListeners() {
+    for (const { target, type, handler } of this._eventListeners) {
+      target.removeEventListener(type, handler);
+    }
+    this._eventListeners = [];
   }
 
   // Méthode pour basculer la pause
@@ -601,9 +615,11 @@ export class gameInstance {
     }
   }
 
-  // Update the destroy method to return a Promise
   async destroy() {
     if (!this.isRunning) return;
+
+    // Nettoyer les écouteurs d'événements
+    this._cleanupEventListeners();
 
     // Mettre le jeu en pause
     this.pauseGame();
@@ -730,13 +746,19 @@ export class gameInstance {
   }
 
   // Méthode pour quitter le jeu
-  quitGame() {
+  async quitGame() {
     if (!this.isSandbox) {
-      setScore(this.player.score);
-      getScores();
+      try {
+        await setScore(this.player.score);
+      } catch (err) {
+        console.warn("Failed to update score on quit:", err);
+      }
+      try {
+        await getScores();
+      } catch (err) {
+        console.warn("Failed to get scores on quit:", err);
+      }
     }
-
-    // this.isRunning = false;
 
     window.location.reload();
   }

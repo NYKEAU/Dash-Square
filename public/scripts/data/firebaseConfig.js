@@ -12,16 +12,25 @@ async function initializeFirebase() {
         auth = getAuth(app);
 
         // Observer les changements d'état d'authentification
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-                // L'utilisateur est connecté
-                const token = await user.getIdToken();
-                localStorage.setItem('firebaseToken', token);
-                window.dispatchEvent(new CustomEvent('authStateChanged', { 
-                    detail: { isLoggedIn: true, user } 
-                }));
+                user.getIdToken(true).then((token) => {
+                    localStorage.setItem('firebaseToken', token);
+                    window.dispatchEvent(new CustomEvent('authStateChanged', { 
+                        detail: { isLoggedIn: true, user } 
+                    }));
+                }).catch((err) => {
+                    console.error('Échec du rafraîchissement du token:', err);
+                    const fallbackToken = localStorage.getItem('firebaseToken');
+                    if (!fallbackToken) {
+                        localStorage.removeItem('firebaseToken');
+                        localStorage.removeItem('token');
+                        window.dispatchEvent(new CustomEvent('authStateChanged', { 
+                            detail: { isLoggedIn: false } 
+                        }));
+                    }
+                });
             } else {
-                // L'utilisateur est déconnecté
                 localStorage.removeItem('firebaseToken');
                 localStorage.removeItem('token');
                 window.dispatchEvent(new CustomEvent('authStateChanged', { 
